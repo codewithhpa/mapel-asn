@@ -1,0 +1,1045 @@
+<style>
+    /* ==========================================================================
+   ATURAN PRESENSI - ENTERPRISE GOVERNMENT POLICY STYLING (UI/UX PRO MAX)
+   Clean, Authoritative, High Contrast, Swiss Minimalist (Anti-Slop)
+   ========================================================================== */
+
+    /* 1. Cards & Elevation */
+    .dashboard-card {
+        border-radius: 16px;
+        border: none;
+        background-color: #ffffff;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.025) !important;
+        transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
+    }
+
+    .dashboard-card:hover {
+        box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04) !important;
+    }
+
+    [data-bs-theme="dark"] .dashboard-card,
+    body.theme-dark .dashboard-card {
+        background-color: #1e1e2d !important;
+    }
+
+    /* Executive Policy Hero Card */
+    .policy-hero-card {
+        background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+        color: #ffffff;
+        border-radius: 18px;
+        border: none;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 10px 25px -5px rgba(30, 58, 138, 0.25), 0 8px 10px -6px rgba(30, 58, 138, 0.15);
+    }
+
+    .policy-hero-card::after {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 320px;
+        height: 320px;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0) 70%);
+        border-radius: 50%;
+        pointer-events: none;
+    }
+
+    /* Master Policy Matrix Table */
+    .matrix-table {
+        border-collapse: separate;
+        border-spacing: 0;
+        width: 100%;
+    }
+
+    .matrix-table thead th {
+        background-color: transparent !important;
+        color: #64748b !important;
+        font-size: 0.75rem !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.05em !important;
+        font-weight: 600 !important;
+        padding: 16px 18px !important;
+        border-bottom: 1px solid #e2e8f0 !important;
+    }
+
+    .matrix-table tbody td {
+        padding: 18px;
+        vertical-align: middle;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .matrix-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .matrix-table tbody tr:hover {
+        background-color: rgba(241, 245, 249, 0.5);
+    }
+
+    /* Working Hours Visual Schedule Bar */
+    .schedule-horizon {
+        position: relative;
+        background: #f8fafc;
+        border-radius: 14px;
+        padding: 22px;
+        border: 1px solid #e2e8f0;
+    }
+
+    .schedule-track {
+        display: flex;
+        height: 28px;
+        border-radius: 10px;
+        overflow: hidden;
+        margin-bottom: 18px;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+    }
+
+    .track-segment {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #ffffff;
+        letter-spacing: 0.3px;
+        transition: opacity 0.2s ease, transform 0.15s ease;
+    }
+
+    .track-segment:hover {
+        opacity: 0.92;
+    }
+
+    .seg-buka {
+        background-color: #0ea5e9;
+        width: 10%;
+    }
+
+    .seg-apel {
+        background-color: #10b981;
+        width: 12%;
+    }
+
+    .seg-kerja {
+        background-color: #64748b;
+        width: 58%;
+    }
+
+    .seg-pulang {
+        background-color: #3b82f6;
+        width: 10%;
+    }
+
+    .seg-cutoff {
+        background-color: #ef4444;
+        width: 10%;
+    }
+
+    /* Schedule Legend Badges */
+    .schedule-legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        font-size: 0.82rem;
+    }
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .legend-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 4px;
+        flex-shrink: 0;
+    }
+
+    /* Regulatory Notice Card */
+    .policy-notice-box {
+        border-left: 4px solid #3b82f6;
+        background-color: #f8fafc;
+        border-radius: 0 12px 12px 0;
+        padding: 16px 20px;
+        transition: transform 0.2s ease;
+    }
+
+    .policy-notice-box:hover {
+        transform: translateX(3px);
+    }
+
+    /* Anti-Slop Component Overrides */
+    .avatar-squircle {
+        border-radius: 10px !important;
+    }
+
+    .badge-square {
+        border-radius: 6px !important;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+        padding: 0.35em 0.6em;
+    }
+
+    /* Modal Segmented Nav Pills */
+    .modal-nav-segmented {
+        display: inline-flex;
+        background-color: #f1f5f9;
+        padding: 4px;
+        border-radius: 12px;
+        width: 100%;
+    }
+
+    .modal-nav-segmented .nav-link {
+        border: none;
+        background: transparent;
+        color: #64748b;
+        font-size: 0.85rem;
+        font-weight: 600;
+        padding: 8px 14px;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+        flex: 1;
+        text-align: center;
+    }
+
+    .modal-nav-segmented .nav-link.active {
+        background-color: #ffffff;
+        color: #0f172a;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    }
+
+    [data-bs-theme="dark"] .modal-nav-segmented,
+    body.theme-dark .modal-nav-segmented {
+        background-color: #12121e;
+    }
+
+    [data-bs-theme="dark"] .modal-nav-segmented .nav-link.active,
+    body.theme-dark .modal-nav-segmented .nav-link.active {
+        background-color: #2b2b40;
+        color: #f8fafc;
+    }
+
+    /* =========================================================
+   DARK MODE ENHANCEMENTS (Bootstrap 5.3 + Mazer)
+   ========================================================= */
+    [data-bs-theme="dark"] .policy-hero-card,
+    body.theme-dark .policy-hero-card {
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5) !important;
+    }
+
+    [data-bs-theme="dark"] .matrix-table thead th,
+    body.theme-dark .matrix-table thead th {
+        background-color: transparent !important;
+        color: #94a3b8 !important;
+        border-bottom: 1px solid #2b2b40 !important;
+    }
+
+    [data-bs-theme="dark"] .matrix-table tbody td,
+    body.theme-dark .matrix-table tbody td {
+        border-bottom: 1px solid #2b2b40 !important;
+        color: #f1f5f9 !important;
+    }
+
+    [data-bs-theme="dark"] .matrix-table tbody tr:hover,
+    body.theme-dark .matrix-table tbody tr:hover {
+        background-color: rgba(255, 255, 255, 0.02) !important;
+    }
+
+    [data-bs-theme="dark"] .schedule-horizon,
+    body.theme-dark .schedule-horizon {
+        background-color: #161622 !important;
+        border-color: #2b2b40 !important;
+    }
+
+    [data-bs-theme="dark"] .policy-notice-box,
+    body.theme-dark .policy-notice-box {
+        background-color: #161622 !important;
+        border-color: #3b82f6 !important;
+        color: #e2e8f0 !important;
+    }
+
+    [data-bs-theme="dark"] .matrix-table .fw-bold,
+    body.theme-dark .matrix-table .fw-bold,
+    [data-bs-theme="dark"] .matrix-table .text-dark,
+    body.theme-dark .matrix-table .text-dark,
+    [data-bs-theme="dark"] .policy-notice-box .fw-bold,
+    body.theme-dark .policy-notice-box .fw-bold,
+    [data-bs-theme="dark"] .policy-notice-box .text-dark,
+    body.theme-dark .policy-notice-box .text-dark {
+        color: #f8fafc !important;
+    }
+
+    [data-bs-theme="dark"] .matrix-table small.text-muted,
+    body.theme-dark .matrix-table small.text-muted,
+    [data-bs-theme="dark"] .policy-notice-box small.text-muted,
+    body.theme-dark .policy-notice-box small.text-muted {
+        color: #94a3b8 !important;
+    }
+
+    /* Simulator Evaluation Box */
+    .sim-result-box {
+        background-color: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        transition: background-color 0.2s ease, border-color 0.2s ease;
+    }
+
+    .sim-result-box .sim-eval-label {
+        color: #64748b;
+        font-size: 0.8rem;
+    }
+
+    .sim-result-box .sim-eval-desc {
+        color: #475569;
+        font-size: 0.82rem;
+    }
+
+    [data-bs-theme="dark"] .sim-result-box,
+    body.theme-dark .sim-result-box {
+        background-color: #12121e !important;
+        border-color: rgba(255, 255, 255, 0.08) !important;
+    }
+
+    [data-bs-theme="dark"] .sim-result-box .sim-eval-label,
+    body.theme-dark .sim-result-box .sim-eval-label {
+        color: #94a3b8 !important;
+    }
+
+    [data-bs-theme="dark"] .sim-result-box .sim-eval-desc,
+    body.theme-dark .sim-result-box .sim-eval-desc {
+        color: #cbd5e1 !important;
+    }
+</style>
+
+<div class="page-heading">
+    <!-- Judul Halaman Resmi -->
+    <div class="page-title mb-3">
+        <div class="row align-items-center">
+            <div class="col-12 col-lg-7 order-lg-1 order-last">
+                <h3 class="fw-bold mb-1">Pedoman &amp; Matriks Jam Kerja Kedinasan ASN</h3>
+                <p class="text-subtitle text-muted mb-0">
+                    Dinas Pekerjaan Umum dan Penataan Ruang &bull; Pemerintah Kabupaten Barito Utara
+                </p>
+            </div>
+            <div
+                class="col-12 col-lg-5 order-lg-2 order-first mb-3 mb-lg-0 d-flex justify-content-lg-end align-items-center gap-2">
+                <button type="button" class="btn btn-outline-secondary btn-sm shadow-xs px-3"
+                    onclick="window.location.reload()" title="Segarkan Data">
+                    <i class="bi bi-arrow-clockwise me-1"></i> Segarkan
+                </button>
+                {{if .CurrentUser}}
+                {{if or (eq .CurrentUser.RoleID 1) (eq .CurrentUser.Role "Administrator")}}
+                <button type="button" class="btn btn-primary btn-sm shadow-xs px-3 py-1-5 fw-semibold"
+                    data-bs-toggle="modal" data-bs-target="#modalEditRule">
+                    <i class="bi bi-sliders me-1"></i> Ubah Aturan Jam Kerja
+                </button>
+                {{end}}
+                {{end}}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="page-content">
+    <div class="row g-4">
+
+        <!-- 1. Executive Policy Status Banner -->
+        <div class="col-12">
+            <div class="card policy-hero-card shadow-sm mb-0">
+                <div class="card-body p-4 p-xl-4">
+                    <div class="row align-items-center">
+                        <div class="col-12 col-lg-8">
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                {{if .Rule.IsRamadhanMode}}
+                                <span class="badge badge-square bg-warning text-dark px-3 py-1-5 fw-bold">
+                                    <i class="bi bi-moon-stars-fill me-1"></i> Mode Jam Kerja Ramadhan Aktif
+                                </span>
+                                {{else}}
+                                <span class="badge badge-square bg-light text-primary px-3 py-1-5 fw-bold">
+                                    <i class="bi bi-calendar-check-fill me-1"></i> Jadwal Kerja Reguler ASN
+                                </span>
+                                {{end}}
+                                <span class="text-light opacity-75 small font-monospace">SOP Kepegawaian Resmi</span>
+                            </div>
+                            <h4 class="fw-extrabold text-white mb-2" style="letter-spacing: -0.3px;">
+                                {{if .Rule.RuleName}}{{.Rule.RuleName}}{{else}}Ketentuan Jam Kerja &amp; Apel ASN (PUPR
+                                Barito Utara){{end}}
+                            </h4>
+                            <p class="text-light opacity-80 mb-0"
+                                style="font-size: 0.9rem; line-height: 1.5; max-width: 680px;">
+                                Acuan parameter resmi mesin Face Recognition BioTime untuk penentuan kehadiran apel
+                                pagi, penghitungan menit keterlambatan, presensi apel sore, dan audit tertib
+                                administrasi kepegawaian.
+                            </p>
+                        </div>
+                        <div class="col-12 col-lg-4 mt-3 mt-lg-0 text-lg-end">
+                            <div
+                                class="d-inline-block text-start text-lg-end bg-white bg-opacity-10 p-3 rounded-3 border border-white border-opacity-15">
+                                <div class="small text-light opacity-75 mb-1">Status Konfigurasi Aturan:</div>
+                                <div class="fw-bold text-white mb-1"><i
+                                        class="bi bi-check-circle-fill text-success me-1"></i>Tersimpan di Database
+                                </div>
+                                <div class="small font-monospace text-light opacity-75">Terakhir Diubah:
+                                    {{.Rule.UpdatedAt.Format "02 Jan 2006, 15:04"}} WIB</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Master Table: Matriks Jadwal Resmi Kedinasan (Senin–Kamis vs Jumat) -->
+        <div class="col-12">
+            <div class="card dashboard-card mb-0">
+                <div
+                    class="card-header border-bottom py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <h5 class="card-title mb-0 fs-6 fw-bold text-dark">
+                        <i class="bi bi-calendar3-range text-primary me-2"></i>Matriks Perbandingan Jadwal Kerja &amp;
+                        Batas Presensi
+                    </h5>
+                    <span class="badge badge-square bg-light-primary text-primary font-monospace">Beban Kerja: 37.5 Jam
+                        / Minggu</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="matrix-table align-middle">
+                            <thead>
+                                <tr>
+                                    <th style="min-width: 160px;">Hari Kedinasan</th>
+                                    <th>Jendela Buka Pagi</th>
+                                    <th>Jam Masuk Dasar</th>
+                                    <th>Batas Toleransi Apel</th>
+                                    <th>Jam Buka Pulang</th>
+                                    <th>Batas Akhir Presensi</th>
+                                    <th>Ketentuan Keterlambatan</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="badge bg-light-primary text-primary p-2 avatar-squircle">
+                                                <i class="bi bi-calendar-event fs-6"></i>
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold text-dark">Senin – Kamis</div>
+                                                <small class="text-muted">Hari Kerja Reguler</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span
+                                            class="badge badge-square bg-light-info text-info font-monospace fs-7">{{if
+                                            .Rule.CheckinWindowStart}}{{.Rule.CheckinWindowStart}}{{else}}06:15:00{{end}}
+                                            WIB</span>
+                                        <small class="d-block text-muted mt-1">Mesin mulai merekam</small>
+                                    </td>
+                                    <td>
+                                        <span
+                                            class="badge badge-square bg-light-secondary text-secondary font-monospace fs-7">{{if
+                                            .Rule.WorkStartTime}}{{.Rule.WorkStartTime}}{{else}}07:00:00{{end}}
+                                            WIB</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-square bg-success font-monospace fs-7">{{if
+                                            .Rule.CheckinToleranceTime}}{{.Rule.CheckinToleranceTime}}{{else}}07:15:00{{end}}
+                                            WIB</span>
+                                        <small class="d-block text-success fw-semibold mt-1">Hadir Apel Pagi</small>
+                                    </td>
+                                    <td>
+                                        <span
+                                            class="badge badge-square bg-light-primary text-primary font-monospace fs-7">{{if
+                                            .Rule.CheckoutTimeMonThu}}{{.Rule.CheckoutTimeMonThu}}{{else}}15:30:00{{end}}
+                                            WIB</span>
+                                        <small class="d-block text-muted mt-1">Buka scan apel sore</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-square bg-danger font-monospace fs-7">{{if
+                                            .Rule.CheckoutCutoffMonThu}}{{.Rule.CheckoutCutoffMonThu}}{{else}}15:45:00{{end}}
+                                            WIB</span>
+                                        <small class="d-block text-danger fw-bold mt-1">Batas akhir rekam</small>
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">Scan &gt; 07:15 dinilai <strong>Terlambat</strong>.
+                                            Menit telat dihitung dari pukul 07:00.</small>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="badge bg-light-success text-success p-2 avatar-squircle">
+                                                <i class="bi bi-briefcase fs-6"></i>
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold text-dark">Jumat</div>
+                                                <small class="text-muted">Presensi Masuk (Senam Opsional)</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span
+                                            class="badge badge-square bg-light-info text-info font-monospace fs-7">{{if
+                                            .Rule.CheckinWindowStart}}{{.Rule.CheckinWindowStart}}{{else}}06:15:00{{end}}
+                                            WIB</span>
+                                        <small class="d-block text-muted mt-1">Mesin mulai merekam</small>
+                                    </td>
+                                    <td>
+                                        <span
+                                            class="badge badge-square bg-light-secondary text-secondary font-monospace fs-7">{{if
+                                            .Rule.WorkStartTime}}{{.Rule.WorkStartTime}}{{else}}07:00:00{{end}}
+                                            WIB</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-square bg-success font-monospace fs-7">{{if
+                                            .Rule.CheckinToleranceTime}}{{.Rule.CheckinToleranceTime}}{{else}}07:15:00{{end}}
+                                            WIB</span>
+                                        <small class="d-block text-success fw-semibold mt-1">Hadir Tepat Waktu</small>
+                                    </td>
+                                    <td>
+                                        <span
+                                            class="badge badge-square bg-light-primary text-primary font-monospace fs-7">{{if
+                                            .Rule.CheckoutTimeFri}}{{.Rule.CheckoutTimeFri}}{{else}}16:00:00{{end}}
+                                            WIB</span>
+                                        <small class="d-block text-muted mt-1">Buka scan apel sore</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-square bg-danger font-monospace fs-7">{{if
+                                            .Rule.CheckoutCutoffFri}}{{.Rule.CheckoutCutoffFri}}{{else}}16:15:00{{end}}
+                                            WIB</span>
+                                        <small class="d-block text-danger fw-bold mt-1">Batas akhir rekam</small>
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">Scan &gt; 07:15 dinilai <strong>Terlambat</strong>
+                                            (menit telat dihitung dari pukul 07:00). Senam pagi bersifat opsional dan
+                                            tidak dicatat/tidak ada penalti, yang penting melakukan absen masuk.</small>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="badge bg-light-secondary text-secondary p-2 avatar-squircle">
+                                                <i class="bi bi-calendar2-x fs-6"></i>
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold text-muted">Sabtu-Minggu</div>
+                                                <small class="text-muted">Libur</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td colspan="4" class="text-center bg-light bg-opacity-50">
+                                        <span
+                                            class="badge bg-secondary-subtle text-secondary px-3 py-1 font-monospace fs-7">
+                                            <i class="bi bi-slash-circle me-1"></i> PRESENSI DINONAKTIFKAN (HARI LIBUR
+                                            ASN)
+                                        </span>
+                                    </td>
+                                    <td class="bg-light bg-opacity-50">
+                                        <span class="badge bg-light text-muted font-monospace fs-7">--:--:--</span>
+                                        <small class="d-block text-muted mt-1">Otomatis Ditolak</small>
+                                    </td>
+                                    <td>
+                                        <small class="text-secondary"><i
+                                                class="bi bi-shield-check text-success me-1"></i>Data rekam scan wajah
+                                            di hari libur <strong>otomatis disaring/diabaikan</strong> oleh
+                                            sistem dan tidak dimasukkan ke dalam daftar log kehadiran.</small>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Visual Timeline: Alur Rentang Waktu Kerja Harian -->
+        <div class="col-12">
+            <div class="card dashboard-card mb-0">
+                <div class="card-header border-bottom py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0 fs-6 fw-bold text-dark">
+                        <i class="bi bi-clock-history text-primary me-2"></i>Visualisasi Alur Jadwal Harian (Senin s/d
+                        Jumat)
+                    </h5>
+                    <span class="small text-muted font-monospace">06:00 s/d 16:00 WIB</span>
+                </div>
+                <div class="card-body p-4">
+                    <div class="schedule-horizon">
+                        <!-- Horizontal Bar Track -->
+                        <div class="schedule-track">
+                            <div class="track-segment seg-buka" title="06:15 - 07:00: Buka Presensi Pagi">06:15</div>
+                            <div class="track-segment seg-apel" title="07:00 - 07:15: Apel Pagi / Tepat Waktu">Apel
+                            </div>
+                            <div class="track-segment seg-kerja" title="07:15 - 15:30: Jam Kerja Dinas Efektif">Jam
+                                Kerja Kedinasan Efektif (PUPR)</div>
+                            <div class="track-segment seg-pulang" title="15:30 - 15:45: Apel Sore / Pulang">Apel Sore
+                            </div>
+                            <div class="track-segment seg-cutoff" title="> 15:45: Lewat Batas Waktu">Cutoff</div>
+                        </div>
+
+                        <!-- Legend Items -->
+                        <div class="schedule-legend">
+                            <div class="legend-item">
+                                <div class="legend-dot" style="background-color: #0ea5e9;"></div>
+                                <span><strong>06:15 – 07:00</strong>: Buka Presensi Masuk</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-dot" style="background-color: #10b981;"></div>
+                                <span><strong>07:00 – 07:15</strong>: Toleransi Apel Pagi (Sah Hadir)</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-dot" style="background-color: #64748b;"></div>
+                                <span><strong>07:15 – 15:30</strong>: Jam Kerja Dinas Efektif</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-dot" style="background-color: #3b82f6;"></div>
+                                <span><strong>15:30 – 15:45</strong>: Sesi Presensi Apel Sore</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-dot" style="background-color: #ef4444;"></div>
+                                <span><strong>&gt; 15:45</strong>: Batas Akhir (*Cutoff* Ditolak)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Pengecekan Simulasi Presensi (Kiri) & Ketentuan Kebijakan (Kanan) -->
+        <div class="col-12 col-lg-5">
+            <div class="card dashboard-card h-100 mb-0">
+                <div class="card-header border-bottom py-3">
+                    <h5 class="card-title mb-0 fs-6 fw-bold text-dark">
+                        <i class="bi bi-calculator text-primary me-2"></i>Kalkulator Pengecekan Status Presensi
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <p class="text-muted small mb-3">
+                        Uji coba jam tap mesin biometrik untuk mengetahui klasifikasi kehadiran otomatis menurut
+                        ketentuan yang berlaku.
+                    </p>
+
+                    <div class="mb-3">
+                        <label for="simDay" class="form-label small fw-bold text-muted text-uppercase">Pilih Hari
+                            Kedinasan:</label>
+                        <select class="form-select form-select-sm" id="simDay" onchange="runSimulation()">
+                            <option value="mon_thu" selected>Senin – Kamis (Hari Reguler)</option>
+                            <option value="fri">Jumat (Pulang 16:00 WIB)</option>
+                            <option value="weekend">Sabtu-Minggu (Libur)</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="simTime" class="form-label small fw-bold text-muted text-uppercase">Waktu Scan
+                            Jam:</label>
+                        <input type="time" step="1" class="form-control font-monospace" id="simTime" value="07:10:00"
+                            onchange="runSimulation()">
+                    </div>
+
+                    <!-- Hasil Simulasi Box -->
+                    <div class="card sim-result-box shadow-none mb-0">
+                        <div class="card-body p-3 text-center" id="simResultBox">
+                            <span class="small sim-eval-label d-block mb-1">Hasil Evaluasi Sistem:</span>
+                            <h6 class="fw-bold mb-1 text-success fs-6" id="simResultTitle">
+                                <i class="bi bi-check-circle-fill me-1"></i> Tepat Waktu (Sah Apel Pagi)
+                            </h6>
+                            <p class="small sim-eval-desc mb-0" id="simResultDesc">
+                                Scan diterima sebelum batas toleransi 07:15:00 WIB.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-7">
+            <div class="card dashboard-card h-100 mb-0">
+                <div class="card-header border-bottom py-3">
+                    <h5 class="card-title mb-0 fs-6 fw-bold text-dark">
+                        <i class="bi bi-shield-check text-primary me-2"></i>Ketentuan Kebijakan &amp; Prosedur
+                        Dispensasi
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="d-flex flex-column gap-3">
+
+                        <!-- Poin 1 -->
+                        <div class="policy-notice-box" style="border-left-color: #10b981;">
+                            <div class="fw-bold mb-1">
+                                <i class="bi bi-sunrise-fill text-success me-1"></i> 1. Sah Kehadiran Apel Pagi
+                            </div>
+                            <p class="small text-muted mb-0">
+                                ASN dinyatakan sah hadir apel pagi apabila melakukan scan wajah di mesin Face
+                                Recognition sebelum pukul <strong>07:15:00 WIB</strong>. Keterlambatan scan melewati
+                                toleransi secara otomatis dihitung menit telat dari jam masuk dasar (07:00).
+                            </p>
+                        </div>
+
+                        <!-- Poin 2 -->
+                        <div class="policy-notice-box" style="border-left-color: #ef4444;">
+                            <div class="fw-bold mb-1">
+                                <i class="bi bi-sunset-fill text-danger me-1"></i> 2. Batas Akhir Presensi Pulang
+                                (Cutoff)
+                            </div>
+                            <p class="small text-muted mb-0">
+                                Sesi scan apel sore/pulang dibuka pukul 15:30 s/d 15:45 (Senin–Kamis) dan 16:00 s/d
+                                16:15 (Jumat). Scan melewati batas cutoff (15:45 / 16:15) ditolak oleh sistem sebagai
+                                <strong>Temuan Ketidaksesuaian</strong> guna menegakkan kepatuhan jam kerja resmi.
+                            </p>
+                        </div>
+
+                        <!-- Poin 3 -->
+                        <div class="policy-notice-box" style="border-left-color: #3b82f6;">
+                            <div class="fw-bold mb-1">
+                                <i class="bi bi-briefcase-fill text-primary me-1"></i> 3. Tugas Luar / Lapangan &amp;
+                                Cuti
+                            </div>
+                            <p class="small text-muted mb-0">
+                                ASN yang melaksanakan Dinas Luar (DL), pengawasan proyek lapangan, tugas belajar, izin
+                                sakit, atau cuti kedinasan dapat disahkan status kehadirannya oleh Petugas/Verifikator
+                                melalui menu <strong>Dispensasi &amp; Klarifikasi</strong>.
+                            </p>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Modal Edit Aturan Jam Kerja Presensi (Khusus Administrator) -->
+<div class="modal fade" id="modalEditRule" tabindex="-1" aria-labelledby="modalEditRuleLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
+            <div class="modal-header text-white"
+                style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-top-left-radius: 16px; border-top-right-radius: 16px;">
+                <div>
+                    <h5 class="modal-title fw-bold text-white mb-0" id="modalEditRuleLabel">
+                        <i class="bi bi-sliders me-2 text-primary"></i>Pengaturan Parameter Jam Kerja ASN
+                    </h5>
+                    <small class="text-light opacity-75">Konfigurasi tersimpan di database dan berlaku pada seluruh
+                        mesin presensi</small>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <form id="formEditRule">
+                <div class="modal-body p-4">
+                    <!-- Nav Tabs (Segmented Control style) -->
+                    <div class="mb-4">
+                        <ul class="nav modal-nav-segmented" id="ruleTabs" role="tablist">
+                            <li class="nav-item flex-fill" role="presentation">
+                                <button class="nav-link active" id="pagi-tab" data-bs-toggle="pill"
+                                    data-bs-target="#pagi-pane" type="button" role="tab">
+                                    <i class="bi bi-sunrise me-1"></i>1. Jam Pagi &amp; Apel
+                                </button>
+                            </li>
+                            <li class="nav-item flex-fill" role="presentation">
+                                <button class="nav-link" id="sore-tab" data-bs-toggle="pill" data-bs-target="#sore-pane"
+                                    type="button" role="tab">
+                                    <i class="bi bi-sunset me-1"></i>2. Jam Pulang &amp; Cutoff
+                                </button>
+                            </li>
+                            <li class="nav-item flex-fill" role="presentation">
+                                <button class="nav-link" id="khusus-tab" data-bs-toggle="pill"
+                                    data-bs-target="#khusus-pane" type="button" role="tab">
+                                    <i class="bi bi-calendar-event me-1"></i>3. Preset &amp; Ramadhan
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="tab-content" id="ruleTabContent">
+                        <!-- Tab 1: Jam Pagi -->
+                        <div class="tab-pane fade show active" id="pagi-pane" role="tabpanel">
+                            <div class="mb-3">
+                                <label for="ruleName" class="form-label fw-bold">Nama Aturan / Keterangan
+                                    Jadwal:</label>
+                                <input type="text" class="form-control" id="ruleName"
+                                    value="{{if .Rule.RuleName}}{{.Rule.RuleName}}{{else}}Jam Kerja Normal ASN (SOP Resmi){{end}}"
+                                    required>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 col-12 mb-3">
+                                    <label for="workStartTime" class="form-label fw-bold">Jam Masuk Dasar
+                                        (Senin–Kamis):</label>
+                                    <input type="time" step="1" class="form-control font-monospace" id="workStartTime"
+                                        value="{{if .Rule.WorkStartTime}}{{.Rule.WorkStartTime}}{{else}}07:00:00{{end}}"
+                                        required>
+                                    <small class="text-muted">Jam acuan mulai perhitungan menit keterlambatan.</small>
+                                </div>
+                                <div class="col-md-6 col-12 mb-3">
+                                    <label for="checkinToleranceTime" class="form-label fw-bold text-success">Batas
+                                        Toleransi Apel Pagi:</label>
+                                    <input type="time" step="1" class="form-control font-monospace border-success"
+                                        id="checkinToleranceTime"
+                                        value="{{if .Rule.CheckinToleranceTime}}{{.Rule.CheckinToleranceTime}}{{else}}07:15:00{{end}}"
+                                        required>
+                                    <small class="text-muted">Scan sebelum jam ini dinilai Tepat Waktu.</small>
+                                </div>
+                                <div class="col-md-6 col-12 mb-3">
+                                    <label for="checkinWindowStart" class="form-label fw-bold text-info">Jendela Scan
+                                        Pagi Dibuka:</label>
+                                    <input type="time" step="1" class="form-control font-monospace"
+                                        id="checkinWindowStart"
+                                        value="{{if .Rule.CheckinWindowStart}}{{.Rule.CheckinWindowStart}}{{else}}06:15:00{{end}}"
+                                        required>
+                                    <small class="text-muted">Scan sebelum jam ini diabaikan oleh mesin.</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tab 2: Jam Sore -->
+                        <div class="tab-pane fade" id="sore-pane" role="tabpanel">
+                            <h6 class="fw-bold text-primary mb-3"><i class="bi bi-calendar-check me-2"></i>Senin s/d
+                                Kamis:</h6>
+                            <div class="row mb-3">
+                                <div class="col-md-6 col-12 mb-3">
+                                    <label for="checkoutTimeMonThu" class="form-label fw-bold">Jam Buka Scan Pulang
+                                        (Senin–Kamis):</label>
+                                    <input type="time" step="1" class="form-control font-monospace"
+                                        id="checkoutTimeMonThu"
+                                        value="{{if .Rule.CheckoutTimeMonThu}}{{.Rule.CheckoutTimeMonThu}}{{else}}15:30:00{{end}}"
+                                        required>
+                                    <small class="text-muted">Scan sebelum jam ini dianggap Pulang Cepat.</small>
+                                </div>
+                                <div class="col-md-6 col-12 mb-3">
+                                    <label for="checkoutCutoffMonThu" class="form-label fw-bold text-danger">Batas Akhir
+                                        Presensi Pulang (Senin–Kamis):</label>
+                                    <input type="time" step="1" class="form-control font-monospace border-danger"
+                                        id="checkoutCutoffMonThu"
+                                        value="{{if .Rule.CheckoutCutoffMonThu}}{{.Rule.CheckoutCutoffMonThu}}{{else}}15:45:00{{end}}"
+                                        required>
+                                    <small class="text-danger fw-bold">Lewat dari jam ini, scan ditolak sistem (Temuan
+                                        Ketidaksesuaian).</small>
+                                </div>
+                            </div>
+
+                            <hr>
+
+                            <h6 class="fw-bold text-success mb-3"><i class="bi bi-calendar-heart me-2"></i>Khusus Hari
+                                Jumat:</h6>
+                            <div class="row">
+                                <div class="col-md-6 col-12 mb-3">
+                                    <label for="checkoutTimeFri" class="form-label fw-bold">Jam Buka Scan Pulang
+                                        (Jumat):</label>
+                                    <input type="time" step="1" class="form-control font-monospace" id="checkoutTimeFri"
+                                        value="{{if .Rule.CheckoutTimeFri}}{{.Rule.CheckoutTimeFri}}{{else}}16:00:00{{end}}"
+                                        required>
+                                </div>
+                                <div class="col-md-6 col-12 mb-3">
+                                    <label for="checkoutCutoffFri" class="form-label fw-bold text-danger">Batas Akhir
+                                        Presensi Pulang (Jumat):</label>
+                                    <input type="time" step="1" class="form-control font-monospace border-danger"
+                                        id="checkoutCutoffFri"
+                                        value="{{if .Rule.CheckoutCutoffFri}}{{.Rule.CheckoutCutoffFri}}{{else}}16:15:00{{end}}"
+                                        required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tab 3: Mode Khusus & Preset -->
+                        <div class="tab-pane fade" id="khusus-pane" role="tabpanel">
+                            <div class="card border mb-3">
+                                <div class="card-body">
+                                    <div class="form-check form-switch fs-6 mb-2">
+                                        <input class="form-check-input" type="checkbox" id="isRamadhanMode" {{if
+                                            .Rule.IsRamadhanMode}}checked{{end}}>
+                                        <label class="form-check-label fw-bold text-warning" for="isRamadhanMode">
+                                            <i class="bi bi-moon-stars-fill me-1"></i>Aktifkan Mode Jam Kerja Bulan
+                                            Ramadhan
+                                        </label>
+                                    </div>
+                                    <p class="text-muted small mb-0">Jika diaktifkan, badge di dashboard akan
+                                        menampilkan indikator Ramadhan.</p>
+                                </div>
+                            </div>
+
+                            <h6 class="fw-bold text-secondary mb-2">Pilihan Cepat (Preset Otomatis):</h6>
+                            <div class="d-flex gap-2 flex-wrap">
+                                <button type="button" class="btn btn-outline-primary btn-sm px-3"
+                                    onclick="applyPresetNormal()">
+                                    <i class="bi bi-arrow-counterclockwise me-1"></i>Preset Normal ASN (07:00 – 15:30)
+                                </button>
+                                <button type="button" class="btn btn-outline-warning btn-sm px-3"
+                                    onclick="applyPresetRamadhan()">
+                                    <i class="bi bi-moon-stars me-1"></i>Preset Ramadhan (08:00 – 15:00)
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer py-3 border-top"
+                    style="border-bottom-left-radius: 16px; border-bottom-right-radius: 16px;">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary px-4" id="btnSubmitRule">
+                        <i class="bi bi-check-circle me-1"></i>Simpan Perubahan Aturan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Simulator Logika Kehadiran
+    function runSimulation() {
+        var day = document.getElementById("simDay").value;
+        var timeStr = document.getElementById("simTime").value;
+        if (!timeStr) return;
+
+        var title = document.getElementById("simResultTitle");
+        var desc = document.getElementById("simResultDesc");
+
+        if (day === 'weekend') {
+            title.className = "fw-bold mb-1 text-secondary fs-6";
+            title.innerHTML = '<i class="bi bi-slash-circle me-1"></i> Presensi Dinonaktifkan (Hari Libur)';
+            desc.innerHTML = 'Hari libur dinas ASN. Data scan biometrik otomatis disaring dan tidak dicatat.';
+            return;
+        }
+
+        var parts = timeStr.split(":");
+        var hour = parseInt(parts[0], 10);
+        var min = parseInt(parts[1], 10);
+        var totalMin = hour * 60 + min;
+
+        var workStart = 7 * 60; // 07:00 (Senin s/d Jumat)
+        var tolEnd = 7 * 60 + 15; // 07:15
+        var monThuOutOpen = 15 * 60 + 30; // 15:30
+        var monThuOutCut = 15 * 60 + 45; // 15:45
+        var friOutOpen = 16 * 60; // 16:00
+        var friOutCut = 16 * 60 + 15; // 16:15
+
+        if (totalMin < 6 * 60 + 15) {
+            title.className = "fw-bold mb-1 text-secondary fs-6";
+            title.innerHTML = '<i class="bi bi-dash-circle me-1"></i> Di Luar Jendela (Terlalu Awal)';
+            desc.innerHTML = 'Scan sebelum pukul 06:15 diabaikan karena mesin belum membuka sesi pagi.';
+        } else if (totalMin <= tolEnd) {
+            title.className = "fw-bold mb-1 text-success fs-6";
+            title.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i> Tepat Waktu (Hadir Masuk)';
+            desc.innerHTML = 'Scan diterima sebelum batas toleransi 07:15 WIB. Tercatat sah dan hadir tepat waktu.';
+        } else if (totalMin < 12 * 60) {
+            var lateMin = totalMin - workStart;
+            title.className = "fw-bold mb-1 text-danger fs-6";
+            title.innerHTML = '<i class="bi bi-clock-history me-1"></i> Terlambat (' + lateMin + ' Menit)';
+            desc.innerHTML = 'Melewati batas toleransi 07:15 WIB. Keterlambatan dihitung dari jam masuk dasar (07:00).';
+        } else {
+            var openTime = (day === 'fri') ? friOutOpen : monThuOutOpen;
+            var cutTime = (day === 'fri') ? friOutCut : monThuOutCut;
+            if (totalMin < openTime) {
+                title.className = "fw-bold mb-1 text-warning fs-6";
+                title.innerHTML = '<i class="bi bi-exclamation-circle me-1"></i> Pulang Cepat (Tidak Sah)';
+                desc.innerHTML = 'Scan sore dilakukan sebelum jam buka kepulangan resmi kedinasan.';
+            } else if (totalMin <= cutTime) {
+                title.className = "fw-bold mb-1 text-success fs-6";
+                title.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i> Hadir Apel Sore';
+                desc.innerHTML = 'Scan dilakukan tepat di dalam jendela resmi presensi apel sore.';
+            } else {
+                title.className = "fw-bold mb-1 text-danger fs-6";
+                title.innerHTML = '<i class="bi bi-shield-x me-1"></i> Temuan Ketidaksesuaian (Lewat Batas)';
+                desc.innerHTML = 'Scan melewati batas akhir presensi pulang (' + (day === 'fri' ? '16:15' : '15:45') + ' WIB). Ditolak sistem.';
+            }
+        }
+    }
+
+    function applyPresetNormal() {
+        document.getElementById("ruleName").value = "Jam Kerja Normal ASN (SOP Resmi)";
+        document.getElementById("workStartTime").value = "07:00:00";
+        document.getElementById("checkinToleranceTime").value = "07:15:00";
+        document.getElementById("checkinWindowStart").value = "06:15:00";
+        document.getElementById("checkoutTimeMonThu").value = "15:30:00";
+        document.getElementById("checkoutCutoffMonThu").value = "15:45:00";
+        document.getElementById("checkoutTimeFri").value = "16:00:00";
+        document.getElementById("checkoutCutoffFri").value = "16:15:00";
+        document.getElementById("isRamadhanMode").checked = false;
+        Swal.fire({
+            icon: 'info',
+            title: 'Preset Normal Diterapkan',
+            text: 'Nilai form telah disesuaikan dengan jadwal kerja normal. Klik Simpan untuk memperbarui.',
+            timer: 1500,
+            showConfirmButton: false
+        });
+    }
+
+    function applyPresetRamadhan() {
+        document.getElementById("ruleName").value = "Jam Kerja Bulan Ramadhan 1447 H";
+        document.getElementById("workStartTime").value = "08:00:00";
+        document.getElementById("checkinToleranceTime").value = "08:15:00";
+        document.getElementById("checkinWindowStart").value = "07:00:00";
+        document.getElementById("checkoutTimeMonThu").value = "15:00:00";
+        document.getElementById("checkoutCutoffMonThu").value = "15:15:00";
+        document.getElementById("checkoutTimeFri").value = "15:30:00";
+        document.getElementById("checkoutCutoffFri").value = "15:45:00";
+        document.getElementById("isRamadhanMode").checked = true;
+        Swal.fire({
+            icon: 'info',
+            title: 'Preset Ramadhan Diterapkan',
+            text: 'Nilai form telah disesuaikan dengan jam kerja puasa. Klik Simpan untuk memperbarui.',
+            timer: 1500,
+            showConfirmButton: false
+        });
+    }
+
+    document.getElementById("formEditRule").addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        var btn = document.getElementById("btnSubmitRule");
+        var originalText = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Menyimpan...';
+
+        var payload = {
+            rule_name: document.getElementById("ruleName").value.trim(),
+            work_start_time: document.getElementById("workStartTime").value,
+            checkin_tolerance_time: document.getElementById("checkinToleranceTime").value,
+            checkin_window_start: document.getElementById("checkinWindowStart").value,
+            checkout_time_mon_thu: document.getElementById("checkoutTimeMonThu").value,
+            checkout_cutoff_mon_thu: document.getElementById("checkoutCutoffMonThu").value,
+            checkout_time_fri: document.getElementById("checkoutTimeFri").value,
+            checkout_cutoff_fri: document.getElementById("checkoutCutoffFri").value,
+            is_ramadhan_mode: document.getElementById("isRamadhanMode").checked
+        };
+
+        fetch("/api/rules", {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        })
+            .then(res => res.json())
+            .then(data => {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+                if (data.status === "success") {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Aturan Berhasil Diperbarui!',
+                        text: 'Parameter jam kerja telah aktif di seluruh sistem.',
+                        timer: 1500,
+                        showConfirmButton: false
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal Memperbarui Aturan',
+                        text: data.message || 'Terjadi kesalahan sistem'
+                    });
+                }
+            })
+            .catch(err => {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Koneksi Gagal',
+                    text: err.message
+                });
+            });
+    });
+</script>

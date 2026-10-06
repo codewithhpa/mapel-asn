@@ -1,0 +1,610 @@
+<link rel="stylesheet" href="/assets/extensions/choices.js/public/assets/styles/choices.css">
+
+<style>
+    /* ==========================================================================
+   UI/UX PRO MAX - DISPENSASI LIGHT & DARK MODE ENHANCEMENTS
+   ========================================================================== */
+
+    /* 1. Card & Layout Refinement (Anti-Slop: No generic borders/shadows, focus on elevation via background & spacing) */
+    .dispensasi-card {
+        border-radius: 16px;
+        border: none;
+        background-color: #ffffff;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.025);
+        transition: transform 0.2s ease, box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .dispensasi-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04) !important;
+    }
+
+    [data-bs-theme="dark"] .dispensasi-card,
+    html[data-bs-theme="dark"] .dispensasi-card,
+    body.theme-dark .dispensasi-card {
+        border-color: #2b2b40 !important;
+        background-color: #1e1e2d !important;
+    }
+
+    [data-bs-theme="dark"] .dispensasi-card .card-header,
+    html[data-bs-theme="dark"] .dispensasi-card .card-header,
+    body.theme-dark .dispensasi-card .card-header {
+        background-color: transparent !important;
+        border-bottom-color: #2b2b40 !important;
+    }
+
+    /* 2. Typography & Contrast (WCAG 4.5:1 Minimum) */
+    .text-nama-asn {
+        color: #1e293b;
+        font-size: 0.95rem;
+        letter-spacing: -0.2px;
+    }
+
+    [data-bs-theme="dark"] .text-nama-asn,
+    html[data-bs-theme="dark"] .text-nama-asn,
+    body.theme-dark .text-nama-asn {
+        color: #f8fafc !important;
+    }
+
+    [data-bs-theme="dark"] .form-label,
+    html[data-bs-theme="dark"] .form-label {
+        color: #cbd5e1 !important;
+    }
+
+    [data-bs-theme="dark"] .text-muted,
+    html[data-bs-theme="dark"] .text-muted {
+        color: #94a3b8 !important;
+    }
+
+    body.theme-dark .form-label {
+        color: #cbd5e1 !important;
+    }
+
+    /* 3. Form Controls & Datepicker */
+    [data-bs-theme="dark"] input[type="date"],
+    html[data-bs-theme="dark"] input[type="date"],
+    body.theme-dark input[type="date"] {
+        color-scheme: dark;
+    }
+
+    [data-bs-theme="dark"] .form-control,
+    [data-bs-theme="dark"] .form-select,
+    html[data-bs-theme="dark"] .form-control,
+    html[data-bs-theme="dark"] .form-select,
+    body.theme-dark .form-control,
+    body.theme-dark .form-select {
+        background-color: #161622 !important;
+        border-color: #35354f !important;
+        color: #f1f5f9 !important;
+    }
+
+    [data-bs-theme="dark"] .form-control:focus,
+    [data-bs-theme="dark"] .form-select:focus,
+    html[data-bs-theme="dark"] .form-control:focus,
+    html[data-bs-theme="dark"] .form-select:focus,
+    body.theme-dark .form-control:focus,
+    body.theme-dark .form-select:focus {
+        background-color: #1a1a2e !important;
+        border-color: #435ebe !important;
+        color: #ffffff !important;
+        box-shadow: 0 0 0 0.25rem rgba(67, 94, 190, 0.25) !important;
+    }
+
+    [data-bs-theme="dark"] .form-select option,
+    [data-bs-theme="dark"] .form-select optgroup,
+    html[data-bs-theme="dark"] .form-select option,
+    html[data-bs-theme="dark"] .form-select optgroup,
+    body.theme-dark .form-select option,
+    body.theme-dark .form-select optgroup {
+        background-color: #161622 !important;
+        color: #f1f5f9 !important;
+    }
+
+    /* 4. Choices.js Searchable Select Component */
+    .choices {
+        margin-bottom: 0 !important;
+    }
+
+    .choices__inner {
+        border-radius: 0.375rem !important;
+        min-height: 42px !important;
+        padding: 4px 10px !important;
+        font-size: 0.95rem !important;
+        display: flex;
+        align-items: center;
+    }
+
+    [data-bs-theme="dark"] .choices__inner,
+    html[data-bs-theme="dark"] .choices__inner,
+    body.theme-dark .choices__inner {
+        background-color: #161622 !important;
+        border: 1px solid #35354f !important;
+        color: #f1f5f9 !important;
+    }
+
+    [data-bs-theme="dark"] .choices__placeholder,
+    html[data-bs-theme="dark"] .choices__placeholder,
+    body.theme-dark .choices__placeholder {
+        color: #94a3b8 !important;
+        opacity: 1 !important;
+    }
+
+    [data-bs-theme="dark"] .choices__list--dropdown,
+    html[data-bs-theme="dark"] .choices__list--dropdown,
+    body.theme-dark .choices__list--dropdown {
+        background-color: #1c1c2b !important;
+        border: 1px solid #35354f !important;
+        color: #f1f5f9 !important;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5) !important;
+    }
+
+    [data-bs-theme="dark"] .choices__list--dropdown .choices__item--selectable,
+    html[data-bs-theme="dark"] .choices__list--dropdown .choices__item--selectable,
+    body.theme-dark .choices__list--dropdown .choices__item--selectable {
+        color: #cbd5e1 !important;
+    }
+
+    [data-bs-theme="dark"] .choices__list--dropdown .choices__item--selectable.is-highlighted,
+    html[data-bs-theme="dark"] .choices__list--dropdown .choices__item--selectable.is-highlighted,
+    body.theme-dark .choices__list--dropdown .choices__item--selectable.is-highlighted {
+        background-color: #435ebe !important;
+        color: #ffffff !important;
+    }
+
+    [data-bs-theme="dark"] .choices__input,
+    html[data-bs-theme="dark"] .choices__input,
+    body.theme-dark .choices__input {
+        background-color: #12121c !important;
+        color: #ffffff !important;
+        border: 1px solid #435ebe !important;
+        padding: 8px 12px !important;
+        border-radius: 4px;
+    }
+
+    [data-bs-theme="dark"] .choices__list--single .choices__item,
+    html[data-bs-theme="dark"] .choices__list--single .choices__item,
+    body.theme-dark .choices__list--single .choices__item {
+        color: #f1f5f9 !important;
+    }
+
+    /* 5. Table Styling & Headers */
+    .dispensasi-thead th {
+        background-color: transparent;
+        color: #64748b;
+        border-bottom: 1px solid #e2e8f0;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        padding-top: 16px;
+        padding-bottom: 16px;
+    }
+
+    [data-bs-theme="dark"] .dispensasi-thead th,
+    html[data-bs-theme="dark"] .dispensasi-thead th,
+    body.theme-dark .dispensasi-thead th {
+        background-color: transparent !important;
+        color: #94a3b8 !important;
+        border-bottom: 1px solid #2b2b40 !important;
+    }
+
+    [data-bs-theme="dark"] .table-hover tbody tr:hover {
+        background-color: rgba(255, 255, 255, 0.02) !important;
+    }
+
+    [data-bs-theme="dark"] .table td {
+        border-bottom-color: #2b2b40 !important;
+    }
+
+    /* 6. Anti-Slop Component Overrides */
+    .avatar-squircle {
+        border-radius: 10px !important;
+    }
+
+    .badge-square {
+        border-radius: 6px !important;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+        padding: 0.35em 0.6em;
+    }
+
+    .btn-tertiary-danger {
+        color: #94a3b8;
+        background: transparent;
+        border: none;
+        transition: color 0.2s ease, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .btn-tertiary-danger:hover {
+        color: #ef4444;
+        transform: scale(1.1);
+    }
+
+    /* 7. Cetak: hanya riwayat yang keluar, form input disembunyikan */
+    @media print {
+        #dispensasiFormCard {
+            display: none !important;
+        }
+    }
+</style>
+
+<div class="page-heading">
+    <div class="page-title mb-3">
+        <div class="row">
+            <div class="col-12 col-md-8 order-md-1 order-last">
+                <h3><i class="bi bi-file-earmark-check text-primary me-2"></i>Dispensasi &amp; Klarifikasi Kehadiran ASN
+                </h3>
+                <p class="text-subtitle text-muted">Layanan pengesahan pengecualian resmi (Apel Lupa Scan, Dinas Luar,
+                    Cuti, Sakit) pencabut status anomali</p>
+            </div>
+            <div
+                class="col-12 col-md-4 order-md-2 order-first d-flex justify-content-md-end align-items-center mb-md-0 mb-3">
+                <span class="badge bg-light-primary text-primary px-3 py-2 fs-6">
+                    <i class="bi bi-person-badge me-1"></i>Petugas: {{if .CurrentUser}}{{.CurrentUser.FullName}} (ID:
+                    {{.CurrentUser.ID}}){{else}}Petugas{{end}}
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="page-content">
+    <!-- Form Input Dispensasi Cepat -->
+    <div class="card dispensasi-card shadow-sm mb-4" id="dispensasiFormCard">
+        <div class="card-header py-3 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <h5 class="card-title mb-0 text-primary">
+                <i class="bi bi-pencil-square me-2"></i>Form Pengajuan / Pengesahan Dispensasi
+            </h5>
+            <span class="badge bg-light-info text-info small">
+                <i class="bi bi-shield-check me-1"></i>Pencatat Resmi: ID {{if .CurrentUser}}{{.CurrentUser.ID}} -
+                {{.CurrentUser.FullName}}{{end}}
+            </span>
+        </div>
+        <div class="card-body pt-4">
+            <form id="formDispensasi">
+                <div class="row g-3">
+                    <!-- Pilih Pegawai (Searchable Select) -->
+                    <div class="col-12 col-md-4">
+                        <label for="dispEmpCode" class="form-label fw-semibold small">
+                            <i class="bi bi-search me-1 text-primary"></i>Pilih Pegawai (Cari Nama / NIP) <span
+                                class="text-danger">*</span>
+                        </label>
+                        <select class="form-select choices" id="dispEmpCode" required>
+                            <option value="" disabled selected>-- Cari Nama / NIP Pegawai --</option>
+                            {{range .Employees}}
+                            <option value="{{.EmpCode}}" data-name="{{.FirstName}} {{if .LastName}}{{.LastName}}{{end}}"
+                                data-dept="{{.DepartmentName}}">
+                                {{.FirstName}} {{if .LastName}}{{.LastName}}{{end}} (NIP: {{.EmpCode}}) -
+                                {{.DepartmentName}}
+                            </option>
+                            {{end}}
+                        </select>
+                    </div>
+
+                    <!-- Tanggal Kejadian -->
+                    <div class="col-12 col-md-3">
+                        <label for="dispDate" class="form-label fw-semibold small">
+                            <i class="bi bi-calendar-event me-1 text-primary"></i>Tanggal Kejadian <span
+                                class="text-danger">*</span>
+                        </label>
+                        <input type="date" class="form-control" id="dispDate" value="{{.TodayDate}}" required>
+                    </div>
+
+                    <!-- Jenis Dispensasi -->
+                    <div class="col-12 col-md-5">
+                        <label for="dispType" class="form-label fw-semibold small">
+                            <i class="bi bi-tag me-1 text-primary"></i>Jenis Dispensasi / Pengecualian <span
+                                class="text-danger">*</span>
+                        </label>
+                        <select class="form-select" id="dispType" required>
+                            <option value="" disabled selected>-- Pilih Jenis Dispensasi --</option>
+                            <optgroup label="Tugas &amp; Izin Resmi (Ekinerja)">
+                                <option value="CS|CS - Cuti Sakit">CS - Cuti Sakit</option>
+                                <option value="DL|DL - Dinas Luar Daerah">DL - Dinas Luar Daerah</option>
+                                <option value="CM|CM - Cuti Bersalin">CM - Cuti Bersalin</option>
+                                <option value="CB|CB - Cuti Besar">CB - Cuti Besar</option>
+                                <option value="CAP|CAP - Cuti karena Alasan Penting">CAP - Cuti karena Alasan Penting
+                                </option>
+                                <option value="CH|CH - Cuti Tahunan">CH - Cuti Tahunan</option>
+                                <option value="CLTN|CLTN - Cuti Diluar Tanggungan Negara">CLTN - Cuti Diluar Tanggungan
+                                    Negara</option>
+                                <option value="CBA|CBA - Cuti Bersama">CBA - Cuti Bersama</option>
+                                <option value="TUBEL|TUBEL - Tugas Belajar">TUBEL - Tugas Belajar</option>
+                                <option value="DD|DD - Dinas Dalam Daerah">DD - Dinas Dalam Daerah</option>
+                            </optgroup>
+                            <optgroup label="Lainnya">
+                                <option value="Lainnya|Lainnya">Keterangan Lainnya
+                                </option>
+                            </optgroup>
+                        </select>
+                    </div>
+
+                    <!-- Keterangan / Nomor Surat -->
+                    <div class="col-12 col-md-9">
+                        <label for="dispNotes" class="form-label fw-semibold small">
+                            <i class="bi bi-card-text me-1 text-primary"></i>Nomor Dokumen / Alasan Klarifikasi <span
+                                class="text-danger">*</span>
+                        </label>
+                        <input type="text" class="form-control" id="dispNotes" required>
+                    </div>
+
+                    <!-- Tombol Aksi -->
+                    <div class="col-12 col-md-3 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold" id="btnSubmitDispensasi">
+                            <i class="bi bi-check-circle me-1"></i> Simpan Dispensasi
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tabel Riwayat & Catatan Dispensasi -->
+    <div class="card dispensasi-card shadow-sm">
+        <div class="card-header py-3 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <h5 class="card-title mb-0">
+                <i class="bi bi-clock-history me-2 text-primary"></i>Riwayat &amp; Pengesahan Dispensasi Kedinasan
+            </h5>
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-light-primary text-primary fw-semibold">{{len .DispensasiLogs}} Catatan</span>
+                <button type="button" class="btn btn-sm btn-outline-danger shadow-xs" onclick="printDispensasi()"
+                    title="Cetak riwayat dispensasi (dialog print browser)">
+                    <i class="bi bi-printer-fill me-1"></i> Cetak
+                </button>
+            </div>
+        </div>
+        <div class="card-body pt-3">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" id="tableDispensasi">
+                    <thead class="dispensasi-thead">
+                        <tr>
+                            <th style="width: 110px;">Tanggal</th>
+                            <th>Pegawai (ASN)</th>
+                            <th>Unit Kerja</th>
+                            <th>Jenis Dispensasi</th>
+                            <th>Keterangan / Dokumen</th>
+                            <th>Petugas Pencatat</th>
+                            <th style="width: 140px;">Waktu Input</th>
+                            <th class="text-center" style="width: 80px;">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{range .DispensasiLogs}}
+                        <tr>
+                            <td class="font-monospace small fw-semibold text-muted">{{.Date}}</td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar avatar-md bg-light-primary text-primary me-3 d-flex align-items-center justify-content-center fw-bold avatar-squircle"
+                                        style="width: 38px; height: 38px; min-width: 38px;">
+                                        <i class="bi bi-person-fill fs-5"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold text-nama-asn">{{.Name}}</div>
+                                        <div class="small text-muted font-monospace">NIP. {{.EmpCode}}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                {{if .Department}}
+                                <span
+                                    class="badge bg-light-secondary text-secondary fw-semibold px-2 py-1">{{.Department}}</span>
+                                {{else}}
+                                <span class="text-muted fst-italic">-</span>
+                                {{end}}
+                            </td>
+                            <td>
+                                {{if eq .Session "Apel Sore"}}
+                                <span class="badge badge-square bg-light-info text-info"><i
+                                        class="bi bi-sunset me-1"></i>Apel Sore</span>
+                                {{else if eq .Session "Apel Pagi"}}
+                                <span class="badge badge-square bg-light-success text-success"><i
+                                        class="bi bi-sunrise me-1"></i>Apel Pagi</span>
+                                {{else if eq .Session "Dinas Luar"}}
+                                <span class="badge badge-square bg-light-primary text-primary"><i
+                                        class="bi bi-briefcase me-1"></i>Dinas Luar</span>
+                                {{else if eq .Session "Cuti"}}
+                                <span class="badge badge-square bg-light-warning text-warning"><i
+                                        class="bi bi-calendar2-check me-1"></i>Cuti</span>
+                                {{else if isLeave .PhysicalStatus}}
+                                <span class="badge badge-square bg-light-primary text-primary"><i
+                                        class="bi bi-briefcase me-1"></i>{{.Session}}</span>
+                                {{else}}
+                                <span class="badge badge-square bg-light-secondary text-secondary">{{.Session}}</span>
+                                {{end}}
+                                <div class="small text-muted mt-1">{{.PhysicalStatus}}</div>
+                            </td>
+                            <td class="small text-break">{{.Notes}}</td>
+                            <td>
+                                <span class="badge bg-light-primary text-primary border-0 small">
+                                    <i class="bi bi-person-check me-1"></i>{{.VerifierName}}
+                                </span>
+                            </td>
+                            <td class="small text-muted font-monospace">{{.CreatedAt.Format "02/01/06 15:04"}}</td>
+                            <td class="text-center">
+                                <button type="button" class="btn-tertiary-danger btn-delete-disp" data-id="{{.ID}}"
+                                    data-name="{{.Name}}" data-session="{{.Session}}" title="Batalkan Dispensasi">
+                                    <i class="bi bi-trash3 fs-5"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {{else}}
+                        <tr>
+                            <td colspan="8" class="text-center py-5">
+                                <div class="d-flex flex-column align-items-center justify-content-center py-4">
+                                    <div class="avatar-squircle bg-light-secondary d-flex align-items-center justify-content-center mb-3"
+                                        style="width: 64px; height: 64px;">
+                                        <i class="bi bi-inbox fs-2 text-secondary opacity-75"></i>
+                                    </div>
+                                    <h6 class="text-dark fw-bold mb-1">Riwayat Kosong</h6>
+                                    <p class="text-muted small mb-3" style="max-width: 300px;">Belum ada pegawai yang
+                                        diberikan dispensasi. Pencatatan presensi saat ini murni dari log mesin
+                                        biometrik.</p>
+                                    <button type="button" class="btn btn-sm btn-light shadow-sm"
+                                        onclick="document.getElementById('dispEmpCode').focus();">
+                                        Input Dispensasi Baru
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {{end}}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Load Choices.js Script -->
+<script src="/assets/extensions/choices.js/public/assets/scripts/choices.js"></script>
+
+<script>
+    // Cetak khusus riwayat dispensasi: judul dokumen rapi untuk nama file + form disembunyikan via print CSS
+    function printDispensasi() {
+        var orig = document.title;
+        var d = new Date().toISOString().slice(0, 10);
+        document.title = 'Riwayat-Dispensasi-SIAP-ASN_' + d;
+        window.print();
+        setTimeout(function () { document.title = orig; }, 500);
+    }
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.getElementById('formDispensasi');
+        const selectEmp = document.getElementById('dispEmpCode');
+        const inputDate = document.getElementById('dispDate');
+        const selectType = document.getElementById('dispType');
+        const inputNotes = document.getElementById('dispNotes');
+        const btnSubmit = document.getElementById('btnSubmitDispensasi');
+
+        // Data lookup pegawai untuk pencarian dan ekstraksi instan
+        const employeesData = {
+        { { range.Employees } }
+        "{{.EmpCode}}": { name: "{{.FirstName}} {{if .LastName}}{{.LastName}}{{end}}", dept: "{{.DepartmentName}}" },
+        { { end } }
+    };
+
+    // Inisialisasi Choices.js Searchable Select
+    let empChoicesInstance = null;
+    if (selectEmp) {
+        empChoicesInstance = new Choices(selectEmp, {
+            searchEnabled: true,
+            searchChoices: true,
+            searchPlaceholderValue: 'Ketik nama atau NIP pegawai...',
+            noResultsText: 'Pegawai tidak ditemukan',
+            itemSelectText: 'Pilih',
+            shouldSort: false,
+            placeholder: true,
+            placeholderValue: '-- Cari Nama / NIP Pegawai --'
+        });
+    }
+
+    form.addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        const empCode = selectEmp.value;
+        const emp = employeesData[empCode] || { name: "", dept: "" };
+        const name = emp.name;
+        const dept = emp.dept;
+        const date = inputDate.value;
+        const typeParts = selectType.value.split('|');
+        const session = typeParts[0];
+        const physicalStatus = typeParts[1];
+        const notes = inputNotes.value.trim();
+
+        if (!empCode || !date || !session || !notes) {
+            Swal.fire('Perhatian', 'Harap lengkapi semua kolom yang diperlukan.', 'warning');
+            return;
+        }
+
+        btnSubmit.disabled = true;
+        btnSubmit.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Menyimpan...';
+
+        try {
+            const resp = await fetch('/api/dispensasi', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    emp_code: empCode,
+                    name: name,
+                    department: dept,
+                    date: date,
+                    session: session,
+                    physical_status: physicalStatus,
+                    notes: notes
+                })
+            });
+
+            const result = await resp.json();
+            if (resp.ok && result.status === 'success') {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Dispensasi Disimpan',
+                    text: 'Dispensasi untuk ' + name + ' berhasil disahkan dan status presensi telah diperbarui.',
+                    timer: 1500,
+                    showConfirmButton: false
+                }).then(() => {
+                    window.location.reload();
+                });
+            } else {
+                throw new Error(result.message || 'Gagal menyimpan dispensasi');
+            }
+        } catch (err) {
+            Swal.fire('Gagal', err.message, 'error');
+        } finally {
+            btnSubmit.disabled = false;
+            btnSubmit.innerHTML = '<i class="bi bi-check-circle me-1"></i> Simpan Dispensasi';
+        }
+    });
+
+    // 1. Inisialisasi DataTables Mazer untuk Tabel Riwayat Dispensasi
+    const tableEl = document.getElementById('tableDispensasi');
+    if (tableEl && typeof initMazerTable !== 'undefined') {
+        const hasData = tableEl.querySelector('tbody tr td:not([colspan])');
+        if (hasData) {
+            initMazerTable(tableEl, { perPage: 10 });
+        }
+    }
+
+    // 2. Event Hapus / Batalkan Dispensasi (Event Delegation mendukung seluruh halaman DataTables)
+    document.addEventListener('click', async function (e) {
+        const btn = e.target.closest('.btn-delete-disp');
+        if (!btn) return;
+
+        const id = btn.getAttribute('data-id');
+        const name = btn.getAttribute('data-name');
+        const session = btn.getAttribute('data-session');
+
+        const confirm = await Swal.fire({
+            title: 'Batalkan Dispensasi?',
+            text: `Apakah Anda yakin ingin membatalkan dispensasi ${session} untuk ${name}? Status mesin biometrik akan dikembalikan seperti semula.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Ya, Batalkan',
+            cancelButtonText: 'Batal'
+        });
+
+        if (confirm.isConfirmed) {
+            try {
+                const resp = await fetch('/api/dispensasi/delete', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: id })
+                });
+                const res = await resp.json();
+                if (resp.ok && res.status === 'success') {
+                    Swal.fire('Dibatalkan', 'Dispensasi telah dihapus.', 'success').then(() => {
+                        window.location.reload();
+                    });
+                } else {
+                    throw new Error(res.message || 'Gagal menghapus dispensasi');
+                }
+            } catch (err) {
+                Swal.fire('Error', err.message, 'error');
+            }
+        }
+    });
+});
+</script>

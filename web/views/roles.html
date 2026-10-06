@@ -1,0 +1,581 @@
+<div class="page-heading">
+    <div class="page-title mb-4">
+        <div class="row align-items-center">
+            <div class="col-12 col-md-7">
+                <h3 class="fw-bold mb-1">Manajemen Hak Akses &amp; Wewenang</h3>
+                <p class="text-subtitle text-muted mb-0">Pengaturan tingkat wewenang, pembagian tugas verifikator, dan hak akses operasional presensi ASN.</p>
+            </div>
+            <div class="col-12 col-md-5 text-md-end mt-3 mt-md-0">
+                <button type="button" class="btn btn-primary px-4 py-2 fw-semibold shadow-sm" data-bs-toggle="modal" data-bs-target="#modalCreateRole">
+                    <i class="bi bi-shield-plus me-2"></i>Tambah Hak Akses Baru
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tiga Kartu Ringkasan Operasional Kedinasan -->
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-md-6 col-lg-4">
+            <div class="card master-kpi-card h-100 mb-0">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-muted text-uppercase text-xs fw-bold">Total Tingkat Akses</span>
+                        <div class="master-icon-badge bg-light-primary text-primary">
+                            <i class="bi bi-shield-lock-fill"></i>
+                        </div>
+                    </div>
+                    <h3 class="fw-extrabold master-kpi-val mb-0 font-monospace">{{len .Roles}} Peran</h3>
+                    <small class="text-muted">Tingkat wewenang operasional sistem</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-6 col-lg-4">
+            <div class="card master-kpi-card h-100 mb-0">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-muted text-uppercase text-xs fw-bold">Otoritas Verifikasi Apel</span>
+                        <div class="master-icon-badge bg-light-success text-success">
+                            <i class="bi bi-person-check-fill"></i>
+                        </div>
+                    </div>
+                    <h4 class="fw-bold master-kpi-val mb-0 text-success">Verifikator &amp; Provos</h4>
+                    <small class="text-muted">Pemeriksaan fisik barisan &amp; dispensasi</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-12 col-lg-4">
+            <div class="card master-kpi-card h-100 mb-0">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-muted text-uppercase text-xs fw-bold">Pengawasan Kedinasan</span>
+                        <div class="master-icon-badge bg-light-info text-info">
+                            <i class="bi bi-eye-fill"></i>
+                        </div>
+                    </div>
+                    <h4 class="fw-bold master-kpi-val mb-0 text-primary">Pimpinan &amp; Inspektorat</h4>
+                    <small class="text-muted">Audit kepatuhan &amp; laporan eksekutif</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabel Daftar Peran / Roles -->
+    <section class="section">
+        <div class="card dashboard-card table-card">
+            <div class="card-header border-bottom py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <h5 class="card-title mb-0 fs-6 fw-bold text-dark">
+                    <i class="bi bi-shield-check text-primary me-2"></i>Daftar Hak Akses &amp; Pembagian Tugas Petugas
+                </h5>
+                <span class="badge badge-square bg-light-primary text-primary font-semibold">Struktur Otoritas Kedinasan</span>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0 dashboard-table" id="tableRoles">
+                        <thead>
+                            <tr>
+                                <th class="ps-4" style="width: 50px;">No</th>
+                                <th style="width: 140px;">Kode Akses</th>
+                                <th style="width: 220px;">Nama Hak Akses / Peran</th>
+                                <th>Uraian Wewenang &amp; Tanggung Jawab Kedinasan</th>
+                                <th class="text-center" style="width: 150px;">Petugas Aktif</th>
+                                <th class="text-center pe-4" style="width: 120px;">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{if .Roles}}
+                            {{range $index, $role := .Roles}}
+                            <tr>
+                                <td class="ps-4 font-monospace text-muted">{{add $index 1}}</td>
+                                <td>
+                                    <span class="badge badge-square bg-light-secondary text-secondary font-monospace fw-bold px-2 py-1">
+                                        {{$role.RoleCode}}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        {{if eq $role.RoleCode "admin"}}
+                                            <div class="avatar-squircle bg-light-danger text-danger d-flex align-items-center justify-content-center" style="width: 34px; height: 34px;">
+                                                <i class="bi bi-shield-lock-fill"></i>
+                                            </div>
+                                        {{else if or (eq $role.RoleCode "provos") (eq $role.RoleCode "verifikator")}}
+                                            <div class="avatar-squircle bg-light-primary text-primary d-flex align-items-center justify-content-center" style="width: 34px; height: 34px;">
+                                                <i class="bi bi-shield-shaded"></i>
+                                            </div>
+                                        {{else if eq $role.RoleCode "piket"}}
+                                            <div class="avatar-squircle bg-light-info text-info d-flex align-items-center justify-content-center" style="width: 34px; height: 34px;">
+                                                <i class="bi bi-clock-history"></i>
+                                            </div>
+                                        {{else if or (eq $role.RoleCode "pimpinan") (eq $role.RoleCode "inspektorat")}}
+                                            <div class="avatar-squircle bg-light-dark text-dark d-flex align-items-center justify-content-center" style="width: 34px; height: 34px;">
+                                                <i class="bi bi-eye-fill"></i>
+                                            </div>
+                                        {{else}}
+                                            <div class="avatar-squircle bg-light-secondary text-secondary d-flex align-items-center justify-content-center" style="width: 34px; height: 34px;">
+                                                <i class="bi bi-person-badge"></i>
+                                            </div>
+                                        {{end}}
+                                        <span class="fw-bold text-nama-asn fs-6">{{$role.RoleName}}</span>
+                                    </div>
+                                </td>
+                                <td class="text-muted small">
+                                    {{if eq $role.RoleCode "admin"}}
+                                        Akses menyeluruh konfigurasi sistem, manajemen akun petugas, dan sinkronisasi mesin Face Recognition BioTime.
+                                    {{else if or (eq $role.RoleCode "provos") (eq $role.RoleCode "verifikator")}}
+                                        Pemeriksaan fisik barisan apel pagi &amp; sore, validasi kehadiran ASN di lapangan, serta pengesahan dispensasi kedinasan.
+                                    {{else if eq $role.RoleCode "piket"}}
+                                        Pencatatan presensi saat terjadi kendala teknis dan monitoring ketertiban kehadiran apel di pos jaga kedinasan.
+                                    {{else if or (eq $role.RoleCode "pimpinan") (eq $role.RoleCode "inspektorat")}}
+                                        Monitoring eksekutif kedisiplinan ASN, evaluasi tingkat kepatuhan apel perangkat daerah, dan laporan audit.
+                                    {{else}}
+                                        {{if $role.Description}}{{$role.Description}}{{else}}Wewenang operasional terdaftar pada sistem presensi ASN.{{end}}
+                                    {{end}}
+                                </td>
+                                <td class="text-center">
+                                    {{if gt $role.UserCount 0}}
+                                        <span class="badge badge-square bg-light-success text-success px-2 py-1 font-monospace">
+                                            <i class="bi bi-person-fill me-1"></i>{{$role.UserCount}} Petugas
+                                        </span>
+                                    {{else}}
+                                        <span class="badge badge-square bg-light-secondary text-muted px-2 py-1 font-monospace">Belum Ada Petugas</span>
+                                    {{end}}
+                                </td>
+                                <td class="text-center pe-4">
+                                    <div class="d-flex align-items-center justify-content-center gap-1">
+                                        <button type="button" class="btn btn-sm btn-icon-action btn-edit-role"
+                                                onclick="openEditRoleModal({{$role.ID}}, '{{$role.RoleCode}}', '{{$role.RoleName}}', '{{$role.Description}}')"
+                                                title="Ubah Hak Akses">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </button>
+                                        {{if ne $role.ID 1}}
+                                        <button type="button" class="btn btn-sm btn-icon-action btn-delete-role"
+                                                onclick="deleteRole({{$role.ID}}, '{{$role.RoleName}}', {{$role.UserCount}})"
+                                                title="Hapus Hak Akses">
+                                            <i class="bi bi-trash3"></i>
+                                        </button>
+                                        {{else}}
+                                        <button type="button" class="btn btn-sm btn-icon-action disabled opacity-50" title="Hak Akses Administrator Utama Dilindungi">
+                                            <i class="bi bi-lock-fill"></i>
+                                        </button>
+                                        {{end}}
+                                    </div>
+                                </td>
+                            </tr>
+                            {{end}}
+                            {{else}}
+                            <tr>
+                                <td colspan="6" class="p-0">
+                                    <div class="empty-state-composed py-5">
+                                        <div class="empty-state-icon">
+                                            <i class="bi bi-shield-slash fs-1 text-secondary opacity-50"></i>
+                                        </div>
+                                        <h6 class="text-dark fw-bold mb-1">Belum Ada Hak Akses</h6>
+                                        <p class="text-muted small mb-3" style="max-width: 320px;">
+                                            Belum ada peran atau tingkat wewenang yang dikonfigurasi.
+                                        </p>
+                                        <button class="btn btn-primary btn-sm px-3" data-bs-toggle="modal" data-bs-target="#modalCreateRole">
+                                            <i class="bi bi-shield-plus me-1"></i>Tambah Hak Akses Pertama
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {{end}}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- Modal Tambah Role Baru -->
+<div class="modal fade" id="modalCreateRole" tabindex="-1" aria-labelledby="modalCreateRoleLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
+            <div class="modal-header text-white" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-top-left-radius: 16px; border-top-right-radius: 16px;">
+                <div>
+                    <h5 class="modal-title fw-bold text-white mb-0" id="modalCreateRoleLabel">
+                        <i class="bi bi-shield-plus me-2 text-primary"></i>Tambah Hak Akses Baru
+                    </h5>
+                    <small class="text-light opacity-75">Konfigurasi tingkat wewenang dan pembagian tugas verifikator</small>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="formCreateRole">
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label for="createRoleCode" class="form-label fw-semibold text-xs text-uppercase text-muted">Kode Singkat Akses <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control font-monospace" id="createRoleCode" placeholder="contoh: verifikator, piket_malam" required>
+                        <small class="text-muted">Gunakan huruf kecil tanpa spasi (gunakan garis bawah _ jika perlu).</small>
+                    </div>
+                    <div class="mb-3">
+                        <label for="createRoleName" class="form-label fw-semibold text-xs text-uppercase text-muted">Nama Hak Akses / Peran <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="createRoleName" placeholder="contoh: Petugas Verifikasi Lapangan" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="createRoleDesc" class="form-label fw-semibold text-xs text-uppercase text-muted">Uraian Wewenang &amp; Batasan Tugas</label>
+                        <textarea class="form-control" id="createRoleDesc" rows="3" placeholder="Jelaskan fungsi dan wewenang peran ini dalam memverifikasi presensi ASN..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer py-3 border-top">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary px-4 fw-semibold">
+                        <i class="bi bi-check-circle me-1"></i>Simpan Hak Akses
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Edit Role -->
+<div class="modal fade" id="modalEditRole" tabindex="-1" aria-labelledby="modalEditRoleLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
+            <div class="modal-header text-white" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-top-left-radius: 16px; border-top-right-radius: 16px;">
+                <div>
+                    <h5 class="modal-title fw-bold text-white mb-0" id="modalEditRoleLabel">
+                        <i class="bi bi-pencil-square me-2 text-warning"></i>Ubah Hak Akses Petugas
+                    </h5>
+                    <small class="text-light opacity-75">Perbarui nama peran dan uraian wewenang tugas</small>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="formEditRole">
+                <div class="modal-body p-4">
+                    <input type="hidden" id="editRoleId">
+                    <div class="mb-3">
+                        <label for="editRoleCode" class="form-label fw-semibold text-xs text-uppercase text-muted">Kode Singkat Akses <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control font-monospace" id="editRoleCode" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editRoleName" class="form-label fw-semibold text-xs text-uppercase text-muted">Nama Hak Akses / Peran <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="editRoleName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editRoleDesc" class="form-label fw-semibold text-xs text-uppercase text-muted">Uraian Wewenang &amp; Batasan Tugas</label>
+                        <textarea class="form-control" id="editRoleDesc" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer py-3 border-top">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary px-4 fw-semibold">
+                        <i class="bi bi-check-circle me-1"></i>Simpan Perubahan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.dashboard-card {
+    border-radius: 16px;
+    border: none;
+    background-color: #ffffff;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.025) !important;
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
+}
+.dashboard-card:hover {
+    box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04) !important;
+}
+
+.master-kpi-card {
+    border-radius: 16px;
+    border: none;
+    background: #ffffff;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.025) !important;
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
+}
+.master-kpi-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04) !important;
+}
+
+.master-icon-badge {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+}
+.avatar-squircle {
+    border-radius: 10px;
+    flex-shrink: 0;
+}
+.badge-square {
+    border-radius: 6px !important;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+}
+.text-nama-asn {
+    color: #1e293b;
+}
+
+/* Dashboard Table Header */
+.dashboard-table thead th {
+    background-color: transparent !important;
+    color: #64748b !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    font-size: 0.75rem !important;
+    text-transform: uppercase !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.05em !important;
+    padding-top: 16px !important;
+    padding-bottom: 16px !important;
+}
+
+/* Tertiary Action Buttons */
+.btn-icon-action {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    color: #94a3b8;
+    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.btn-icon-action:hover {
+    transform: scale(1.12);
+}
+.btn-edit-role:hover {
+    color: #435ebe;
+    background-color: rgba(67, 94, 190, 0.1);
+}
+.btn-delete-role:hover {
+    color: #ef4444;
+    background-color: rgba(239, 68, 68, 0.1);
+}
+
+/* Empty State Composition */
+.empty-state-composed {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+    text-align: center;
+}
+.empty-state-icon {
+    width: 72px;
+    height: 72px;
+    border-radius: 16px;
+    background-color: #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.25rem;
+}
+
+/* ==========================================================================
+   Dark Mode UI/UX Pro Max
+   ========================================================================== */
+[data-bs-theme="dark"] .dashboard-card,
+body.theme-dark .dashboard-card {
+    background-color: #1e1e2d !important;
+}
+[data-bs-theme="dark"] .master-kpi-card,
+body.theme-dark .master-kpi-card {
+    background: #1e1e2d !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+[data-bs-theme="dark"] .master-kpi-val {
+    color: #f8fafc !important;
+}
+[data-bs-theme="dark"] .text-nama-asn,
+body.theme-dark .text-nama-asn,
+[data-bs-theme="dark"] .text-dark,
+body.theme-dark .text-dark {
+    color: #f8fafc !important;
+}
+[data-bs-theme="dark"] .table-card {
+    background-color: #1e1e2d !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+[data-bs-theme="dark"] .dashboard-table thead th {
+    color: #94a3b8 !important;
+    border-bottom: 1px solid #2b2b40 !important;
+}
+[data-bs-theme="dark"] .table tbody tr td {
+    color: #e2e8f0 !important;
+    border-bottom: 1px solid #2b2b40 !important;
+}
+[data-bs-theme="dark"] .table-hover tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.02) !important;
+}
+[data-bs-theme="dark"] .empty-state-icon {
+    background-color: #1a1a2e;
+}
+[data-bs-theme="dark"] .modal-content {
+    background-color: #1e1e2d !important;
+    color: #f8fafc !important;
+}
+[data-bs-theme="dark"] .modal-footer {
+    background-color: #151521 !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+[data-bs-theme="dark"] .form-control,
+[data-bs-theme="dark"] .form-select {
+    background-color: #151521 !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+    color: #f8fafc !important;
+}
+[data-bs-theme="dark"] .form-control:focus,
+[data-bs-theme="dark"] .form-select:focus {
+    border-color: #435ebe !important;
+}
+[data-bs-theme="dark"] .bg-light-primary {
+    background-color: rgba(67, 94, 190, 0.25) !important;
+    color: #93c5fd !important;
+}
+[data-bs-theme="dark"] .bg-light-success {
+    background-color: rgba(34, 197, 94, 0.25) !important;
+    color: #86efac !important;
+}
+[data-bs-theme="dark"] .bg-light-info {
+    background-color: rgba(14, 165, 233, 0.25) !important;
+    color: #7dd3fc !important;
+}
+[data-bs-theme="dark"] .bg-light-secondary {
+    background-color: rgba(148, 163, 184, 0.15) !important;
+    color: #cbd5e1 !important;
+}
+
+/* Hide default DataTables search box */
+.dataTable-search {
+    display: none !important;
+}
+</style>
+
+<script>
+// 1. Submit Tambah Role
+document.getElementById("formCreateRole").addEventListener("submit", function(e) {
+    e.preventDefault();
+    var payload = {
+        role_code: document.getElementById("createRoleCode").value.trim().toLowerCase(),
+        role_name: document.getElementById("createRoleName").value.trim(),
+        description: document.getElementById("createRoleDesc").value.trim()
+    };
+
+    fetch("/api/roles", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === "success") {
+            Swal.fire({
+                icon: 'success',
+                title: 'Hak Akses Berhasil Ditambahkan!',
+                text: 'Role baru telah tersimpan di sistem.',
+                timer: 1500,
+                showConfirmButton: false
+            }).then(() => window.location.reload());
+        } else {
+            Swal.fire({ icon: 'error', title: 'Gagal Menambah Role', text: data.message });
+        }
+    })
+    .catch(err => {
+        Swal.fire({ icon: 'error', title: 'Terjadi Kesalahan', text: err.message });
+    });
+});
+
+// 2. Buka Modal Edit Role
+function openEditRoleModal(id, code, name, desc) {
+    document.getElementById("editRoleId").value = id;
+    document.getElementById("editRoleCode").value = code;
+    document.getElementById("editRoleName").value = name;
+    document.getElementById("editRoleDesc").value = desc;
+
+    var modal = new bootstrap.Modal(document.getElementById('modalEditRole'));
+    modal.show();
+}
+
+// 3. Submit Edit Role
+document.getElementById("formEditRole").addEventListener("submit", function(e) {
+    e.preventDefault();
+    var id = document.getElementById("editRoleId").value;
+    var payload = {
+        role_code: document.getElementById("editRoleCode").value.trim().toLowerCase(),
+        role_name: document.getElementById("editRoleName").value.trim(),
+        description: document.getElementById("editRoleDesc").value.trim()
+    };
+
+    fetch("/api/roles/" + id, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === "success") {
+            Swal.fire({
+                icon: 'success',
+                title: 'Data Berhasil Diperbarui!',
+                text: 'Perubahan wewenang role telah disimpan.',
+                timer: 1500,
+                showConfirmButton: false
+            }).then(() => window.location.reload());
+        } else {
+            Swal.fire({ icon: 'error', title: 'Gagal Memperbarui', text: data.message });
+        }
+    })
+    .catch(err => {
+        Swal.fire({ icon: 'error', title: 'Terjadi Kesalahan', text: err.message });
+    });
+});
+
+// 4. Hapus Role dengan SweetAlert2
+function deleteRole(id, roleName, userCount) {
+    if (userCount > 0) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Hak Akses Sedang Digunakan!',
+            html: `Peran <b>${roleName}</b> saat ini masih terhubung ke <b>${userCount} petugas</b>.<br><small class="text-muted">Silakan pindahkan peran petugas terkait terlebih dahulu sebelum menghapus hak akses ini.</small>`,
+            confirmButtonColor: '#435ebe',
+            confirmButtonText: 'Mengerti'
+        });
+        return;
+    }
+
+    Swal.fire({
+        title: 'Hapus Hak Akses Ini?',
+        html: `Apakah Anda yakin ingin menghapus hak akses <b>${roleName}</b>?<br><small class="text-danger">Tindakan ini tidak dapat dibatalkan!</small>`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: '<i class="bi bi-trash-fill me-1"></i>Ya, Hapus',
+        cancelButtonText: 'Batal'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch("/api/roles/" + id, {
+                method: "DELETE"
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === "success") {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil Dihapus!',
+                        text: 'Hak akses telah dihapus dari sistem.',
+                        timer: 1500,
+                        showConfirmButton: false
+                    }).then(() => window.location.reload());
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Gagal Menghapus', text: data.message });
+                }
+            })
+            .catch(err => {
+                Swal.fire({ icon: 'error', title: 'Terjadi Kesalahan', text: err.message });
+            });
+        }
+    });
+}
+</script>

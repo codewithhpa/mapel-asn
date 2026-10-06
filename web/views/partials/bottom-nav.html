@@ -1,0 +1,43 @@
+<nav class="mobile-bottom-nav d-flex d-xl-none" aria-label="Navigasi Bawah Mobile">
+    <a href="/" class="bottom-nav-item {{if eq .ActiveMenu "dashboard"}}active{{end}}">
+        <div class="bottom-nav-icon">
+            <i class="bi bi-grid-fill"></i>
+        </div>
+        <span class="bottom-nav-label">Beranda</span>
+    </a>
+    <a href="/presensi" class="bottom-nav-item {{if eq .ActiveMenu "presensi"}}active{{end}}">
+        <div class="bottom-nav-icon">
+            <i class="bi bi-person-check-fill"></i>
+        </div>
+        <span class="bottom-nav-label">Presensi</span>
+    </a>
+    {{if .CurrentUser}}
+    <a href="/dispensasi" class="bottom-nav-item {{if eq .ActiveMenu "dispensasi"}}active{{end}}">
+        <div class="bottom-nav-icon">
+            <i class="bi bi-file-earmark-check-fill"></i>
+        </div>
+        <span class="bottom-nav-label">Dispensasi</span>
+    </a>
+    {{if or (eq .CurrentUser.RoleID 1) (eq .CurrentUser.Role "Administrator") (eq .CurrentUser.Role "admin")}}
+    <a href="/aturan-presensi" class="bottom-nav-item {{if eq .ActiveMenu "aturan"}}active{{end}}">
+        <div class="bottom-nav-icon">
+            <i class="bi bi-clock-history"></i>
+        </div>
+        <span class="bottom-nav-label">Aturan</span>
+    </a>
+    {{end}}
+    {{else}}
+    <a href="/aturan-presensi" class="bottom-nav-item {{if eq .ActiveMenu "aturan"}}active{{end}}">
+        <div class="bottom-nav-icon">
+            <i class="bi bi-clock-history"></i>
+        </div>
+        <span class="bottom-nav-label">Aturan</span>
+    </a>
+    {{end}}
+    <button type="button" class="bottom-nav-item burger-btn border-0 bg-transparent" id="btnBottomNavMenu" aria-label="Buka Menu Lengkap">
+        <div class="bottom-nav-icon">
+            <i class="bi bi-grid-3x3-gap-fill"></i>
+        </div>
+        <span class="bottom-nav-label">Menu</span>
+    </button>
+</nav>

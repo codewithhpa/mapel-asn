@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Title}} - SIAP-ASN (Sistem Informasi Audit Presensi &amp; Apel ASN)</title>
+    
+    <link rel="shortcut icon" href="/assets/compiled/svg/favicon.svg" type="image/x-icon">
+    <link rel="stylesheet" href="/assets/compiled/css/app.css">
+    <link rel="stylesheet" href="/assets/compiled/css/app-dark.css">
+    <link rel="stylesheet" href="/assets/compiled/css/iconly.css">
+    <!-- SweetAlert2 CSS -->
+    <link rel="stylesheet" href="/assets/extensions/sweetalert2/sweetalert2.min.css">
+    <!-- Simple DataTables CSS (Mazer Standard) -->
+    <link rel="stylesheet" href="/assets/extensions/simple-datatables/style.css">
+    <link rel="stylesheet" href="/assets/compiled/css/table-datatable.css">
+    <!-- Responsive & Mobile Bottom Nav Override -->
+    <link rel="stylesheet" href="/assets/compiled/css/responsive-override.css">
+</head>
+
+<body>
+    <script src="/assets/static/js/initTheme.js"></script>
+    <div id="app">
+        <div id="sidebar">
+            {{template "partials/sidebar" .}}
+        </div>
+        <div id="main">
+            {{template "partials/header" .}}
+            
+            {{embed}}
+            
+            {{template "partials/footer" .}}
+        </div>
+        <!-- Mobile Bottom Navigation Bar (PRD 3.4) -->
+        {{template "partials/bottom-nav" .}}
+    </div>
+    <script src="/assets/static/js/components/dark.js"></script>
+    <script src="/assets/extensions/perfect-scrollbar/perfect-scrollbar.min.js"></script>
+    <script src="/assets/compiled/js/app.js"></script>
+    
+    <!-- SweetAlert2 JS -->
+    <script src="/assets/extensions/sweetalert2/sweetalert2.all.min.js"></script>
+
+    <!-- Simple DataTables JS (Mazer Standard) -->
+    <script src="/assets/extensions/simple-datatables/umd/simple-datatables.js"></script>
+    <script src="/assets/static/js/mazer-datatable.js"></script>
+
+    <!-- Need: Apexcharts -->
+    <script src="/assets/extensions/apexcharts/apexcharts.min.js"></script>
+    <script src="/assets/static/js/pages/dashboard.js"></script>
+</body>
+
+</html>

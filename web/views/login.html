@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Petugas - SIAP-ASN Barito Utara</title>
+    
+    <link rel="shortcut icon" href="/assets/compiled/svg/favicon.svg" type="image/x-icon">
+    <!-- Google Font Inter & Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="/assets/compiled/css/app.css">
+    <link rel="stylesheet" href="/assets/compiled/css/app-dark.css">
+    <link rel="stylesheet" href="/assets/compiled/css/responsive-override.css">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="/assets/extensions/bootstrap-icons/font/bootstrap-icons.css">
+    <!-- SweetAlert2 CSS -->
+    <link rel="stylesheet" href="/assets/extensions/sweetalert2/sweetalert2.min.css">
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #f8fafc;
+        }
+    </style>
+</head>
+
+<body>
+    <script src="/assets/static/js/initTheme.js"></script>
+
+    <div class="auth-centered-wrapper">
+        <!-- Floating Glassmorphic Capsule -->
+        <div class="auth-floating-capsule">
+            <!-- SIPD-RI Style Geometric Logotype Header -->
+            <div class="text-center mb-4">
+                <div class="d-inline-flex align-items-center justify-content-center gap-3 mb-2">
+                    <!-- Logo Resmi Daerah -->
+                    <img src="/assets/static/images/logo-barito-utara.png" alt="Logo Barito Utara" class="auth-logo-center">
+                    
+                    <!-- Garis Pemisah Vertikal Halus -->
+                    <div style="width: 1.5px; height: 38px; background-color: #cbd5e1;"></div>
+
+                    <!-- Logotype SIPD-RI Style -->
+                    <div class="text-start" style="line-height: 1;">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="siap-wordmark">SIAP</span>
+                            <span class="asn-pill-badge">ASN</span>
+                        </div>
+                        <span class="text-muted fw-bold d-block mt-1" style="font-size: 0.68rem; letter-spacing: 0.6px; text-transform: uppercase;">Barito Utara</span>
+                    </div>
+                </div>
+
+                <!-- Sub-Headline -->
+                <div class="text-muted fw-semibold" style="font-size: 0.82rem;">
+                    Sistem Informasi Audit Presensi &amp; Apel
+                </div>
+            </div>
+
+            <!-- Login Form -->
+            <form id="loginForm">
+                <!-- Username Input -->
+                <div class="mb-3">
+                    <label class="form-label text-xs fw-semibold text-muted mb-1" for="usernameInput">Username / ID Petugas</label>
+                    <div class="auth-card-input-group">
+                        <input type="text" id="usernameInput" class="form-control" placeholder="Masukkan username" required autofocus autocomplete="username">
+                        <i class="bi bi-person input-icon"></i>
+                    </div>
+                </div>
+
+                <!-- Password Input -->
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <label class="form-label text-xs fw-semibold text-muted mb-0" for="passwordInput">Kata Sandi</label>
+                    </div>
+                    <div class="auth-card-input-group">
+                        <input type="password" id="passwordInput" class="form-control" placeholder="Masukkan kata sandi" required autocomplete="current-password">
+                        <i class="bi bi-key input-icon"></i>
+                        <button type="button" class="password-toggle-btn" id="btnTogglePassword" title="Tampilkan/Sembunyikan Kata Sandi">
+                            <i class="bi bi-eye" id="toggleIcon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Remember Me & Status -->
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <div class="form-check mb-0">
+                        <input class="form-check-input" type="checkbox" id="rememberMe" checked>
+                        <label class="form-check-label text-xs text-muted" for="rememberMe">
+                            Ingat sesi saya
+                        </label>
+                    </div>
+                    <span class="text-xs text-muted font-monospace"><i class="bi bi-shield-check text-primary me-1"></i>BioTime {{.BioTimeVersion}}</span>
+                </div>
+
+                <!-- Submit Action Button -->
+                <button type="submit" id="btnLogin" class="btn btn-auth-submit">
+                    <i class="bi bi-box-arrow-in-right me-2"></i> Masuk
+                </button>
+            </form>
+
+            <!-- Card Bottom Navigation Link -->
+            <div class="text-center pt-3 mt-3 border-top">
+                <a href="/" class="btn-return-dashboard" title="Kembali ke Layar Monitoring Publik">
+                    <i class="bi bi-arrow-left return-arrow-icon"></i>
+                    <span>Kembali ke Dashboard Utama</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- External Footer Copyright -->
+        <div class="auth-footer-tag">
+            <span>&copy; 2026 Dinas Pekerjaan Umum dan Penataan Ruang &bull; Kabupaten Barito Utara</span>
+        </div>
+    </div>
+
+    <!-- SweetAlert2 JS -->
+    <script src="/assets/extensions/sweetalert2/sweetalert2.all.min.js"></script>
+
+    <script>
+    // 1. Password Visibility Toggle
+    document.getElementById("btnTogglePassword").addEventListener("click", function() {
+        var pwdInput = document.getElementById("passwordInput");
+        var icon = document.getElementById("toggleIcon");
+        if (pwdInput.type === "password") {
+            pwdInput.type = "text";
+            icon.classList.remove("bi-eye");
+            icon.classList.add("bi-eye-slash");
+        } else {
+            pwdInput.type = "password";
+            icon.classList.remove("bi-eye-slash");
+            icon.classList.add("bi-eye");
+        }
+    });
+
+    // 2. Login Submission
+    document.getElementById("loginForm").addEventListener("submit", function(e) {
+        e.preventDefault();
+
+        var username = document.getElementById("usernameInput").value.trim();
+        var password = document.getElementById("passwordInput").value;
+        var btn = document.getElementById("btnLogin");
+
+        if (!username || !password) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Data Belum Lengkap',
+                text: 'Harap masukkan username dan kata sandi Anda.'
+            });
+            return;
+        }
+
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Memverifikasi...';
+
+        fetch("/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username: username, password: password })
+        })
+        .then(async res => {
+            let data = {};
+            try { data = await res.json(); } catch (e) { /* abaikan body non-JSON */ }
+            if (res.status === 429) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-box-arrow-in-right me-2"></i> Masuk';
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Terlalu Banyak Percobaan',
+                    text: (data && data.message) || 'Terlalu banyak percobaan login. Coba lagi dalam 1 menit.'
+                });
+                return;
+            }
+            if (data.status === "success") {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Login Berhasil',
+                    text: 'Selamat bertugas, ' + (data.user ? data.user.full_name : username),
+                    timer: 1200,
+                    showConfirmButton: false
+                }).then(() => {
+                    window.location.href = data.redirect || "/dispensasi";
+                });
+            } else {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-box-arrow-in-right me-2"></i> Masuk';
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Autentikasi Gagal',
+                    text: data.message || 'Username atau kata sandi tidak sesuai.'
+                });
+            }
+        })
+        .catch(err => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-box-arrow-in-right me-2"></i> Masuk';
+            Swal.fire({
+                icon: 'error',
+                title: 'Kesalahan Jaringan',
+                text: err.toString()
+            });
+        });
+    });
+    </script>
+</body>
+
+</html>

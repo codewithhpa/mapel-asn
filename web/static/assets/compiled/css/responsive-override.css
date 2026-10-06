@@ -1,0 +1,1554 @@
+/**
+ * responsive-override.css
+ * Universal 100% Responsive Bootstrap 5.3+ Architecture & Mobile Bottom Nav
+ * Conforms to PRD_BOOTSTRAP_RESPONSIVE.MD & UI/UX Pro Max Intelligence
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+body {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+}
+
+
+/* ==========================================================================
+   1. MOBILE BOTTOM NAVIGATION BAR (< 1200px)
+   ========================================================================== */
+.mobile-bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1040;
+    height: calc(62px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    background: rgba(255, 255, 255, 0.92);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.06);
+    display: flex;
+    align-items: stretch;
+    justify-content: space-around;
+    transition: background-color 0.25s ease, border-color 0.25s ease;
+}
+
+/* Dark Mode Support for Bottom Nav */
+[data-bs-theme="dark"] .mobile-bottom-nav,
+body.theme-dark .mobile-bottom-nav {
+    background: rgba(26, 26, 39, 0.94);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.4);
+}
+
+/* Bottom Nav Item (Touch target minimum 48x48px ergonomis) */
+.bottom-nav-item {
+    flex: 1;
+    min-width: 0;
+    min-height: 48px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: #6c757d;
+    padding: 4px 2px;
+    position: relative;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: color 0.2s ease, transform 0.15s ease;
+}
+
+[data-bs-theme="dark"] .bottom-nav-item,
+body.theme-dark .bottom-nav-item {
+    color: #94a3b8;
+}
+
+.bottom-nav-icon {
+    font-size: 1.25rem;
+    line-height: 1.2;
+    transition: transform 0.2s ease;
+}
+
+.bottom-nav-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    margin-top: 2px;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+/* Active State */
+.bottom-nav-item.active {
+    color: #435ebe !important;
+}
+
+[data-bs-theme="dark"] .bottom-nav-item.active,
+body.theme-dark .bottom-nav-item.active {
+    color: #7b96ff !important;
+}
+
+.bottom-nav-item.active .bottom-nav-icon {
+    transform: scale(1.1);
+}
+
+.bottom-nav-item.active::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 25%;
+    right: 25%;
+    height: 3px;
+    background-color: #435ebe;
+    border-radius: 0 0 3px 3px;
+}
+
+[data-bs-theme="dark"] .bottom-nav-item.active::before,
+body.theme-dark .bottom-nav-item.active::before {
+    background-color: #7b96ff;
+}
+
+.bottom-nav-item:active {
+    transform: scale(0.95);
+}
+
+/* ==========================================================================
+   2. CONTENT COMPENSATION FOR BOTTOM NAV
+   ========================================================================== */
+@media (max-width: 1199.98px) {
+    #main {
+        padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px)) !important;
+    }
+}
+
+/* ==========================================================================
+   3. RESPONSIVE FORM CONTROLS & DATE INPUTS (NO FIXED WIDTH)
+   ========================================================================== */
+.form-control-date {
+    width: 100%;
+    min-width: 120px;
+}
+
+@media (min-width: 576px) {
+    .form-control-date {
+        width: 135px;
+    }
+}
+
+/* Filter Toolbar Stacking */
+.filter-toolbar-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+@media (min-width: 768px) {
+    .filter-toolbar-container {
+        flex-direction: row;
+        align-items: center;
+    }
+}
+
+/* ==========================================================================
+   4. SUMMARY BADGE BAR & CHIPS RESPONSIVENESS
+   ========================================================================== */
+.summary-badges-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.summary-badges-bar .badge {
+    white-space: normal;
+    text-align: left;
+    line-height: 1.3;
+}
+
+/* ==========================================================================
+   5. DATA TABLES ZERO OVERFLOW PROTECTION
+   ========================================================================== */
+.table-responsive {
+    -webkit-overflow-scrolling: touch;
+    max-width: 100%;
+}
+
+/* Simple-DataTables Controls Stacking on Small Screens (< 576px) */
+@media (max-width: 575.98px) {
+    .dataTable-top {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 0.75rem !important;
+        padding: 0.75rem 0.5rem !important;
+    }
+
+    .dataTable-dropdown {
+        float: none !important;
+        width: 100% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+    }
+
+    .dataTable-search {
+        float: none !important;
+        width: 100% !important;
+    }
+
+    .dataTable-input {
+        width: 100% !important;
+    }
+
+    .dataTable-bottom {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 0.75rem !important;
+        align-items: center !important;
+        padding: 0.75rem 0.5rem !important;
+    }
+
+    .dataTable-info {
+        float: none !important;
+        text-align: center !important;
+    }
+
+    .dataTable-pagination {
+        float: none !important;
+    }
+}
+
+/* ==========================================================================
+   6. TOUCH TARGET ACCESSIBILITY (MINIMUM 44px on Mobile)
+   ========================================================================== */
+@media (max-width: 767.98px) {
+    .btn-group .btn {
+        padding: 0.45rem 0.75rem;
+        min-height: 38px;
+    }
+
+    .btn {
+        min-height: 40px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .form-select,
+    .form-control {
+        min-height: 42px;
+    }
+
+    /* Offcanvas & Sidebar close buttons */
+    .sidebar-hide {
+        padding: 8px;
+        min-width: 44px;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+/* ==========================================================================
+   7. TIMELINE BAR & INTERACTIVE PLAYGROUND (ATURAN PRESENSI)
+   ========================================================================== */
+@media (max-width: 767.98px) {
+    .timeline-bar-container {
+        padding: 1rem 0.75rem !important;
+    }
+
+    .timeline-visual {
+        min-height: 38px !important;
+    }
+
+    .timeline-segment {
+        font-size: 0.65rem !important;
+        padding: 2px !important;
+    }
+
+    .timeline-time-label {
+        font-size: 0.65rem !important;
+    }
+}
+
+/* ==========================================================================
+   8. CARD BODY SPACING SCALE (PRD §4)
+   ========================================================================== */
+@media (max-width: 575.98px) {
+    .card-body {
+        padding: 1rem !important;
+    }
+
+    .card-header {
+        padding: 1rem 1rem 0.5rem 1rem !important;
+    }
+}
+
+/* ==========================================================================
+   9. THEME-ADAPTIVE FILTER TOOLBAR & SEGMENTED BUTTONS (UI/UX Pro Max)
+   ========================================================================== */
+.filter-toolbar-container {
+    background-color: rgba(67, 94, 190, 0.05);
+    border: 1px solid rgba(67, 94, 190, 0.12);
+    border-radius: 0.75rem;
+    padding: 0.75rem 1rem;
+    transition: background-color 0.25s ease, border-color 0.25s ease;
+}
+
+[data-bs-theme="dark"] .filter-toolbar-container,
+body.theme-dark .filter-toolbar-container {
+    background-color: rgba(255, 255, 255, 0.03) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Neutralize any legacy bg-light-primary container inside dark mode */
+[data-bs-theme="dark"] .bg-light-primary,
+body.theme-dark .bg-light-primary {
+    background-color: rgba(67, 94, 190, 0.15) !important;
+    color: #93b3fd !important;
+}
+
+/* Quick Filter Segmented Buttons */
+.segmented-filter-group {
+    background: rgba(0, 0, 0, 0.04);
+    padding: 3px;
+    border-radius: 0.5rem;
+    display: inline-flex;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    gap: 2px;
+}
+
+[data-bs-theme="dark"] .segmented-filter-group,
+body.theme-dark .segmented-filter-group {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.08);
+}
+
+.segmented-filter-group .btn {
+    border: none;
+    border-radius: 0.375rem;
+    padding: 0.28rem 0.75rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--bs-body-color);
+    background: transparent;
+    transition: all 0.18s ease;
+    white-space: nowrap;
+}
+
+.segmented-filter-group .btn:hover {
+    color: var(--bs-primary);
+    background: rgba(67, 94, 190, 0.08);
+}
+
+[data-bs-theme="dark"] .segmented-filter-group .btn:hover {
+    color: #8da4f7;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.segmented-filter-group .btn.active {
+    background: #435ebe;
+    color: #ffffff !important;
+    box-shadow: 0 2px 6px rgba(67, 94, 190, 0.35);
+}
+
+[data-bs-theme="dark"] .segmented-filter-group .btn.active {
+    background: #435ebe;
+    color: #ffffff !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+/* Form Controls inside Filter Bar */
+.filter-toolbar-container .form-select-sm,
+.filter-toolbar-container .form-control-sm,
+.filter-toolbar-container .input-group-sm > .form-control,
+.filter-toolbar-container .input-group-sm > .input-group-text {
+    height: 38px;
+    font-size: 0.825rem;
+}
+
+/* Date Range Unified Input Group */
+.date-range-group {
+    display: inline-flex;
+    align-items: stretch;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    border-radius: 0.375rem;
+}
+
+.date-range-group .form-control {
+    width: 145px;
+    min-width: 135px;
+    border-color: #cbd5e1;
+    background-color: #ffffff;
+}
+
+.date-range-group .input-group-text {
+    background-color: #f1f5f9;
+    border-color: #cbd5e1;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #64748b;
+}
+
+/* Dark mode inputs harmonization */
+[data-bs-theme="dark"] .filter-toolbar-container .form-select,
+[data-bs-theme="dark"] .filter-toolbar-container .form-control,
+[data-bs-theme="dark"] .date-range-group .form-control {
+    background-color: #1b1b29;
+    border-color: rgba(255, 255, 255, 0.14);
+    color: #e2e8f0;
+}
+
+[data-bs-theme="dark"] .date-range-group .input-group-text {
+    background-color: #232336;
+    border-color: rgba(255, 255, 255, 0.14);
+    color: #94a3b8;
+}
+
+[data-bs-theme="dark"] .filter-toolbar-container .form-select:focus,
+[data-bs-theme="dark"] .filter-toolbar-container .form-control:focus,
+[data-bs-theme="dark"] .date-range-group .form-control:focus {
+    border-color: #435ebe;
+    box-shadow: 0 0 0 0.2rem rgba(67, 94, 190, 0.25);
+}
+
+/* Labels and text inside filter toolbar */
+.filter-toolbar-label {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--bs-body-color);
+    white-space: nowrap;
+    margin-bottom: 0;
+}
+
+[data-bs-theme="dark"] .filter-toolbar-label {
+    color: #cbd5e1;
+}
+
+@media (max-width: 575.98px) {
+    .date-range-group {
+        width: 100%;
+    }
+    .date-range-group .form-control {
+        width: calc(50% - 15px);
+        min-width: 0;
+    }
+}
+
+/* Professional clean badges: no icons inside table badges */
+.table .badge i,
+.table-datatable .badge i {
+    display: none !important;
+}
+
+/* ==========================================================================
+   10. BRAND LOGO ICON (SIAP-ASN)
+   ========================================================================== */
+.brand-logo-icon {
+    width: 38px;
+    height: 38px;
+    background: linear-gradient(135deg, #435ebe 0%, #25396f 100%) !important;
+    box-shadow: 0 4px 10px rgba(67, 94, 190, 0.35);
+    flex-shrink: 0;
+}
+
+[data-bs-theme="dark"] .brand-logo-icon,
+body.theme-dark .brand-logo-icon {
+    background: linear-gradient(135deg, #5373e7 0%, #344cb7 100%) !important;
+    box-shadow: 0 4px 12px rgba(83, 115, 231, 0.4);
+}
+
+/* ==========================================================================
+   11. SIDEBAR SUBMENU TREE LINES CONNECTOR (DIRECTORY TREE)
+   ========================================================================== */
+.sidebar-menu .submenu {
+    position: relative;
+    padding-left: 2.25rem !important;
+    margin-top: 4px;
+    margin-bottom: 8px;
+}
+
+/* Individual Tree Branch Item */
+.sidebar-menu .submenu .submenu-item {
+    position: relative;
+    list-style: none;
+    margin-bottom: 2px;
+}
+
+/* Vertical trunk line (runs continuously through all submenu items) */
+.sidebar-menu .submenu .submenu-item::before {
+    content: "";
+    position: absolute;
+    left: -14px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background-color: #cbd5e1;
+    transition: background-color 0.2s ease;
+}
+
+/* Horizontal connector branch leading to each item */
+.sidebar-menu .submenu .submenu-item::after {
+    content: "";
+    position: absolute;
+    left: -14px;
+    top: 18px;
+    width: 14px;
+    height: 2px;
+    background-color: #cbd5e1;
+    transition: all 0.2s ease;
+}
+
+/* First item connects neatly upwards towards the parent folder icon */
+.sidebar-menu .submenu .submenu-item:first-child::before {
+    top: -6px;
+}
+
+/* Last item terminates into an elegant curved L-shape */
+.sidebar-menu .submenu .submenu-item:last-child::before {
+    bottom: auto;
+    height: 19px;
+    border-bottom-left-radius: 4px;
+}
+
+/* Dark Mode line colors */
+[data-bs-theme="dark"] .sidebar-menu .submenu .submenu-item::before,
+[data-bs-theme="dark"] .sidebar-menu .submenu .submenu-item::after,
+body.theme-dark .sidebar-menu .submenu .submenu-item::before,
+body.theme-dark .sidebar-menu .submenu .submenu-item::after {
+    background-color: rgba(255, 255, 255, 0.18);
+}
+
+/* Hover state highlighting on tree branch */
+.sidebar-menu .submenu .submenu-item:hover::before {
+    background-color: rgba(67, 94, 190, 0.45);
+}
+.sidebar-menu .submenu .submenu-item:hover::after {
+    background-color: #435ebe;
+    width: 16px;
+}
+
+/* Active state highlighting on tree branch */
+.sidebar-menu .submenu .submenu-item.active::before {
+    background-color: rgba(67, 94, 190, 0.6);
+}
+.sidebar-menu .submenu .submenu-item.active::after {
+    background-color: #435ebe;
+    width: 17px;
+    box-shadow: 0 0 6px rgba(67, 94, 190, 0.5);
+}
+
+/* Submenu link layout & icon alignment */
+.sidebar-menu .submenu .submenu-item .submenu-link {
+    display: flex !important;
+    align-items: flex-start !important;
+    padding: 7px 10px !important;
+    line-height: 1.35 !important;
+    font-size: 0.86rem !important;
+    border-radius: 8px !important;
+    transition: all 0.15s ease-in-out;
+}
+
+.sidebar-menu .submenu .submenu-item .submenu-link i {
+    font-size: 0.95rem !important;
+    margin-top: 2px !important;
+    margin-right: 8px !important;
+    flex-shrink: 0 !important;
+}
+
+/* Active submenu link background in dark mode */
+[data-bs-theme="dark"] .sidebar-menu .submenu .submenu-item.active > .submenu-link,
+body.theme-dark .sidebar-menu .submenu .submenu-item.active > .submenu-link {
+    background-color: rgba(67, 94, 190, 0.22) !important;
+    color: #93c5fd !important;
+    font-weight: 600 !important;
+}
+
+/* ==========================================================================
+   12. SHARED KPI & METRIC STATS CARDS (DASHBOARD & PRESENSI STANDARD)
+   ========================================================================== */
+.kpi-card {
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    border: 1px solid rgba(0, 0, 0, 0.06) !important;
+    border-radius: 14px !important;
+    overflow: hidden;
+}
+
+.kpi-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.09) !important;
+}
+
+[data-bs-theme="dark"] .kpi-card,
+body.theme-dark .kpi-card {
+    border-color: rgba(255, 255, 255, 0.08) !important;
+    background-color: #1e1e2d !important;
+}
+
+[data-bs-theme="dark"] .kpi-card:hover,
+body.theme-dark .kpi-card:hover {
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35) !important;
+}
+
+.kpi-title {
+    font-size: 0.725rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.6px !important;
+    color: #64748b !important;
+}
+
+[data-bs-theme="dark"] .kpi-title,
+body.theme-dark .kpi-title {
+    color: #94a3b8 !important;
+}
+
+.kpi-val {
+    font-size: 1.85rem !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.5px !important;
+    color: #1e293b !important;
+}
+
+[data-bs-theme="dark"] .kpi-val,
+body.theme-dark .kpi-val {
+    color: #f8fafc !important;
+}
+
+.kpi-unit {
+    font-size: 0.85rem !important;
+    font-weight: 600 !important;
+    color: #64748b !important;
+}
+
+[data-bs-theme="dark"] .kpi-unit,
+body.theme-dark .kpi-unit {
+    color: #94a3b8 !important;
+}
+
+.kpi-icon {
+    width: 44px !important;
+    height: 44px !important;
+    border-radius: 12px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+}
+
+.kpi-icon i {
+    font-size: 1.3rem !important;
+}
+
+.stats-icon.yellow {
+    background-color: #f59e0b !important;
+}
+
+.stats-icon.yellow i {
+    color: #ffffff !important;
+}
+
+/* ==========================================================================
+   13. DATATABLES DARK MODE & POLISH (WCAG 4.5:1 CONTRAST)
+   ========================================================================== */
+[data-bs-theme="dark"] .dataTable-input,
+[data-bs-theme="dark"] .dataTable-selector,
+body.theme-dark .dataTable-input,
+body.theme-dark .dataTable-selector {
+    background-color: #161622 !important;
+    border: 1px solid #35354f !important;
+    color: #f1f5f9 !important;
+    border-radius: 8px !important;
+}
+
+[data-bs-theme="dark"] .dataTable-input:focus,
+[data-bs-theme="dark"] .dataTable-selector:focus,
+body.theme-dark .dataTable-input:focus,
+body.theme-dark .dataTable-selector:focus {
+    border-color: #435ebe !important;
+    box-shadow: 0 0 0 0.25rem rgba(67, 94, 190, 0.25) !important;
+}
+
+[data-bs-theme="dark"] .dataTable-info,
+body.theme-dark .dataTable-info {
+    color: #94a3b8 !important;
+    font-size: 0.85rem !important;
+}
+
+[data-bs-theme="dark"] .dataTable-pagination a,
+body.theme-dark .dataTable-pagination a {
+    color: #94a3b8 !important;
+}
+
+[data-bs-theme="dark"] .dataTable-pagination .page-item.active .page-link,
+body.theme-dark .dataTable-pagination .page-item.active .page-link {
+    background-color: #435ebe !important;
+    border-color: #435ebe !important;
+    color: #ffffff !important;
+}
+
+[data-bs-theme="dark"] .dataTable-pagination .page-item .page-link,
+body.theme-dark .dataTable-pagination .page-item .page-link {
+    background-color: #1a1a2e !important;
+    border-color: #2b2b40 !important;
+    color: #cbd5e1 !important;
+}
+
+[data-bs-theme="dark"] .dataTable-pagination .page-item .page-link:hover,
+body.theme-dark .dataTable-pagination .page-item .page-link:hover {
+    background-color: #252538 !important;
+    color: #ffffff !important;
+}
+
+/* ==========================================================================
+   14. HEADER CLOCK, BIOTIME STATUS BADGE & TABULAR NUMBERS (UI/UX PRO MAX)
+   ========================================================================== */
+.header-server-time,
+.biotime-status-badge {
+    transition: background-color 0.25s ease, border-color 0.25s ease;
+}
+
+[data-bs-theme="dark"] .header-server-time,
+[data-bs-theme="dark"] .biotime-status-badge,
+body.theme-dark .header-server-time,
+body.theme-dark .biotime-status-badge {
+    background-color: #1a1a2e !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+[data-bs-theme="dark"] .header-server-time span,
+body.theme-dark .header-server-time span,
+[data-bs-theme="dark"] .biotime-status-badge span,
+body.theme-dark .biotime-status-badge span {
+    color: #cbd5e1 !important;
+}
+
+[data-bs-theme="dark"] #headerLiveClock,
+body.theme-dark #headerLiveClock {
+    color: #93c5fd !important;
+}
+
+/* Tabular Numbers for Time & Numerical Data (Swiss Data Alignment) */
+.font-monospace,
+.kpi-val,
+.table td.font-monospace,
+.table span.font-monospace,
+.badge.font-monospace,
+time,
+.tabular-nums {
+    font-variant-numeric: tabular-nums lining-nums !important;
+    font-feature-settings: "tnum" 1 !important;
+}
+
+/* Table Row Micro-interaction */
+.table-hover tbody tr {
+    transition: transform 0.15s ease, background-color 0.15s ease;
+}
+.table-hover tbody tr:hover {
+    transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   15. ENTERPRISE PRINT-READY STYLES (@media print)
+   ========================================================================== */
+@media print {
+    /* Hide navigation, burger, action buttons, pagination, and forms */
+    #sidebar,
+    .sidebar-wrapper,
+    .mobile-bottom-nav,
+    header,
+    footer,
+    .btn,
+    .btn-group,
+    .segmented-filter-group,
+    .dataTable-top,
+    .dataTable-bottom,
+    .filter-toolbar-label,
+    #btnSubmitDispensasi,
+    #formDispensasi,
+    .card-header .btn,
+    .card-header .btn-group,
+    .card-header select,
+    .page-heading .d-flex.justify-content-md-end {
+        display: none !important;
+    }
+
+    body,
+    #app,
+    #main {
+        background: #ffffff !important;
+        color: #000000 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        font-family: Arial, sans-serif !important;
+    }
+
+    #main {
+        margin-left: 0 !important;
+        padding: 0 !important;
+    }
+
+    .card {
+        border: none !important;
+        box-shadow: none !important;
+        background: #ffffff !important;
+    }
+
+    .table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        font-size: 9.5pt !important;
+    }
+
+    .table th,
+    .table td {
+        border: 1px solid #333333 !important;
+        padding: 6px 8px !important;
+        color: #000000 !important;
+        background-color: transparent !important;
+    }
+
+    .table thead th {
+        background-color: #f1f5f9 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        font-weight: bold !important;
+    }
+
+    .badge {
+        border: 1px solid #777777 !important;
+        color: #000000 !important;
+        background: transparent !important;
+        font-weight: 600 !important;
+        padding: 2px 5px !important;
+    }
+
+    .avatar {
+        display: none !important;
+    }
+
+    /* Official Print Title */
+    .page-title {
+        border-bottom: 2px solid #000000 !important;
+        padding-bottom: 8px !important;
+        margin-bottom: 16px !important;
+    }
+}
+
+/* ==========================================================================
+   16. EMPTY STATE & MICRO-INTERACTION POLISH (UI/UX PRO MAX)
+   ========================================================================== */
+.empty-state-box {
+    padding: 3rem 1.5rem;
+    text-align: center;
+    background: transparent;
+}
+.empty-state-icon {
+    font-size: 2.75rem;
+    color: #94a3b8;
+    opacity: 0.65;
+    margin-bottom: 0.75rem;
+    display: inline-block;
+    transition: transform 0.2s ease;
+}
+.empty-state-box:hover .empty-state-icon {
+    transform: scale(1.08);
+}
+
+/* ==========================================================================
+   17. GOV BRANDING BADGES (BERAKHLAK & BANGGA MELAYANI BANGSA)
+   ========================================================================== */
+.gov-branding-badge-box {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    transition: background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.gov-branding-badge-box:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06) !important;
+}
+
+[data-bs-theme="dark"] .gov-branding-badge-box,
+body.theme-dark .gov-branding-badge-box {
+    background-color: #1a1a2e !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+@media (max-width: 991.98px) {
+    .gov-branding-badge-box {
+        margin-top: 6px;
+    }
+}
+
+/* ==========================================================================
+   18. GLOBAL DARK MODE CONTRAST SAFEGUARDS
+   ========================================================================== */
+[data-bs-theme="dark"] .text-dark:not(.badge):not(.btn),
+body.theme-dark .text-dark:not(.badge):not(.btn) {
+    color: #f1f5f9 !important;
+}
+
+[data-bs-theme="dark"] .text-black,
+body.theme-dark .text-black {
+    color: #ffffff !important;
+}
+
+[data-bs-theme="dark"] .bg-light,
+body.theme-dark .bg-light {
+    background-color: #12121e !important;
+    color: #cbd5e1 !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* ==========================================================================
+   19. SKELETON SHIMMER LOADING SYSTEM (UI/UX PRO MAX)
+   ========================================================================== */
+@keyframes skeleton-shimmer-anim {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+.skeleton-shimmer {
+    background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 37%, #f1f5f9 63%) !important;
+    background-size: 400% 100% !important;
+    animation: skeleton-shimmer-anim 1.4s cubic-bezier(0.4, 0, 0.2, 1) infinite !important;
+    border-radius: 6px !important;
+    display: inline-block;
+    color: transparent !important;
+    user-select: none !important;
+    pointer-events: none !important;
+}
+
+[data-bs-theme="dark"] .skeleton-shimmer,
+body.theme-dark .skeleton-shimmer {
+    background: linear-gradient(90deg, #1e1e2d 25%, #2d2d44 37%, #1e1e2d 63%) !important;
+    background-size: 400% 100% !important;
+}
+
+.skeleton-text {
+    height: 0.9em;
+    border-radius: 4px;
+    margin-bottom: 0.25em;
+    width: 100%;
+}
+.skeleton-title {
+    height: 1.25em;
+    width: 60%;
+    margin-bottom: 0.4em;
+}
+.skeleton-badge {
+    height: 22px;
+    width: 65px;
+    border-radius: 6px;
+}
+.skeleton-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+}
+
+/* Table Shimmer State during BioTime Live Sync */
+.table-row-shimmer td > * {
+    opacity: 0.35;
+    filter: blur(0.5px);
+    transition: opacity 0.2s ease;
+}
+
+@keyframes spin-anim {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.bi-spin,
+.spin {
+    display: inline-block;
+    animation: spin-anim 0.85s linear infinite !important;
+}
+
+/* ==========================================================================
+   20. MONOCHROME OUTLINE KPI CARD SYSTEM (CLEAN MODERN / APPLE STYLE)
+   ========================================================================== */
+.monochrome-kpi-card {
+    border-radius: 16px;
+    border: 1px solid #edf2f7;
+    background: #ffffff;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03), 0 2px 4px -2px rgba(0, 0, 0, 0.02) !important;
+    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+}
+.monochrome-kpi-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 24px -6px rgba(0, 0, 0, 0.06), 0 4px 6px -2px rgba(0, 0, 0, 0.02) !important;
+    border-color: #cbd5e1;
+}
+
+.kpi-icon-outline {
+    font-size: 1.35rem;
+    color: #94a3b8;
+    line-height: 1;
+    opacity: 0.85;
+    transition: color 0.2s ease, opacity 0.2s ease;
+}
+.monochrome-kpi-card:hover .kpi-icon-outline {
+    color: #64748b;
+    opacity: 1;
+}
+
+.kpi-label-track {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #64748b;
+}
+
+.kpi-value-bold {
+    font-size: 1.95rem;
+    font-weight: 800;
+    line-height: 1.1;
+    color: #0f172a;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-variant-numeric: tabular-nums;
+}
+
+.kpi-unit-sub {
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: #94a3b8;
+    margin-left: 4px;
+}
+
+.kpi-indicator-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    margin-right: 5px;
+    vertical-align: middle;
+}
+
+[data-bs-theme="dark"] .monochrome-kpi-card,
+body.theme-dark .monochrome-kpi-card {
+    background: #1e1e2d !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+[data-bs-theme="dark"] .kpi-value-bold,
+body.theme-dark .kpi-value-bold {
+    color: #f8fafc !important;
+}
+[data-bs-theme="dark"] .kpi-icon-outline,
+body.theme-dark .kpi-icon-outline {
+    color: #64748b;
+}
+[data-bs-theme="dark"] .monochrome-kpi-card:hover .kpi-icon-outline,
+body.theme-dark .monochrome-kpi-card:hover .kpi-icon-outline {
+    color: #cbd5e1;
+}
+
+/* ==========================================================================
+   21. EXECUTIVE USER PROFILE DROPDOWN SYSTEM (STABLE POPPER POSITIONING)
+   ========================================================================== */
+.user-profile-dropdown-btn {
+    border-radius: 12px;
+    transition: background-color 0.2s ease;
+    cursor: pointer;
+    text-align: left;
+}
+.user-profile-dropdown-btn:hover {
+    background-color: rgba(0, 0, 0, 0.04) !important;
+}
+
+.user-active-badge {
+    position: absolute;
+    bottom: -1px;
+    right: -1px;
+    width: 9px;
+    height: 9px;
+    background-color: #10b981;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+}
+
+.executive-user-menu {
+    border-radius: 14px !important;
+    min-width: 250px;
+    background: #ffffff;
+    box-shadow: 0 16px 36px -4px rgba(0, 0, 0, 0.12), 0 6px 12px -2px rgba(0, 0, 0, 0.06) !important;
+    border: 1px solid #edf2f7 !important;
+    padding: 6px 0;
+    animation: dropdown-fade-anim 0.15s ease-out;
+}
+
+@keyframes dropdown-fade-anim {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.executive-user-menu .dropdown-item {
+    font-size: 0.84rem;
+    font-weight: 500;
+    color: #334155;
+    padding: 8px 16px;
+    border-radius: 8px;
+    margin: 0 4px;
+    width: calc(100% - 8px);
+    transition: all 0.15s ease;
+}
+
+.executive-user-menu .dropdown-item:hover {
+    background-color: #f1f5f9;
+    color: #0f172a;
+}
+
+.executive-user-menu .dropdown-item-logout {
+    color: #ef4444 !important;
+}
+.executive-user-menu .dropdown-item-logout:hover {
+    background-color: #fef2f2 !important;
+    color: #dc2626 !important;
+}
+
+/* ==========================================================================
+   22. EXECUTIVE EXPORT SUITE ACTION CAPSULE
+   ========================================================================== */
+.btn-executive-export {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    height: 36px;
+    padding: 0 13px;
+    border-radius: 9px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    color: #1e293b;
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.btn-executive-export:hover {
+    background-color: #f8fafc;
+    border-color: #cbd5e1;
+    color: #0f172a;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+.btn-executive-export:active {
+    transform: translateY(0);
+}
+.btn-executive-export .export-badge {
+    font-size: 0.65rem;
+    font-weight: 700;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    color: #dc2626;
+    background-color: #fee2e2;
+    padding: 1px 6px;
+    border-radius: 5px;
+    letter-spacing: 0.5px;
+}
+
+/* Dark Mode Overrides */
+[data-bs-theme="dark"] .user-profile-dropdown-btn:hover,
+body.theme-dark .user-profile-dropdown-btn:hover {
+    background-color: rgba(255, 255, 255, 0.06) !important;
+}
+[data-bs-theme="dark"] .user-name-label,
+body.theme-dark .user-name-label {
+    color: #f8fafc !important;
+}
+[data-bs-theme="dark"] .user-active-badge,
+body.theme-dark .user-active-badge {
+    border-color: #1e1e2d;
+}
+[data-bs-theme="dark"] .executive-user-menu,
+body.theme-dark .executive-user-menu {
+    background: #1e1e2d !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 16px 36px -4px rgba(0, 0, 0, 0.5) !important;
+}
+[data-bs-theme="dark"] .executive-user-menu .dropdown-item,
+body.theme-dark .executive-user-menu .dropdown-item {
+    color: #cbd5e1 !important;
+}
+[data-bs-theme="dark"] .executive-user-menu .dropdown-item:hover,
+body.theme-dark .executive-user-menu .dropdown-item:hover {
+    background-color: #2b2b40 !important;
+    color: #ffffff !important;
+}
+[data-bs-theme="dark"] .executive-user-menu .dropdown-item-logout:hover,
+body.theme-dark .executive-user-menu .dropdown-item-logout:hover {
+    background-color: rgba(239, 68, 68, 0.15) !important;
+    color: #f87171 !important;
+}
+[data-bs-theme="dark"] .btn-executive-export,
+body.theme-dark .btn-executive-export {
+    background: #1e1e2d !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
+    color: #f8fafc !important;
+}
+[data-bs-theme="dark"] .btn-executive-export:hover,
+body.theme-dark .btn-executive-export:hover {
+    background: #2b2b40 !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    color: #ffffff !important;
+}
+[data-bs-theme="dark"] .btn-executive-export .export-badge,
+body.theme-dark .btn-executive-export .export-badge {
+    background-color: rgba(239, 68, 68, 0.2) !important;
+    color: #fca5a5 !important;
+}
+
+/* ==========================================================================
+   23. EXECUTIVE FILTER SELECT CAPSULE (MATCHING EXPORT ACTION)
+   ========================================================================== */
+.executive-select-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+.executive-select-icon {
+    position: absolute;
+    left: 12px;
+    pointer-events: none;
+    font-size: 0.85rem;
+    color: #435ebe;
+    z-index: 2;
+    transition: color 0.2s ease;
+}
+
+.select-executive-filter {
+    height: 36px !important;
+    padding: 0 28px 0 34px !important;
+    border-radius: 9px !important;
+    background-color: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    color: #1e293b !important;
+    font-size: 0.82rem !important;
+    font-weight: 600 !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+    min-width: 170px;
+}
+
+.select-executive-filter:hover {
+    background-color: #f8fafc !important;
+    border-color: #cbd5e1 !important;
+    color: #0f172a !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06) !important;
+}
+
+.select-executive-filter:focus {
+    border-color: #435ebe !important;
+    box-shadow: 0 0 0 3px rgba(67, 94, 190, 0.15) !important;
+    outline: none !important;
+}
+
+[data-bs-theme="dark"] .executive-select-icon,
+body.theme-dark .executive-select-icon {
+    color: #7b96ff;
+}
+
+[data-bs-theme="dark"] .select-executive-filter,
+body.theme-dark .select-executive-filter {
+    background-color: #1e1e2d !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
+    color: #f8fafc !important;
+}
+
+[data-bs-theme="dark"] .select-executive-filter:hover,
+body.theme-dark .select-executive-filter:hover {
+    background-color: #2b2b40 !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    color: #ffffff !important;
+}
+
+[data-bs-theme="dark"] .select-executive-filter option,
+body.theme-dark .select-executive-filter option {
+    background-color: #1e1e2d !important;
+    color: #f8fafc !important;
+}
+
+/* ==========================================================================
+   24. CENTERED FLOATING GLASSMORPHIC CAPSULE (APPLE / LINEAR STYLE AUTH)
+   ========================================================================== */
+.auth-centered-wrapper {
+    min-height: 100vh;
+    background-color: #f8fafc;
+    background-image: 
+        radial-gradient(at 50% 0%, rgba(67, 94, 190, 0.08) 0px, transparent 65%),
+        radial-gradient(at 100% 100%, rgba(226, 232, 240, 0.5) 0px, transparent 50%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 2.5rem 1.25rem;
+    position: relative;
+}
+
+[data-bs-theme="dark"] .auth-centered-wrapper,
+body.theme-dark .auth-centered-wrapper {
+    background-color: #0b0f19;
+    background-image: 
+        radial-gradient(at 50% 0%, rgba(99, 102, 241, 0.12) 0px, transparent 65%),
+        radial-gradient(at 100% 100%, rgba(30, 30, 45, 0.4) 0px, transparent 50%);
+}
+
+.auth-floating-capsule {
+    width: 100%;
+    max-width: 430px;
+    background: #ffffff;
+    border-radius: 20px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 
+        0 20px 40px -15px rgba(0, 0, 0, 0.06),
+        0 0 1px 1px rgba(0, 0, 0, 0.02);
+    padding: 2.5rem 2.25rem;
+    position: relative;
+    z-index: 2;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+}
+
+[data-bs-theme="dark"] .auth-floating-capsule,
+body.theme-dark .auth-floating-capsule {
+    background: #181826;
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow: 
+        0 25px 50px -12px rgba(0, 0, 0, 0.6),
+        0 0 1px 1px rgba(255, 255, 255, 0.05);
+}
+
+.auth-logo-center {
+    height: 52px;
+    width: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.06));
+}
+
+.siap-wordmark {
+    font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, sans-serif;
+    font-weight: 900;
+    font-size: 1.75rem;
+    color: #1e3a8a;
+    letter-spacing: -0.04em;
+    line-height: 1;
+}
+
+.asn-pill-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%);
+    color: #ffffff;
+    font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+    font-weight: 800;
+    font-size: 0.82rem;
+    letter-spacing: 0.6px;
+    padding: 3px 9px;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    box-shadow: 0 2px 8px rgba(217, 119, 6, 0.35);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    line-height: 1;
+}
+
+[data-bs-theme="dark"] .siap-wordmark,
+body.theme-dark .siap-wordmark {
+    color: #f8fafc;
+}
+
+
+.auth-card-input-group {
+    position: relative;
+    margin-bottom: 1.15rem;
+}
+
+.auth-card-input-group .input-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    font-size: 1.05rem;
+    pointer-events: none;
+    transition: color 0.2s ease;
+    z-index: 3;
+}
+
+.auth-card-input-group .form-control {
+    height: 46px;
+    padding-left: 42px;
+    padding-right: 42px;
+    border-radius: 9px;
+    border: 1px solid #cbd5e1;
+    background-color: #ffffff;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #0f172a;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+
+.auth-card-input-group .form-control:focus {
+    border-color: #435ebe;
+    background-color: #ffffff;
+    box-shadow: 0 0 0 3px rgba(67, 94, 190, 0.12);
+    outline: none;
+}
+
+.auth-card-input-group .form-control:focus + .input-icon {
+    color: #435ebe;
+}
+
+.auth-card-input-group .password-toggle-btn {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    padding: 6px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    z-index: 3;
+}
+
+.auth-card-input-group .password-toggle-btn:hover {
+    color: #435ebe;
+    background: rgba(67, 94, 190, 0.06);
+}
+
+[data-bs-theme="dark"] .auth-card-input-group .form-control,
+body.theme-dark .auth-card-input-group .form-control {
+    background-color: #1e1e2d;
+    border-color: rgba(255, 255, 255, 0.12);
+    color: #f8fafc;
+}
+
+[data-bs-theme="dark"] .auth-card-input-group .form-control:focus,
+body.theme-dark .auth-card-input-group .form-control:focus {
+    border-color: #6366f1;
+    background-color: #252538;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+/* Submit Action Button */
+.btn-auth-submit {
+    height: 46px;
+    border-radius: 9px;
+    background: #435ebe;
+    border: none;
+    color: #ffffff;
+    font-size: 0.92rem;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(67, 94, 190, 0.25);
+    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.btn-auth-submit:hover {
+    background: #374ea3;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(67, 94, 190, 0.35);
+    color: #ffffff;
+}
+
+.btn-auth-submit:active {
+    transform: translateY(0);
+}
+
+.auth-footer-tag {
+    font-size: 0.76rem;
+    color: #94a3b8;
+    margin-top: 1.75rem;
+    text-align: center;
+}
+
+/* Return to Dashboard Action Pill */
+.btn-return-dashboard {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 38px;
+    padding: 0 18px;
+    border-radius: 9999px;
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #475569;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+
+.btn-return-dashboard .return-arrow-icon {
+    font-size: 0.9rem;
+    color: #435ebe;
+    transition: transform 0.2s ease;
+}
+
+.btn-return-dashboard:hover {
+    background-color: #ffffff;
+    border-color: #cbd5e1;
+    color: #0f172a;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.btn-return-dashboard:hover .return-arrow-icon {
+    transform: translateX(-3px);
+}
+
+[data-bs-theme="dark"] .btn-return-dashboard,
+body.theme-dark .btn-return-dashboard {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #cbd5e1;
+}
+
+[data-bs-theme="dark"] .btn-return-dashboard .return-arrow-icon,
+body.theme-dark .btn-return-dashboard .return-arrow-icon {
+    color: #7b96ff;
+}
+
+[data-bs-theme="dark"] .btn-return-dashboard:hover,
+body.theme-dark .btn-return-dashboard:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+}
+
+
+
+
+
+
+
+
+
+
+

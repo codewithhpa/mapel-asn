@@ -1,0 +1,114 @@
+<!-- Shared Master Data Navigation Tabs (Anti-Slop Modern Segmented Control) -->
+<div class="master-nav-tabs-wrapper mb-4">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 pb-2 border-bottom">
+        <div class="master-segmented-control d-flex align-items-center gap-1 overflow-auto p-1" style="max-width: 100%;">
+            <a href="/master/pegawai" class="nav-segment-item {{if eq .ActiveMenu "pegawai"}}active{{end}}">
+                <i class="bi bi-people-fill me-1"></i> Pegawai (ASN)
+            </a>
+            <a href="/master/departemen" class="nav-segment-item {{if eq .ActiveMenu "departemen"}}active{{end}}">
+                <i class="bi bi-building me-1"></i> Departemen (Bagian)
+            </a>
+            <a href="/master/area" class="nav-segment-item {{if eq .ActiveMenu "area"}}active{{end}}">
+                <i class="bi bi-geo-alt-fill me-1"></i> Area (Lokasi Mesin)
+            </a>
+            <a href="/master/jabatan" class="nav-segment-item {{if eq .ActiveMenu "jabatan"}}active{{end}}">
+                <i class="bi bi-briefcase-fill me-1"></i> Jabatan (Position)
+            </a>
+            <a href="/master/mutasi" class="nav-segment-item {{if eq .ActiveMenu "mutasi"}}active{{end}}">
+                <i class="bi bi-person-x-fill me-1"></i> Mutasi &amp; Resign ASN
+            </a>
+        </div>
+
+        <div class="d-flex align-items-center gap-2">
+            <span class="badge badge-square bg-light-success text-success px-3 py-2 font-monospace fs-7 d-flex align-items-center gap-1" id="bioTimeSyncBadge">
+                <i class="bi bi-cloud-check-fill text-success" id="bioTimeSyncIcon"></i> BioTime {{.BioTimeVersion}} Live Synced
+            </span>
+            <button type="button" class="btn btn-sm btn-outline-secondary px-2 py-1 shadow-xs" style="border-radius: 8px;" onclick="triggerBioTimeSync(this)" title="Sinkronisasi Ulang BioTime">
+                <i class="bi bi-arrow-clockwise" id="btnRefreshIcon"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+function triggerBioTimeSync(btn) {
+    const icon = btn ? btn.querySelector('i') : document.getElementById('btnRefreshIcon');
+    if (icon) icon.classList.add('spin');
+    
+    const syncBadge = document.getElementById('bioTimeSyncBadge');
+    const syncIcon = document.getElementById('bioTimeSyncIcon');
+    if (syncBadge) {
+        syncBadge.className = 'badge badge-square bg-light-primary text-primary px-3 py-2 font-monospace fs-7 d-flex align-items-center gap-1';
+        syncBadge.innerHTML = '<i class="bi bi-arrow-repeat spin text-primary"></i> Sinkronisasi BioTime...';
+    }
+
+    // Apply shimmer effect to current data rows
+    const tbody = document.querySelector('tbody');
+    if (tbody) {
+        const rows = tbody.querySelectorAll('tr');
+        rows.forEach(r => r.classList.add('table-row-shimmer'));
+    }
+
+    setTimeout(function() {
+        window.location.reload();
+    }, 650);
+}
+</script>
+
+<style>
+.master-segmented-control {
+    background-color: #f1f5f9;
+    border-radius: 12px;
+    scrollbar-width: none;
+    white-space: nowrap;
+}
+.master-segmented-control::-webkit-scrollbar {
+    display: none;
+}
+.nav-segment-item {
+    color: #64748b;
+    font-size: 0.82rem;
+    font-weight: 600;
+    padding: 7px 14px;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+}
+.nav-segment-item:hover {
+    color: #1e293b;
+}
+.nav-segment-item.active {
+    background-color: #ffffff;
+    color: #435ebe;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+.badge-square {
+    border-radius: 6px !important;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+}
+
+[data-bs-theme="dark"] .master-segmented-control,
+body.theme-dark .master-segmented-control {
+    background-color: #161624;
+}
+[data-bs-theme="dark"] .nav-segment-item,
+body.theme-dark .nav-segment-item {
+    color: #94a3b8;
+}
+[data-bs-theme="dark"] .nav-segment-item:hover,
+body.theme-dark .nav-segment-item:hover {
+    color: #f8fafc;
+}
+[data-bs-theme="dark"] .nav-segment-item.active,
+body.theme-dark .nav-segment-item.active {
+    background-color: #2b2b40;
+    color: #7b96ff;
+}
+[data-bs-theme="dark"] .master-nav-tabs-wrapper .border-bottom {
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+</style>

@@ -1,0 +1,607 @@
+<div class="page-heading">
+    <div class="page-title mb-3">
+        <div class="row align-items-center">
+            <div class="col-12 col-md-7">
+                <h3 class="fw-bold mb-1">Manajemen Petugas Verifikator</h3>
+                <p class="text-subtitle text-muted mb-0">Daftar akun petugas berwenang untuk audit barisan fisik apel dan verifikasi lapangan ASN.</p>
+            </div>
+            <div class="col-12 col-md-5 text-md-end mt-3 mt-md-0">
+                <button type="button" class="btn btn-primary px-4 py-2 fw-semibold shadow-sm" onclick="openCreateUserModal()">
+                    <i class="bi bi-person-plus-fill me-2"></i> Tambah Petugas Baru
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="page-content">
+    <!-- Statistik Ringkas Petugas -->
+    <section class="row g-3 mb-4">
+        <div class="col-12 col-md-6 col-lg-4">
+            <div class="card master-kpi-card h-100 mb-0">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-muted text-uppercase text-xs fw-bold">Total Akun Petugas</span>
+                        <div class="master-icon-badge bg-light-primary text-primary">
+                            <i class="bi bi-people-fill"></i>
+                        </div>
+                    </div>
+                    <h3 class="fw-extrabold master-kpi-val mb-0 font-monospace">{{len .Users}}</h3>
+                    <small class="text-muted">Akun verifikator terdaftar</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-8">
+            <div class="card master-kpi-card h-100 mb-0">
+                <div class="card-body p-4 d-flex align-items-center">
+                    <div class="me-3">
+                        <div class="master-icon-badge bg-light-info text-info">
+                            <i class="bi bi-shield-check fs-5"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold text-dark mb-1">Otoritas &amp; Pengamanan Verifikator Apel</h6>
+                        <p class="small text-muted mb-0">Petugas yang memiliki akun aktif dapat menyetujui dispensasi, memvalidasi presensi lapangan, serta memverifikasi barisan apel pagi dan sore.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Data Table Petugas -->
+    <section class="row">
+        <div class="col-12">
+            <div class="card dashboard-card table-card">
+                <div class="card-header border-bottom py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+                    <h5 class="card-title mb-0 fs-6 fw-bold text-dark">
+                        <i class="bi bi-person-badge text-primary me-2"></i>Daftar Akun Petugas Aktif
+                    </h5>
+                    <span class="badge badge-square bg-light-primary text-primary font-monospace">{{len .Users}} Akun Terdaftar</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0 dashboard-table" id="tablePetugas">
+                            <thead>
+                                <tr>
+                                    <th class="ps-4" style="width: 50px;">No</th>
+                                    <th>Petugas (ASN / Provos)</th>
+                                    <th>Username</th>
+                                    <th class="text-center">Role / Wewenang</th>
+                                    <th class="text-center">Status</th>
+                                    <th class="text-center">Terdaftar Sejak</th>
+                                    <th class="text-center pe-4" style="width: 120px;">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{if .Users}}
+                                {{range $index, $user := .Users}}
+                                <tr id="row-user-{{$user.ID}}">
+                                    <td class="ps-4 font-monospace text-muted">{{add $index 1}}</td>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-3">
+                                            <div class="avatar-squircle bg-light-primary text-primary d-flex align-items-center justify-content-center fw-bold" style="width: 38px; height: 38px;">
+                                                <i class="bi bi-person-badge fs-5"></i>
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold text-nama-asn fs-6 mb-0">{{$user.FullName}}</div>
+                                                <small class="text-muted">NIP. {{$user.NIP}}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="font-monospace fw-bold px-2 py-1 bg-light rounded text-nip">{{$user.Username}}</span>
+                                    </td>
+                                    <td class="text-center">
+                                        {{if eq $user.Role "Administrator"}}
+                                            <span class="badge badge-square bg-danger"><i class="bi bi-shield-lock-fill me-1"></i>Administrator</span>
+                                        {{else if or (eq $user.Role "Petugas Verifikasi") (eq $user.Role "Provos")}}
+                                            <span class="badge badge-square bg-primary"><i class="bi bi-shield-shaded me-1"></i>Petugas Verifikasi</span>
+                                        {{else if eq $user.Role "Petugas Piket"}}
+                                            <span class="badge badge-square bg-info text-dark"><i class="bi bi-clock-history me-1"></i>Petugas Piket</span>
+                                        {{else if or (eq $user.Role "Pimpinan / Inspektorat") (eq $user.Role "Pimpinan")}}
+                                            <span class="badge badge-square bg-dark"><i class="bi bi-eye-fill me-1"></i>{{$user.Role}}</span>
+                                        {{else}}
+                                            <span class="badge badge-square bg-secondary"><i class="bi bi-person-check me-1"></i>{{$user.Role}}</span>
+                                        {{end}}
+                                    </td>
+                                    <td class="text-center">
+                                        {{if eq $user.IsActive 1}}
+                                            <span class="badge badge-square bg-light-success text-success"><i class="bi bi-check-circle-fill me-1"></i>Aktif</span>
+                                        {{else}}
+                                            <span class="badge badge-square bg-light-secondary text-secondary"><i class="bi bi-dash-circle me-1"></i>Nonaktif</span>
+                                        {{end}}
+                                    </td>
+                                    <td class="text-center text-muted font-monospace small">{{$user.CreatedAt}}</td>
+                                    <td class="text-center pe-4">
+                                        <div class="d-flex align-items-center justify-content-center gap-1">
+                                            <button type="button" class="btn btn-sm btn-icon-action btn-edit-user"
+                                                    onclick="openEditUserModal({{$user.ID}}, '{{$user.Username}}', '{{$user.FullName}}', '{{$user.NIP}}', '{{$user.Role}}', {{$user.IsActive}})"
+                                                    title="Edit Petugas">
+                                                <i class="bi bi-pencil-square"></i>
+                                            </button>
+                                            {{if ne $user.Username "admin"}}
+                                            <button type="button" class="btn btn-sm btn-icon-action btn-delete-user"
+                                                    onclick="deleteUser({{$user.ID}}, '{{$user.FullName}}')"
+                                                    title="Hapus Petugas">
+                                                <i class="bi bi-trash3"></i>
+                                            </button>
+                                            {{else}}
+                                            <button type="button" class="btn btn-sm btn-icon-action disabled opacity-50" title="Akun Admin Utama dilindungi">
+                                                <i class="bi bi-lock-fill"></i>
+                                            </button>
+                                            {{end}}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {{end}}
+                                {{else}}
+                                <tr>
+                                    <td colspan="7" class="p-0">
+                                        <div class="empty-state-composed py-5">
+                                            <div class="empty-state-icon">
+                                                <i class="bi bi-person-x fs-1 text-secondary opacity-50"></i>
+                                            </div>
+                                            <h6 class="text-dark fw-bold mb-1">Belum Ada Akun Petugas</h6>
+                                            <p class="text-muted small mb-3" style="max-width: 320px;">
+                                                Belum ada akun petugas verifikator yang terdaftar di sistem.
+                                            </p>
+                                            <button class="btn btn-primary btn-sm px-3" onclick="openCreateUserModal()">
+                                                <i class="bi bi-person-plus me-1"></i>Tambah Petugas Pertama
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {{end}}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- Modal Tambah Petugas -->
+<div class="modal fade" id="modalCreateUser" tabindex="-1" aria-labelledby="modalCreateUserLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
+            <div class="modal-header text-white" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-top-left-radius: 16px; border-top-right-radius: 16px;">
+                <div>
+                    <h5 class="modal-title fw-bold text-white mb-0" id="modalCreateUserLabel">
+                        <i class="bi bi-person-plus-fill me-2 text-primary"></i>Tambah Akun Petugas Baru
+                    </h5>
+                    <small class="text-light opacity-75">Buat kredensial login untuk verifikator apel dan dispensasi</small>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="formCreateUser">
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label for="createFullName" class="form-label fw-semibold text-xs text-uppercase text-muted">Nama Lengkap &amp; Gelar <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="createFullName" placeholder="Contoh: Bripka Supriadi, S.H." required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="createNIP" class="form-label fw-semibold text-xs text-uppercase text-muted">NIP / NRP <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control font-monospace" id="createNIP" placeholder="Contoh: 19850510 201001 1 003" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 col-12 mb-3">
+                            <label for="createUsername" class="form-label fw-semibold text-xs text-uppercase text-muted">Username Login <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control font-monospace" id="createUsername" placeholder="Contoh: supriadi" required>
+                        </div>
+                        <div class="col-md-6 col-12 mb-3">
+                            <label for="createRole" class="form-label fw-semibold text-xs text-uppercase text-muted">Hak Akses / Peran (Role) <span class="text-danger">*</span></label>
+                            <select class="form-select" id="createRole">
+                                {{range .Roles}}
+                                <option value="{{.RoleName}}" {{if eq .RoleCode "provos"}}selected{{end}}>{{.RoleName}}</option>
+                                {{else}}
+                                <option value="Petugas Verifikasi" selected>Petugas Verifikasi</option>
+                                <option value="Petugas Piket">Petugas Piket</option>
+                                <option value="Administrator">Administrator</option>
+                                {{end}}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="createPassword" class="form-label fw-semibold text-xs text-uppercase text-muted">Password Login <span class="text-danger">*</span></label>
+                        <input type="password" class="form-control" id="createPassword" placeholder="Minimal 6 karakter" required minlength="6">
+                    </div>
+                </div>
+                <div class="modal-footer py-3 border-top">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary px-4 fw-semibold">
+                        <i class="bi bi-check-circle me-1"></i>Simpan Akun Petugas
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Edit Petugas -->
+<div class="modal fade" id="modalEditUser" tabindex="-1" aria-labelledby="modalEditUserLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
+            <div class="modal-header text-white" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-top-left-radius: 16px; border-top-right-radius: 16px;">
+                <div>
+                    <h5 class="modal-title fw-bold text-white mb-0" id="modalEditUserLabel">
+                        <i class="bi bi-pencil-square me-2 text-warning"></i>Edit Akun Petugas
+                    </h5>
+                    <small class="text-light opacity-75">Perbarui profil atau hak akses verifikator</small>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="formEditUser">
+                <div class="modal-body p-4">
+                    <input type="hidden" id="editUserId">
+                    <div class="mb-3 p-3 bg-light rounded border">
+                        <span class="text-xs text-muted text-uppercase fw-semibold d-block">Username Login:</span>
+                        <h6 id="editUsernameDisplay" class="fw-bold text-primary font-monospace mb-0 mt-1"></h6>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editFullName" class="form-label fw-semibold text-xs text-uppercase text-muted">Nama Lengkap &amp; Gelar <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="editFullName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editNIP" class="form-label fw-semibold text-xs text-uppercase text-muted">NIP / NRP <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control font-monospace" id="editNIP" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editRole" class="form-label fw-semibold text-xs text-uppercase text-muted">Hak Akses / Peran (Role) <span class="text-danger">*</span></label>
+                        <select class="form-select" id="editRole">
+                            {{range .Roles}}
+                            <option value="{{.RoleName}}">{{.RoleName}}</option>
+                            {{else}}
+                            <option value="Petugas Verifikasi">Petugas Verifikasi</option>
+                            <option value="Petugas Piket">Petugas Piket</option>
+                            <option value="Administrator">Administrator</option>
+                            {{end}}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editPassword" class="form-label fw-semibold text-xs text-uppercase text-muted">Password Baru (Opsional)</label>
+                        <input type="password" class="form-control" id="editPassword" placeholder="Kosongkan jika tidak ingin mengubah password">
+                    </div>
+                    <div class="form-check form-switch mb-2">
+                        <input class="form-check-input" type="checkbox" id="editIsActive">
+                        <label class="form-check-label fw-semibold" for="editIsActive">Akun Aktif (Dapat Login)</label>
+                    </div>
+                </div>
+                <div class="modal-footer py-3 border-top">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary px-4 fw-semibold">
+                        <i class="bi bi-check-circle me-1"></i>Simpan Perubahan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.dashboard-card {
+    border-radius: 16px;
+    border: none;
+    background-color: #ffffff;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.025) !important;
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
+}
+.dashboard-card:hover {
+    box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04) !important;
+}
+
+.master-kpi-card {
+    border-radius: 16px;
+    border: none;
+    background: #ffffff;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.025) !important;
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
+}
+.master-kpi-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04) !important;
+}
+
+.master-icon-badge {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+}
+.avatar-squircle {
+    border-radius: 10px;
+    flex-shrink: 0;
+}
+.badge-square {
+    border-radius: 6px !important;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+}
+.text-nama-asn {
+    color: #1e293b;
+}
+.text-nip {
+    color: #0f172a;
+}
+
+/* Dashboard Table Header */
+.dashboard-table thead th {
+    background-color: transparent !important;
+    color: #64748b !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    font-size: 0.75rem !important;
+    text-transform: uppercase !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.05em !important;
+    padding-top: 16px !important;
+    padding-bottom: 16px !important;
+}
+
+/* Tertiary Action Buttons */
+.btn-icon-action {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    color: #94a3b8;
+    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.btn-icon-action:hover {
+    transform: scale(1.12);
+}
+.btn-edit-user:hover {
+    color: #435ebe;
+    background-color: rgba(67, 94, 190, 0.1);
+}
+.btn-delete-user:hover {
+    color: #ef4444;
+    background-color: rgba(239, 68, 68, 0.1);
+}
+
+/* Empty State Composition */
+.empty-state-composed {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+    text-align: center;
+}
+.empty-state-icon {
+    width: 72px;
+    height: 72px;
+    border-radius: 16px;
+    background-color: #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.25rem;
+}
+
+/* ==========================================================================
+   Dark Mode UI/UX Pro Max
+   ========================================================================== */
+[data-bs-theme="dark"] .dashboard-card,
+body.theme-dark .dashboard-card {
+    background-color: #1e1e2d !important;
+}
+[data-bs-theme="dark"] .master-kpi-card,
+body.theme-dark .master-kpi-card {
+    background: #1e1e2d !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+[data-bs-theme="dark"] .master-kpi-val {
+    color: #f8fafc !important;
+}
+[data-bs-theme="dark"] .text-nama-asn,
+body.theme-dark .text-nama-asn,
+[data-bs-theme="dark"] .text-dark,
+body.theme-dark .text-dark {
+    color: #f8fafc !important;
+}
+[data-bs-theme="dark"] .text-nip {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+    color: #93c5fd !important;
+}
+[data-bs-theme="dark"] .table-card {
+    background-color: #1e1e2d !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+[data-bs-theme="dark"] .dashboard-table thead th {
+    color: #94a3b8 !important;
+    border-bottom: 1px solid #2b2b40 !important;
+}
+[data-bs-theme="dark"] .table tbody tr td {
+    color: #e2e8f0 !important;
+    border-bottom: 1px solid #2b2b40 !important;
+}
+[data-bs-theme="dark"] .table-hover tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.02) !important;
+}
+[data-bs-theme="dark"] .empty-state-icon {
+    background-color: #1a1a2e;
+}
+[data-bs-theme="dark"] .modal-content {
+    background-color: #1e1e2d !important;
+    color: #f8fafc !important;
+}
+[data-bs-theme="dark"] .modal-footer {
+    background-color: #151521 !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+[data-bs-theme="dark"] .form-control,
+[data-bs-theme="dark"] .form-select {
+    background-color: #151521 !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+    color: #f8fafc !important;
+}
+[data-bs-theme="dark"] .form-control:focus,
+[data-bs-theme="dark"] .form-select:focus {
+    border-color: #435ebe !important;
+}
+[data-bs-theme="dark"] .bg-light {
+    background-color: #151521 !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+[data-bs-theme="dark"] .bg-light-primary {
+    background-color: rgba(67, 94, 190, 0.25) !important;
+    color: #93c5fd !important;
+}
+[data-bs-theme="dark"] .bg-light-success {
+    background-color: rgba(34, 197, 94, 0.25) !important;
+    color: #86efac !important;
+}
+[data-bs-theme="dark"] .bg-light-info {
+    background-color: rgba(14, 165, 233, 0.25) !important;
+    color: #7dd3fc !important;
+}
+
+/* Hide default DataTables search box */
+.dataTable-search {
+    display: none !important;
+}
+</style>
+
+<script>
+// 1. Buka Modal Tambah Petugas
+function openCreateUserModal() {
+    document.getElementById("formCreateUser").reset();
+    var modal = new bootstrap.Modal(document.getElementById('modalCreateUser'));
+    modal.show();
+}
+
+// 2. Submit Tambah Petugas
+document.getElementById("formCreateUser").addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    var payload = {
+        full_name: document.getElementById("createFullName").value.trim(),
+        nip: document.getElementById("createNIP").value.trim(),
+        username: document.getElementById("createUsername").value.trim(),
+        role: document.getElementById("createRole").value,
+        password: document.getElementById("createPassword").value
+    };
+
+    fetch("/api/petugas", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === "success") {
+            Swal.fire({
+                icon: 'success',
+                title: 'Akun Petugas Berhasil Dibuat!',
+                text: 'Petugas ' + payload.full_name + ' kini dapat login.',
+                timer: 1500,
+                showConfirmButton: false
+            }).then(() => window.location.reload());
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal Membuat Akun',
+                text: data.message || 'Terjadi kesalahan'
+            });
+        }
+    })
+    .catch(err => {
+        Swal.fire({ icon: 'error', title: 'Kesalahan Jaringan', text: err.toString() });
+    });
+});
+
+// 3. Buka Modal Edit Petugas
+function openEditUserModal(id, username, fullName, nip, role, isActive) {
+    document.getElementById("editUserId").value = id;
+    document.getElementById("editUsernameDisplay").textContent = username;
+    document.getElementById("editFullName").value = fullName;
+    document.getElementById("editNIP").value = nip;
+    document.getElementById("editRole").value = role;
+    document.getElementById("editPassword").value = "";
+    document.getElementById("editIsActive").checked = (isActive === 1);
+
+    var modal = new bootstrap.Modal(document.getElementById('modalEditUser'));
+    modal.show();
+}
+
+// 4. Submit Edit Petugas
+document.getElementById("formEditUser").addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    var id = document.getElementById("editUserId").value;
+    var payload = {
+        full_name: document.getElementById("editFullName").value.trim(),
+        nip: document.getElementById("editNIP").value.trim(),
+        role: document.getElementById("editRole").value,
+        password: document.getElementById("editPassword").value,
+        is_active: document.getElementById("editIsActive").checked ? 1 : 2
+    };
+
+    fetch("/api/petugas/" + id, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === "success") {
+            Swal.fire({
+                icon: 'success',
+                title: 'Data Berhasil Diperbarui!',
+                timer: 1500,
+                showConfirmButton: false
+            }).then(() => window.location.reload());
+        } else {
+            Swal.fire({ icon: 'error', title: 'Gagal Memperbarui', text: data.message });
+        }
+    })
+    .catch(err => {
+        Swal.fire({ icon: 'error', title: 'Kesalahan Jaringan', text: err.toString() });
+    });
+});
+
+// 5. Hapus Petugas dengan SweetAlert2
+function deleteUser(id, fullName) {
+    Swal.fire({
+        title: 'Hapus Akun Petugas?',
+        html: `Apakah Anda yakin ingin menghapus akun petugas <strong>${fullName}</strong>? Aksi ini tidak dapat dibatalkan.`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: '<i class="bi bi-trash-fill me-1"></i> Ya, Hapus Akun',
+        cancelButtonText: 'Batal'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch("/api/petugas/" + id, {
+                method: "DELETE"
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === "success") {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Akun Berhasil Dihapus',
+                        timer: 1200,
+                        showConfirmButton: false
+                    }).then(() => window.location.reload());
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Gagal Menghapus', text: data.message });
+                }
+            })
+            .catch(err => {
+                Swal.fire({ icon: 'error', title: 'Kesalahan Jaringan', text: err.toString() });
+            });
+        }
+    });
+}
+</script>

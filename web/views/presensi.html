@@ -1,0 +1,383 @@
+<style>
+/* ==========================================================================
+   UI/UX PRO MAX - PRESENSI LIGHT & DARK MODE ENHANCEMENTS (ANTI-SLOP)
+   ========================================================================== */
+
+/* 1. Card Refinements (No generic borders/shadows) */
+.kpi-card, .dashboard-card {
+    border-radius: 16px;
+    border: none;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.025) !important;
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
+}
+.kpi-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04) !important;
+}
+
+[data-bs-theme="dark"] .kpi-card, [data-bs-theme="dark"] .dashboard-card,
+body.theme-dark .kpi-card, body.theme-dark .dashboard-card {
+    background-color: #1e1e2d !important;
+}
+
+/* 2. Table Headers (Clean Enterprise look) */
+.dashboard-table thead th {
+    background-color: transparent !important;
+    color: #64748b !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    font-size: 0.75rem !important;
+    text-transform: uppercase !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.05em !important;
+    padding-top: 16px !important;
+    padding-bottom: 16px !important;
+}
+[data-bs-theme="dark"] .dashboard-table thead th,
+body.theme-dark .dashboard-table thead th {
+    color: #94a3b8 !important;
+    border-bottom: 1px solid #2b2b40 !important;
+}
+[data-bs-theme="dark"] .dashboard-table td,
+body.theme-dark .dashboard-table td {
+    border-bottom-color: #2b2b40 !important;
+}
+
+/* 3. Anti-Slop Component Overrides */
+.avatar-squircle {
+    border-radius: 12px !important;
+}
+.badge-square {
+    border-radius: 6px !important;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    padding: 0.35em 0.6em;
+}
+
+/* 4. Empty State Composition */
+.empty-state-composed {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+    text-align: center;
+}
+.empty-state-icon {
+    width: 72px;
+    height: 72px;
+    border-radius: 16px;
+    background-color: #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.25rem;
+}
+[data-bs-theme="dark"] .empty-state-icon,
+body.theme-dark .empty-state-icon {
+    background-color: #1a1a2e;
+}
+
+/* 5. Custom Segmented Control (iOS Style) */
+.segmented-control {
+    display: inline-flex;
+    background-color: #f1f5f9;
+    padding: 4px;
+    border-radius: 10px;
+}
+.segmented-control .btn {
+    border: none;
+    background: transparent;
+    color: #64748b;
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+.segmented-control .btn:hover {
+    color: #1e293b;
+}
+.segmented-control .btn.active {
+    background-color: #ffffff;
+    color: #0f172a;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+}
+[data-bs-theme="dark"] .segmented-control, body.theme-dark .segmented-control {
+    background-color: #1a1a2e;
+}
+[data-bs-theme="dark"] .segmented-control .btn.active, body.theme-dark .segmented-control .btn.active {
+    background-color: #2b2b40;
+    color: #f8fafc;
+}
+</style>
+
+<div class="page-heading">
+    <div class="page-title mb-3">
+        <div class="row align-items-center">
+            <div class="col-12 col-lg-7 order-lg-1 order-last">
+                <h3 class="fw-bold mb-1">Presensi ASN Hari Ini</h3>
+                <p class="text-subtitle text-muted mb-0">
+                    <span class="fw-semibold">{{.DateDisplay}}</span> &bull; Dinas Pekerjaan Umum dan Penataan Ruang Kab. Barito Utara
+                </p>
+            </div>
+            <div class="col-12 col-lg-5 order-lg-2 order-first mb-2 mb-lg-0 d-flex justify-content-lg-end align-items-center gap-3">
+                <div class="gov-branding-badge-box d-flex align-items-center gap-2 p-1 px-2 rounded-3 shadow-xs">
+                    <img src="/assets/static/images/logo-berakhlak.png" alt="BerAKHLAK" style="height: 30px; width: auto; object-fit: contain;">
+                    <span class="text-muted opacity-25">|</span>
+                    <img src="/assets/static/images/bangga-melayani-bangsa.png" alt="Bangga Melayani Bangsa" style="height: 30px; width: auto; object-fit: contain;">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="page-content">
+    <section class="row">
+        <!-- Ringkasan Statistik Presensi - Unified Apple Monochrome KPI Cards -->
+        <div class="col-12 mb-3">
+            <div class="row g-3">
+                <!-- Total Pegawai -->
+                <div class="col-6 col-sm-6 col-md-4 col-xl">
+                    <div class="card monochrome-kpi-card h-100 mb-0">
+                        <div class="card-body p-3 p-xl-4">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="kpi-label-track">Total Pegawai</span>
+                                <i class="bi bi-people kpi-icon-outline"></i>
+                            </div>
+                            <h3 class="kpi-value-bold mb-2">
+                                {{.Summary.TotalPegawai}}<span class="kpi-unit-sub">ASN</span>
+                            </h3>
+                            <div class="text-xs text-muted">
+                                <span class="kpi-indicator-dot bg-primary"></span>Terdaftar di BioTime
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tepat Waktu -->
+                <div class="col-6 col-sm-6 col-md-4 col-xl">
+                    <div class="card monochrome-kpi-card h-100 mb-0">
+                        <div class="card-body p-3 p-xl-4">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="kpi-label-track">Tepat Waktu</span>
+                                <i class="bi bi-shield-check kpi-icon-outline"></i>
+                            </div>
+                            <h3 class="kpi-value-bold mb-2">
+                                {{.Summary.TepatWaktuCount}}<span class="kpi-unit-sub">ASN</span>
+                            </h3>
+                            <div class="text-xs text-muted">
+                                <span class="kpi-indicator-dot bg-success"></span>Hadir tepat waktu apel
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Terlambat Pagi -->
+                <div class="col-6 col-sm-6 col-md-4 col-xl">
+                    <div class="card monochrome-kpi-card h-100 mb-0">
+                        <div class="card-body p-3 p-xl-4">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="kpi-label-track">Terlambat Pagi</span>
+                                <i class="bi bi-clock kpi-icon-outline"></i>
+                            </div>
+                            <h3 class="kpi-value-bold mb-2">
+                                {{.Summary.TerlambatCount}}<span class="kpi-unit-sub">ASN</span>
+                            </h3>
+                            <div class="text-xs text-muted">
+                                <span class="kpi-indicator-dot bg-warning"></span>Lewat batas toleransi
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hadir Apel Sore -->
+                <div class="col-6 col-sm-6 col-md-4 col-xl">
+                    <div class="card monochrome-kpi-card h-100 mb-0">
+                        <div class="card-body p-3 p-xl-4">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="kpi-label-track">Hadir Apel Sore</span>
+                                <i class="bi bi-person kpi-icon-outline"></i>
+                            </div>
+                            <h3 class="kpi-value-bold mb-2">
+                                {{.Summary.ApelSoreCount}}<span class="kpi-unit-sub">ASN</span>
+                            </h3>
+                            <div class="text-xs text-muted">
+                                <span class="kpi-indicator-dot bg-info"></span>Presensi apel sore
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Temuan & Anomali -->
+                <div class="col-6 col-sm-6 col-md-4 col-xl">
+                    <div class="card monochrome-kpi-card h-100 mb-0">
+                        <div class="card-body p-3 p-xl-4">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="kpi-label-track">Temuan &amp; Anomali</span>
+                                <i class="bi bi-shield-exclamation kpi-icon-outline"></i>
+                            </div>
+                            <h3 class="kpi-value-bold mb-2">
+                                {{.Summary.AnomaliCount}}<span class="kpi-unit-sub">Kasus</span>
+                            </h3>
+                            <div class="text-xs text-muted">
+                                <span class="kpi-indicator-dot bg-danger"></span>Perlu verifikasi data
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabel Lengkap Presensi Hari Ini -->
+        <div class="col-12">
+            <div class="card dashboard-card">
+                <div class="card-header pb-2 border-bottom">
+                    <div class="row align-items-center mb-3">
+                        <div class="col-12">
+                            <h5 class="card-title fw-bold text-dark mb-1">Daftar Rekapitulasi Presensi &amp; Apel ASN</h5>
+                            <p class="text-muted small mb-0"><strong>{{.DateDisplay}}</strong> &bull; Total {{.Summary.TotalPegawai}} data presensi dari BioTime.</p>
+                        </div>
+                    </div>
+
+                    <!-- Toolbar Filter: Pilihan Cepat & Dropdown Bulan -->
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 pb-2">
+                        <!-- Pilihan Cepat -->
+                        <div class="segmented-control" role="group">
+                            <a href="/presensi?period=today" class="btn {{if eq .PeriodType "today"}}active{{end}}">Hari Ini</a>
+                            <a href="/presensi?period=this_week" class="btn {{if eq .PeriodType "this_week"}}active{{end}}">Minggu Ini</a>
+                            <a href="/presensi?period=this_month" class="btn {{if eq .PeriodType "this_month"}}active{{end}}">Bulan Ini</a>
+                            <a href="/presensi?period=all" class="btn {{if eq .PeriodType "all"}}active{{end}}">Semua ({{if .CurrentYear}}{{.CurrentYear}}{{else}}2026{{end}})</a>
+                        </div>
+
+                        <!-- Filter Per Bulan Dinamis & Aksi Ekspor -->
+                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                            <div class="executive-select-wrapper">
+                                <i class="bi bi-calendar3 executive-select-icon"></i>
+                                <select class="form-select select-executive-filter" onchange="if(this.value) window.location.href='/presensi?month='+this.value">
+                                    <option value="">-- Semua Bulan --</option>
+                                    {{range .AvailableMonths}}
+                                        <option value="{{.Value}}" {{if .IsActive}}selected{{end}}>{{.Label}}</option>
+                                    {{end}}
+                                </select>
+                            </div>
+
+                            <a href="/presensi/cetak{{if eq .PeriodType "month"}}?month={{.SelectedMonth}}{{else if eq .PeriodType "this_week"}}?period=this_week{{else if eq .PeriodType "this_month"}}?period=this_month{{else if eq .PeriodType "all"}}?period=all{{else if and (eq .PeriodType "today") (eq .Summary.TotalPegawai 0)}}?period=all{{else}}?period=today{{end}}" 
+                               target="_blank" 
+                               class="btn-executive-export ms-1" 
+                               title="Cetak Dokumen Resmi Rekapitulasi Presensi (PDF Resolusi Tinggi)">
+                                <i class="bi bi-printer text-primary"></i>
+                                <span>Cetak Rekap</span>
+                                <span class="export-badge">PDF</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <!-- Tabel Rekapitulasi Presensi (Mazer Simple DataTable) -->
+                        <table class="table table-hover table-datatable dashboard-table align-middle" id="table1" data-per-page="10">
+                            <thead>
+                                <tr>
+                                    <th>Hari / Tanggal</th>
+                                    <th>Pegawai (ASN)</th>
+                                    <th>Unit Kerja</th>
+                                    <th class="text-center">Scan Masuk</th>
+                                    <th class="text-center">Status Masuk</th>
+                                    <th class="text-center">Scan Sore</th>
+                                    <th class="text-center">Status Apel Sore</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{range $idx, $log := .Summary.Logs}}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex flex-column">
+                                            <span class="fw-bold">{{$log.DayName}}</span>
+                                            <span class="small text-muted font-monospace">{{$log.Date}}</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar avatar-md bg-light-primary text-primary me-3 d-flex align-items-center justify-content-center fw-bold avatar-squircle">
+                                                <i class="bi bi-person-fill fs-5"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="font-bold mb-0">{{$log.Name}}</h6>
+                                                <small class="text-muted">NIP. {{$log.EmpCode}}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {{if $log.Department}}
+                                            <span>{{$log.Department}}</span>
+                                        {{else}}
+                                            <span class="text-muted italic">-</span>
+                                        {{end}}
+                                    </td>
+                                    <td class="text-center">
+                                        {{if eq $log.CheckInDisplay "------"}}
+                                            <span class="badge badge-square bg-light-secondary text-secondary font-monospace">—</span>
+                                        {{else}}
+                                            <span class="badge badge-square bg-light-secondary text-secondary font-monospace fs-6">{{$log.CheckInDisplay}}</span>
+                                        {{end}}
+                                    </td>
+                                    <td class="text-center">
+                                        {{if or (eq $log.CheckInStatus "Hadir Apel Pagi") (eq $log.CheckInStatus "Tepat Waktu")}}
+                                            <span class="badge badge-square bg-success"><i class="bi bi-check-circle-fill me-1"></i>Hadir Apel Pagi</span>
+                                        {{else if eq $log.CheckInStatus "Terlambat"}}
+                                            <span class="badge badge-square bg-warning text-dark"><i class="bi bi-clock me-1"></i>Terlambat (+{{$log.LateMinutes}}m)</span>
+                                        {{else if isLeave $log.CheckInStatus}}
+                                            <span class="badge badge-square bg-primary"><i class="bi bi-briefcase me-1"></i>{{$log.CheckInStatus}}</span>
+                                        {{else if eq $log.CheckInStatus "Belum Scan"}}
+                                            <span class="badge badge-square bg-light-danger text-danger"><i class="bi bi-dash-circle me-1"></i>Belum Scan</span>
+                                        {{else}}
+                                            <span class="badge badge-square bg-secondary">{{$log.CheckInStatus}}</span>
+                                        {{end}}
+                                    </td>
+                                    <td class="text-center">
+                                        {{if eq $log.CheckOutDisplay "------"}}
+                                            <span class="badge badge-square bg-light-secondary text-secondary font-monospace">—</span>
+                                        {{else}}
+                                            <span class="badge badge-square bg-light-secondary text-secondary font-monospace fs-6">{{$log.CheckOutDisplay}}</span>
+                                        {{end}}
+                                    </td>
+                                    <td class="text-center">
+                                        {{if or (eq $log.CheckOutStatus "Hadir Apel Sore") (eq $log.CheckOutStatus "Sah Hadir Apel Sore")}}
+                                            <span class="badge badge-square bg-info text-dark"><i class="bi bi-check-circle-fill me-1"></i>Hadir Apel Sore</span>
+                                        {{else if eq $log.CheckOutStatus "Lewat Cutoff (Ditolak)"}}
+                                            <span class="badge badge-square bg-danger" {{if $log.AnomalyReason}}title="{{$log.AnomalyReason}}"{{end}}><i class="bi bi-exclamation-triangle-fill me-1"></i>Lewat Batas Waktu</span>
+                                        {{else if eq $log.CheckOutStatus "Pulang Cepat"}}
+                                            <span class="badge badge-square bg-light-warning text-warning"><i class="bi bi-box-arrow-right me-1"></i>Pulang Cepat</span>
+                                        {{else if isLeave $log.CheckOutStatus}}
+                                            <span class="badge badge-square bg-primary"><i class="bi bi-briefcase me-1"></i>{{$log.CheckOutStatus}}</span>
+                                        {{else if eq $log.CheckOutStatus "Belum Scan"}}
+                                            <span class="badge badge-square bg-light-danger text-danger"><i class="bi bi-dash-circle me-1"></i>Belum Scan</span>
+                                        {{else}}
+                                            <span class="badge badge-square bg-secondary">{{$log.CheckOutStatus}}</span>
+                                        {{end}}
+                                    </td>
+                                </tr>
+                                {{else}}
+                                <tr>
+                                    <td colspan="7" class="p-0">
+                                        <div class="empty-state-composed">
+                                            <div class="empty-state-icon">
+                                                <i class="bi bi-calendar-x fs-1 text-secondary opacity-50"></i>
+                                            </div>
+                                            <h6 class="text-dark fw-bold mb-2">Riwayat Presensi Kosong</h6>
+                                            <p class="text-muted small mb-0" style="max-width: 320px;">
+                                                Belum ada aktivitas presensi atau apel yang terekam pada mesin biometrik untuk periode yang dipilih.
+                                            </p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {{end}}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+

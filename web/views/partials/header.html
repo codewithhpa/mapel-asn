@@ -1,0 +1,280 @@
+<header class="mb-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+    <div class="d-flex align-items-center gap-3">
+        <a href="#" class="burger-btn d-block d-xl-none text-muted">
+            <i class="bi bi-justify fs-3"></i>
+        </a>
+
+        <!-- Enterprise High-End Status Ribbon (Clock & BioTime Connectivity) -->
+        <div class="header-system-ribbon d-none d-md-flex align-items-center">
+            <!-- Server Date & Clock -->
+            <div class="ribbon-item">
+                <i class="bi bi-clock ribbon-icon"></i>
+                <span id="headerLiveDate" class="ribbon-date">Memuat Waktu...</span>
+                <span class="ribbon-dot">&bull;</span>
+                <span id="headerLiveClock" class="ribbon-clock">--:--:-- WIB</span>
+            </div>
+            
+            <!-- Hairline Divider -->
+            <div class="ribbon-divider"></div>
+
+            <!-- BioTime Health Status (live via /health polling) -->
+            <div class="ribbon-item" title="Status koneksi server">
+                <span class="status-live-dot" id="serverHealthDot"></span>
+                <span class="ribbon-label">BioTime {{if .BioTimeVersion}}{{.BioTimeVersion}}{{else}}9.5{{end}}</span>
+                <span class="ribbon-status-text" id="serverHealthText">Menghubungkan…</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex align-items-center gap-3 ms-auto">
+        {{if .CurrentUser}}
+        <div class="dropdown border-start ps-3">
+            <button class="btn user-profile-dropdown-btn d-flex align-items-center gap-2 p-1 pe-2 border-0 bg-transparent shadow-none" type="button" id="userProfileDropdown" data-bs-toggle="dropdown" data-bs-offset="0,8" aria-expanded="false">
+                <div class="position-relative flex-shrink-0" style="width: 36px; height: 36px;">
+                    <div class="bg-primary text-white d-flex align-items-center justify-content-center fw-bold shadow-xs w-100 h-100" style="border-radius: 10px; font-size: 1.1rem;">
+                        <i class="bi bi-person-fill"></i>
+                    </div>
+                    <span class="user-active-badge"></span>
+                </div>
+                <div class="d-none d-sm-block text-start" style="line-height: 1.2;">
+                    <div class="fw-bold fs-6 text-dark user-name-label mb-1">{{.CurrentUser.FullName}}</div>
+                    <span class="badge bg-light-primary text-primary py-0 px-1 font-monospace" style="font-size: 0.68rem;">{{.CurrentUser.Role}}</span>
+                </div>
+                <i class="bi bi-chevron-down text-muted ms-1" style="font-size: 0.75rem;"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow-lg executive-user-menu border-0 py-2" aria-labelledby="userProfileDropdown">
+                <li class="px-3 py-2 border-bottom mb-1">
+                    <div class="fw-bold text-dark fs-6 user-name-label">{{.CurrentUser.FullName}}</div>
+                    <div class="text-muted small text-truncate" style="max-width: 200px;">NIP / ID: {{.CurrentUser.Username}}</div>
+                    <div class="mt-1">
+                        <span class="badge bg-light-success text-success font-monospace" style="font-size: 0.65rem;">
+                            <i class="bi bi-shield-check me-1"></i>Sesi Terautentikasi
+                        </span>
+                    </div>
+                </li>
+                <li>
+                    <a class="dropdown-item py-2 d-flex align-items-center gap-2" href="/dispensasi">
+                        <i class="bi bi-file-earmark-check text-muted"></i>
+                        <span>Dispensasi &amp; Klarifikasi</span>
+                    </a>
+                </li>
+                {{if or (eq .CurrentUser.RoleID 1) (eq .CurrentUser.Role "Administrator") (eq .CurrentUser.Role "admin")}}
+                <li>
+                    <a class="dropdown-item py-2 d-flex align-items-center gap-2" href="/master/pegawai">
+                        <i class="bi bi-people text-muted"></i>
+                        <span>Master Data ASN</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item py-2 d-flex align-items-center gap-2" href="/aturan-presensi">
+                        <i class="bi bi-sliders text-muted"></i>
+                        <span>Aturan &amp; Toleransi Apel</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item py-2 d-flex align-items-center gap-2" href="/petugas">
+                        <i class="bi bi-person-badge text-muted"></i>
+                        <span>Manajemen Petugas</span>
+                    </a>
+                </li>
+                {{end}}
+                <li><hr class="dropdown-divider my-1"></li>
+                <li>
+                    <a class="dropdown-item py-2 d-flex align-items-center gap-2 text-danger fw-semibold dropdown-item-logout" href="/logout">
+                        <i class="bi bi-box-arrow-right"></i>
+                        <span>Keluar dari Sesi</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        {{else}}
+        <div class="border-start ps-3">
+            <a href="/login" class="btn btn-sm btn-primary shadow-xs px-3 py-1-5 fw-semibold" style="border-radius: 8px;">
+                <i class="bi bi-box-arrow-in-right me-1"></i> Login Petugas
+            </a>
+        </div>
+        {{end}}
+    </div>
+</header>
+
+<style>
+/* ==========================================================================
+   ENTERPRISE HEADER SYSTEM RIBBON (Clean, Minimalist, Human-Crafted)
+   ========================================================================== */
+.header-system-ribbon {
+    display: inline-flex;
+    align-items: center;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 6px 14px;
+    gap: 12px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.header-system-ribbon:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+}
+
+.ribbon-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.82rem;
+    line-height: 1;
+}
+
+.ribbon-icon {
+    font-size: 0.85rem;
+    color: #64748b;
+}
+
+.ribbon-date {
+    color: #64748b;
+    font-weight: 500;
+}
+
+.ribbon-dot {
+    color: #cbd5e1;
+    font-size: 0.7rem;
+}
+
+.ribbon-clock {
+    color: #0f172a;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.02em;
+}
+
+.ribbon-divider {
+    width: 1px;
+    height: 14px;
+    background-color: #e2e8f0;
+}
+
+.ribbon-label {
+    color: #475569;
+    font-weight: 600;
+}
+
+.ribbon-status-text {
+    color: #059669;
+    font-weight: 600;
+    font-size: 0.74rem;
+    letter-spacing: 0.01em;
+}
+
+/* Micro Pulse Status Indicator */
+.status-live-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background-color: #10b981;
+    position: relative;
+    display: inline-block;
+    flex-shrink: 0;
+}
+.status-live-dot::after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background-color: rgba(16, 185, 129, 0.4);
+    animation: statusPulse 2s infinite ease-out;
+}
+
+@keyframes statusPulse {
+    0% {
+        transform: scale(0.8);
+        opacity: 0.8;
+    }
+    100% {
+        transform: scale(1.9);
+        opacity: 0;
+    }
+}
+
+/* Dark Mode Harmonization */
+[data-bs-theme="dark"] .header-system-ribbon,
+body.theme-dark .header-system-ribbon {
+    background: #1e1e2d;
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow: none;
+}
+[data-bs-theme="dark"] .header-system-ribbon:hover,
+body.theme-dark .header-system-ribbon:hover {
+    border-color: rgba(255, 255, 255, 0.16);
+}
+[data-bs-theme="dark"] .ribbon-icon,
+body.theme-dark .ribbon-icon {
+    color: #94a3b8;
+}
+[data-bs-theme="dark"] .ribbon-date,
+body.theme-dark .ribbon-date {
+    color: #94a3b8;
+}
+[data-bs-theme="dark"] .ribbon-clock,
+body.theme-dark .ribbon-clock {
+    color: #f8fafc;
+}
+[data-bs-theme="dark"] .ribbon-divider,
+body.theme-dark .ribbon-divider {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+[data-bs-theme="dark"] .ribbon-label,
+body.theme-dark .ribbon-label {
+    color: #cbd5e1;
+}
+[data-bs-theme="dark"] .ribbon-status-text,
+body.theme-dark .ribbon-status-text {
+    color: #34d399;
+}
+</style>
+
+<script>
+(function initHeaderClock() {
+    function pad(n) { return n < 10 ? '0' + n : n; }
+    function updateClock() {
+        const now = new Date();
+        const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+        
+        const dateStr = `${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+        const timeStr = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())} WIB`;
+
+        const clockEl = document.getElementById('headerLiveClock');
+        const dateEl = document.getElementById('headerLiveDate');
+        if (clockEl) clockEl.textContent = timeStr;
+        if (dateEl) dateEl.textContent = dateStr;
+    }
+    updateClock();
+    setInterval(updateClock, 1000);
+})();
+
+(function initServerHealth() {
+    const dot = document.getElementById('serverHealthDot');
+    const txt = document.getElementById('serverHealthText');
+    if (!dot || !txt) return;
+
+    function setHealth(ok) {
+        txt.textContent = ok ? 'Terhubung' : 'Terputus';
+        txt.style.color = ok ? '' : '#ef4444';
+        dot.style.backgroundColor = ok ? '' : '#ef4444';
+    }
+
+    async function ping() {
+        try {
+            const res = await fetch('/health', { cache: 'no-store' });
+            setHealth(res.ok);
+        } catch (e) {
+            setHealth(false);
+        }
+    }
+    ping();
+    setInterval(ping, 30000);
+})();
+</script>

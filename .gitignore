@@ -1,0 +1,8 @@
+.env
+data/*.json
+data/snapshots/
+dist/
+*.exe
+*.syso
+*.log
+/tmp/

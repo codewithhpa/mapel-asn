@@ -1,0 +1,527 @@
+<div class="page-heading">
+    <div class="page-title mb-3">
+        <div class="row align-items-center">
+            <div class="col-12 col-md-7">
+                <h3 class="fw-bold mb-1">Master Data Mutasi &amp; Resign ASN</h3>
+                <p class="text-subtitle text-muted mb-0">Pencatatan mutasi pindah tugas, cuti panjang, pensiun, dan penonaktifan presensi biometrik pada server BioTime.</p>
+            </div>
+            <div class="col-12 col-md-5 text-md-end mt-3 mt-md-0">
+                <button type="button" class="btn btn-warning text-dark fw-bold px-4 py-2 shadow-sm" data-bs-toggle="modal" data-bs-target="#modalCreateMutasi">
+                    <i class="bi bi-person-dash-fill me-2"></i>Catat Mutasi ASN
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigasi Cepat Tab Master Data -->
+    {{template "master/nav_tabs" .}}
+</div>
+
+<div class="page-content">
+    <section class="row g-3 mb-4">
+        <div class="col-12 col-md-6 col-lg-4">
+            <div class="card monochrome-kpi-card h-100 mb-0">
+                <div class="card-body p-3 p-md-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="kpi-label-track">Total Mutasi / Nonaktif</span>
+                        <i class="bi bi-person-x kpi-icon-outline"></i>
+                    </div>
+                    <h3 class="kpi-value-bold mb-2">
+                        {{len .Resigns}}<span class="kpi-unit-sub">ASN</span>
+                    </h3>
+                    <div class="text-xs text-muted">
+                        <span class="kpi-indicator-dot bg-danger"></span>ASN dinonaktifkan dari presensi
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-8">
+            <div class="card monochrome-kpi-card h-100 mb-0">
+                <div class="card-body p-3 p-md-4 d-flex align-items-center">
+                    <div class="me-3">
+                        <i class="bi bi-shield-slash kpi-icon-outline fs-3 text-warning"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold text-dark mb-1">Dampak Penonaktifan Presensi (Disable Attendance)</h6>
+                        <p class="small text-muted mb-0">Pegawai yang tercatat pada menu ini akan otomatis diabaikan dari rekap apel harian dan mesin Face Recognition tidak akan menolak hak presensinya. Jika pegawai kembali bertugas, gunakan tombol <b>Pulihkan ASN</b>.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Toolbar Filter -->
+    <div class="card dashboard-card mb-4 table-card">
+        <div class="card-body p-3">
+            <div class="row g-2 align-items-center">
+                <div class="col-12 col-md-6">
+                    <div class="input-group">
+                        <span class="input-group-text border-end-0 bg-transparent">
+                            <i class="bi bi-search text-muted"></i>
+                        </span>
+                        <input type="text" class="form-control border-start-0 ps-0" id="filterMutasiSearch" placeholder="Cari NIP, Nama Pegawai atau Alasan...">
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 text-md-end">
+                    <!-- mutasiCountLabel removed -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Table Mutasi -->
+    <div class="card dashboard-card table-card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 dashboard-table" id="tableMutasi">
+                    <thead>
+                        <tr>
+                            <th class="ps-4" style="width: 60px;">No</th>
+                            <th>Pegawai ASN</th>
+                            <th>NIP / ID</th>
+                            <th>Tanggal Mutasi</th>
+                            <th>Status Presensi</th>
+                            <th>Alasan / Keterangan Mutasi</th>
+                            <th class="text-center pe-4" style="width: 170px;">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{if .Resigns}}
+                            {{range $i, $r := .Resigns}}
+                            <tr class="mutasi-row" data-name="{{if $r.Employee}}{{$r.Employee.FirstName}} {{$r.Employee.LastName}}{{end}}" data-nip="{{if $r.Employee}}{{$r.Employee.EmpCode}}{{end}}" data-reason="{{$r.Reason}}">
+                                <td class="ps-4 font-monospace text-muted">{{add $i 1}}</td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="avatar-squircle bg-light-danger text-danger fw-bold d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                                            <i class="bi bi-person-x fs-5"></i>
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold text-nama-asn fs-6 mb-0">
+                                                {{if $r.Employee}}
+                                                    {{$r.Employee.FirstName}} {{$r.Employee.LastName}}
+                                                {{else}}
+                                                    Pegawai ID #{{$r.ID}}
+                                                {{end}}
+                                            </div>
+                                            <small class="text-muted">Pegawai Nonaktif</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="font-monospace fw-bold px-2 py-1 bg-light rounded text-nip">
+                                        {{if $r.Employee}}{{$r.Employee.EmpCode}}{{else}}-{{end}}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="font-monospace text-muted small">{{$r.ResignDate}}</span>
+                                </td>
+                                <td>
+                                    <span class="badge badge-square bg-light-danger text-danger px-3 py-2 font-monospace">
+                                        <i class="bi bi-x-circle me-1"></i>Presensi Dinonaktifkan
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="text-muted small">{{if $r.Reason}}{{$r.Reason}}{{else}}Mutasi / Pindah Tugas{{end}}</span>
+                                </td>
+                                <td class="text-center pe-4">
+                                    <div class="d-flex align-items-center justify-content-center gap-1">
+                                        <button type="button" class="btn btn-sm btn-light-success px-2 py-1 fw-semibold shadow-xs" title="Pulihkan &amp; Aktifkan Kembali ASN" style="border-radius: 6px; font-size: 0.78rem;" onclick="confirmReinstatement({{$r.ID}}, '{{if $r.Employee}}{{$r.Employee.FirstName}}{{else}}Pegawai{{end}}')">
+                                            <i class="bi bi-arrow-counterclockwise me-1"></i>Pulihkan
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-icon-action btn-delete-mutasi" title="Hapus Riwayat Mutasi" onclick="confirmDeleteMutasi({{$r.ID}})">
+                                            <i class="bi bi-trash3"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {{end}}
+                        {{else}}
+                            <tr>
+                                <td colspan="7" class="p-0">
+                                    <div class="empty-state-composed py-5">
+                                        <div class="empty-state-icon">
+                                            <i class="bi bi-person-check fs-1 text-success opacity-75"></i>
+                                        </div>
+                                        <h6 class="text-dark fw-bold mb-1">Semua Pegawai Aktif</h6>
+                                        <p class="text-muted small mb-0" style="max-width: 320px;">
+                                            Tidak ada pegawai yang sedang dimutasi atau dinonaktifkan dari mesin presensi.
+                                        </p>
+                                    </div>
+                                </td>
+                            </tr>
+                        {{end}}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Catat Mutasi Baru -->
+<div class="modal fade" id="modalCreateMutasi" tabindex="-1" aria-labelledby="modalCreateMutasiLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
+            <div class="modal-header text-white" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-top-left-radius: 16px; border-top-right-radius: 16px;">
+                <div>
+                    <h5 class="modal-title fw-bold text-white mb-0" id="modalCreateMutasiLabel">
+                        <i class="bi bi-person-dash-fill me-2 text-warning"></i>Catat Mutasi / Nonaktifkan ASN
+                    </h5>
+                    <small class="text-light opacity-75">Data akan disinkronkan ke tabel Resigns pada BioTime {{.BioTimeVersion}}</small>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="formNewMutasi" onsubmit="submitNewMutasiForm(event)">
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-xs text-uppercase text-muted">Pilih Pegawai ASN <span class="text-danger">*</span></label>
+                        <select class="form-select" id="newMutasiEmp" required>
+                            <option value="">-- Pilih Pegawai yang Dimutasi --</option>
+                            {{range .Employees}}
+                            <option value="{{.ID}}">{{.FullName}} (NIP: {{.EmpCode}})</option>
+                            {{end}}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-xs text-uppercase text-muted">Tanggal Efektif Mutasi <span class="text-danger">*</span></label>
+                        <input type="date" class="form-control font-monospace" id="newMutasiDate" value="{{.TodayDate}}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-xs text-uppercase text-muted">Alasan Mutasi / Penonaktifan <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="newMutasiReason" rows="3" placeholder="Contoh: Mutasi ke instansi vertikal / Pensiun TMT..." required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer py-3 border-top">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-warning px-4 fw-bold text-dark" id="btnSubmitNewMutasi">
+                        <i class="bi bi-check-circle me-1"></i>Simpan Mutasi ASN
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.dashboard-card {
+    border-radius: 16px;
+    border: none;
+    background-color: #ffffff;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.025) !important;
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
+}
+.dashboard-card:hover {
+    box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04) !important;
+}
+
+.master-kpi-card {
+    border-radius: 16px;
+    border: none;
+    background: #ffffff;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.025) !important;
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
+}
+.master-kpi-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04) !important;
+}
+
+.master-icon-badge {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+}
+.avatar-squircle {
+    border-radius: 10px;
+    flex-shrink: 0;
+}
+.badge-square {
+    border-radius: 6px !important;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+}
+.text-nama-asn {
+    color: #1e293b;
+}
+
+/* Dashboard Table Header */
+.dashboard-table thead th {
+    background-color: transparent !important;
+    color: #64748b !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    font-size: 0.75rem !important;
+    text-transform: uppercase !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.05em !important;
+    padding-top: 16px !important;
+    padding-bottom: 16px !important;
+}
+
+/* Action Buttons */
+.btn-light-success {
+    background-color: rgba(34, 197, 94, 0.12);
+    color: #15803d;
+    border: none;
+    transition: all 0.2s ease;
+}
+.btn-light-success:hover {
+    background-color: #22c55e;
+    color: #ffffff;
+    transform: scale(1.04);
+}
+
+.btn-icon-action {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    color: #94a3b8;
+    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.btn-icon-action:hover {
+    transform: scale(1.12);
+}
+.btn-delete-mutasi:hover {
+    color: #ef4444;
+    background-color: rgba(239, 68, 68, 0.1);
+}
+
+/* Empty State Composition */
+.empty-state-composed {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+    text-align: center;
+}
+.empty-state-icon {
+    width: 72px;
+    height: 72px;
+    border-radius: 16px;
+    background-color: #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.25rem;
+}
+
+/* ==========================================================================
+   Dark Mode UI/UX Pro Max
+   ========================================================================== */
+[data-bs-theme="dark"] .dashboard-card,
+body.theme-dark .dashboard-card {
+    background-color: #1e1e2d !important;
+}
+[data-bs-theme="dark"] .master-kpi-card,
+body.theme-dark .master-kpi-card {
+    background: #1e1e2d !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+[data-bs-theme="dark"] .master-kpi-val {
+    color: #f8fafc !important;
+}
+[data-bs-theme="dark"] .text-nama-asn,
+body.theme-dark .text-nama-asn,
+[data-bs-theme="dark"] .text-dark,
+body.theme-dark .text-dark {
+    color: #f8fafc !important;
+}
+[data-bs-theme="dark"] .text-nip {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+    color: #93c5fd !important;
+}
+[data-bs-theme="dark"] .table-card {
+    background-color: #1e1e2d !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+[data-bs-theme="dark"] .dashboard-table thead th {
+    color: #94a3b8 !important;
+    border-bottom: 1px solid #2b2b40 !important;
+}
+[data-bs-theme="dark"] .table tbody tr td {
+    color: #e2e8f0 !important;
+    border-bottom: 1px solid #2b2b40 !important;
+}
+[data-bs-theme="dark"] .table-hover tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.02) !important;
+}
+[data-bs-theme="dark"] .empty-state-icon {
+    background-color: #1a1a2e;
+}
+[data-bs-theme="dark"] .btn-light-success {
+    background-color: rgba(34, 197, 94, 0.2);
+    color: #86efac;
+}
+[data-bs-theme="dark"] .btn-light-success:hover {
+    background-color: #22c55e;
+    color: #ffffff;
+}
+[data-bs-theme="dark"] .modal-content {
+    background-color: #1e1e2d !important;
+    color: #f8fafc !important;
+}
+[data-bs-theme="dark"] .modal-footer {
+    background-color: #151521 !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+[data-bs-theme="dark"] .form-control,
+[data-bs-theme="dark"] .form-select {
+    background-color: #151521 !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+    color: #f8fafc !important;
+}
+[data-bs-theme="dark"] .bg-light-danger {
+    background-color: rgba(239, 68, 68, 0.25) !important;
+    color: #fca5a5 !important;
+}
+
+/* Hide default DataTables search box */
+.dataTable-search {
+    display: none !important;
+}
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    let tableEl = document.getElementById("tableMutasi");
+    if (tableEl && typeof initMazerTable !== "undefined") {
+        let table = initMazerTable(tableEl, { perPage: 10 });
+        
+        let searchInput = document.getElementById("filterMutasiSearch");
+
+        if (searchInput) {
+            searchInput.addEventListener("keyup", function() {
+                if (table) table.search(this.value.trim());
+            });
+        }
+    }
+});
+
+function submitNewMutasiForm(e) {
+    e.preventDefault();
+    var empId = parseInt(document.getElementById("newMutasiEmp").value);
+    var date = document.getElementById("newMutasiDate").value;
+    var reason = document.getElementById("newMutasiReason").value.trim();
+
+    if (!empId || !date || !reason) {
+        Swal.fire("Peringatan", "Semua data wajib diisi", "warning");
+        return;
+    }
+
+    Swal.fire({
+        title: "Menyimpan Mutasi...",
+        didOpen: function() { Swal.showLoading(); }
+    });
+
+    fetch("/api/mutasi", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            employee: empId,
+            resign_date: date,
+            resign_type: 1,
+            disableatt: true,
+            reason: reason
+        })
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+        if (data.status === "success") {
+            Swal.fire({
+                icon: "success",
+                title: "Mutasi Berhasil Dicatat!",
+                text: data.message,
+                timer: 1500,
+                showConfirmButton: false
+            }).then(function() {
+                window.location.reload();
+            });
+        } else {
+            Swal.fire("Gagal", data.message, "error");
+        }
+    })
+    .catch(function(err) {
+        Swal.fire("Error", "Koneksi gagal: " + err, "error");
+    });
+}
+
+function confirmReinstatement(resignId, empName) {
+    Swal.fire({
+        title: "Pulihkan Status ASN?",
+        html: "Status presensi pegawai <b>" + empName + "</b> akan diaktifkan kembali pada sistem BioTime dan mesin Face Recognition.",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonColor: "#28a745",
+        cancelButtonColor: "#6c757d",
+        confirmButtonText: "Ya, Pulihkan ASN",
+        cancelButtonText: "Batal"
+    }).then(function(result) {
+        if (result.isConfirmed) {
+            Swal.fire({ title: "Memulihkan...", didOpen: function() { Swal.showLoading(); } });
+
+            fetch("/api/mutasi/reinstatement", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ resigns: [resignId] })
+            })
+            .then(function(res) { return res.json(); })
+            .then(function(data) {
+                if (data.status === "success") {
+                    Swal.fire("Berhasil Dipulihkan!", data.message, "success").then(function() {
+                        window.location.reload();
+                    });
+                } else {
+                    Swal.fire("Gagal Memulihkan", data.message, "error");
+                }
+            })
+            .catch(function(err) {
+                Swal.fire("Error", "Koneksi gagal: " + err, "error");
+            });
+        }
+    });
+}
+
+function confirmDeleteMutasi(id) {
+    Swal.fire({
+        title: "Hapus Catatan Mutasi?",
+        text: "Catatan mutasi akan dihapus dari histori.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#dc3545",
+        cancelButtonColor: "#6c757d",
+        confirmButtonText: "Ya, Hapus",
+        cancelButtonText: "Batal"
+    }).then(function(result) {
+        if (result.isConfirmed) {
+            Swal.fire({ title: "Menghapus...", didOpen: function() { Swal.showLoading(); } });
+
+            fetch("/api/mutasi/" + id, { method: "DELETE" })
+            .then(function(res) { return res.json(); })
+            .then(function(data) {
+                if (data.status === "success") {
+                    Swal.fire("Terhapus!", data.message, "success").then(function() {
+                        window.location.reload();
+                    });
+                } else {
+                    Swal.fire("Gagal", data.message, "error");
+                }
+            })
+            .catch(function(err) {
+                Swal.fire("Error", "Koneksi gagal: " + err, "error");
+            });
+        }
+    });
+}
+</script>

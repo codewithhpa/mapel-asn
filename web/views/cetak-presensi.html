@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Title}} - {{.DateDisplay}}</title>
+    <link rel="stylesheet" href="/assets/compiled/css/app.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        /* Standar Halaman Cetak Kedinasan Resmi (A4 Landscape) */
+        @page {
+            size: A4 landscape;
+            margin: 10mm 14mm 12mm 14mm;
+        }
+
+        body {
+            background-color: #0f172a;
+            color: #1e293b;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            font-size: 9pt;
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .print-canvas {
+            background: #ffffff;
+            width: 297mm;
+            min-height: 210mm;
+            margin: 24px auto 40px auto;
+            padding: 14mm 18mm 16mm 18mm;
+            box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35);
+            box-sizing: border-box;
+            border-radius: 4px;
+        }
+
+        /* Floating Action Toolbar (Layar Browser) */
+        .floating-action-bar {
+            position: sticky;
+            top: 0;
+            z-index: 9999;
+            background: rgba(15, 23, 42, 0.92);
+            -webkit-backdrop-filter: blur(16px);
+            backdrop-filter: blur(16px);
+            color: #ffffff;
+            padding: 12px 28px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        /* Kop Surat Resmi Kedinasan */
+        .kop-surat {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            border-bottom: 3px double #0f172a;
+            padding-bottom: 10px;
+            margin-bottom: 14px;
+        }
+
+        .kop-logo-left {
+            width: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            flex-shrink: 0;
+        }
+
+        .kop-logo-right {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .kop-text {
+            text-align: center;
+            flex-grow: 1;
+        }
+
+        .kop-text h4 {
+            font-size: 11.5pt;
+            font-weight: 700;
+            margin: 0;
+            letter-spacing: 0.6px;
+            color: #0f172a;
+            text-transform: uppercase;
+        }
+
+        .kop-text h3 {
+            font-size: 13.5pt;
+            font-weight: 800;
+            margin: 2px 0 3px 0;
+            letter-spacing: 0.4px;
+            color: #0f172a;
+            text-transform: uppercase;
+        }
+
+        .kop-text .kop-sub {
+            font-size: 8.5pt;
+            font-weight: 600;
+            margin: 0;
+            color: #334155;
+            letter-spacing: 0.2px;
+        }
+
+        .kop-text .kop-address {
+            font-size: 7.8pt;
+            margin: 2px 0 0 0;
+            color: #64748b;
+        }
+
+        /* Judul Dokumen */
+        .doc-title-container {
+            text-align: center;
+            margin-bottom: 14px;
+        }
+
+        .doc-title {
+            font-size: 11.5pt;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #0f172a;
+            margin: 0 0 3px 0;
+        }
+
+        .doc-subtitle {
+            font-size: 8.5pt;
+            margin: 0;
+            color: #475569;
+        }
+
+        /* Ringkasan Eksekutif (Statistik Ringkas) */
+        .kpi-summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 12px;
+        }
+
+        .kpi-summary-table td {
+            border: 1px solid #cbd5e1;
+            padding: 6px 10px;
+            text-align: center;
+            background-color: #f8fafc;
+        }
+
+        .kpi-summary-table .kpi-label {
+            font-size: 7.5pt;
+            text-transform: uppercase;
+            color: #64748b;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .kpi-summary-table .kpi-val {
+            font-size: 11pt;
+            font-weight: 800;
+            font-family: monospace;
+            color: #0f172a;
+        }
+
+        /* Tabel Data Presensi Resmi */
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 8.2pt;
+            margin-bottom: 18px;
+        }
+
+        .report-table th, 
+        .report-table td {
+            border: 1px solid #94a3b8;
+            padding: 5px 6px;
+            vertical-align: middle;
+        }
+
+        .report-table thead th {
+            background-color: #f1f5f9;
+            color: #0f172a;
+            font-weight: 700;
+            text-align: center;
+            text-transform: uppercase;
+            font-size: 7.8pt;
+            letter-spacing: 0.3px;
+        }
+
+        .report-table tbody tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+
+        /* Keterangan Status Kedinasan Formal (Tanpa Badge / Non-AI Slop) */
+        .status-text {
+            font-size: 8pt;
+            font-weight: 500;
+            color: #1e293b;
+            white-space: nowrap;
+        }
+
+        /* Format Tanda Tangan Resmi Kedinasan */
+        .signature-section {
+            display: flex;
+            justify-content: space-between;
+            page-break-inside: avoid;
+            margin-top: 20px;
+            padding: 0 24px;
+            font-size: 8.8pt;
+            color: #0f172a;
+        }
+
+        .signature-box {
+            width: 290px;
+            text-align: center;
+        }
+
+        .signature-space {
+            height: 56px;
+        }
+
+        .signature-name {
+            font-weight: 800;
+            text-decoration: underline;
+            margin-bottom: 2px;
+        }
+
+        /* Aturan Cetak Murni (@media print) */
+        @media print {
+            body {
+                background: #ffffff !important;
+                color: #000000 !important;
+            }
+
+            .floating-action-bar {
+                display: none !important;
+            }
+
+            .print-canvas {
+                width: 100% !important;
+                min-height: auto !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                box-shadow: none !important;
+                border-radius: 0 !important;
+            }
+
+            .report-table {
+                font-size: 8pt !important;
+            }
+
+            .report-table th {
+                background-color: #f1f5f9 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .report-table tbody tr:nth-child(even) {
+                background-color: #f8fafc !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .kpi-summary-table td {
+                background-color: #f8fafc !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .status-text {
+                color: #000000 !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Floating Action Toolbar (Layar Browser) -->
+    <div class="floating-action-bar">
+        <div class="d-flex align-items-center gap-3">
+            <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-file-earmark-pdf-fill fs-5 text-danger"></i>
+                <h6 class="mb-0 text-white fw-bold">Pratinjau Dokumen Resmi SIAP-ASN (PDF)</h6>
+            </div>
+            <span class="badge bg-secondary font-monospace px-2 py-1">{{.DateDisplay}}</span>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <button type="button" class="btn btn-sm btn-primary px-3 fw-bold shadow-sm" onclick="window.print()">
+                <i class="bi bi-printer-fill me-1"></i> Cetak / Simpan PDF
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-light px-3" onclick="window.close()">
+                <i class="bi bi-x-lg me-1"></i> Tutup
+            </button>
+        </div>
+    </div>
+
+    <!-- Halaman Dokumen Cetak (A4 Landscape) -->
+    <div class="print-canvas">
+        
+        <!-- 1. Kop Surat Resmi Kabupaten Barito Utara -->
+        <div class="kop-surat">
+            <div class="kop-logo-left">
+                <img src="/assets/static/images/logo-barito-utara.png" alt="Logo Kabupaten Barito Utara" style="max-height: 78px; max-width: 78px; object-fit: contain;">
+            </div>
+            <div class="kop-text">
+                <h4>PEMERINTAH KABUPATEN BARITO UTARA</h4>
+                <h3>DINAS PEKERJAAN UMUM DAN PENATAAN RUANG</h3>
+                <p class="kop-sub">SISTEM INFORMASI ABSENSI &amp; PRESENSI APEL ASN (SIAP-ASN) BERBASIS BIOMETRIK</p>
+                <p class="kop-address">Jalan Ahmad Yani No. 01, Muara Teweh, Kalimantan Tengah 73811 &bull; Layanan Terintegrasi SpeedFace Face Recognition BioTime {{.BioTimeVersion}}</p>
+            </div>
+            <div class="kop-logo-right">
+                <img src="/assets/static/images/logo-berakhlak.png" alt="Logo BerAKHLAK" style="max-height: 42px; max-width: 95px; object-fit: contain;">
+                <img src="/assets/static/images/bangga-melayani-bangsa.png" alt="Bangga Melayani Bangsa" style="max-height: 42px; max-width: 105px; object-fit: contain;">
+            </div>
+        </div>
+
+        <!-- 2. Judul Dokumen -->
+        <div class="doc-title-container">
+            <h2 class="doc-title">REKAPITULASI DAFTAR KEHADIRAN &amp; APEL KERJA PEGAWAI (ASN)</h2>
+            <p class="doc-subtitle"><strong>Periode:</strong> {{.DateDisplay}} &bull; <strong>Waktu Cetak:</strong> {{.PrintDateFormatted}} Pukul {{.PrintTimeFormatted}} WIB</p>
+        </div>
+
+        <!-- 3. Ringkasan Eksekutif KPI -->
+        <table class="kpi-summary-table">
+            <tr>
+                <td>
+                    <span class="kpi-label">Total ASN Terdaftar</span>
+                    <span class="kpi-val">{{.Summary.TotalPegawai}} Pegawai</span>
+                </td>
+                <td>
+                    <span class="kpi-label">Hadir Apel Pagi / Tepat Waktu</span>
+                    <span class="kpi-val">{{.Summary.TepatWaktuCount}}</span>
+                </td>
+                <td>
+                    <span class="kpi-label">Terlambat Masuk</span>
+                    <span class="kpi-val">{{.Summary.TerlambatCount}}</span>
+                </td>
+                <td>
+                    <span class="kpi-label">Hadir Apel Sore</span>
+                    <span class="kpi-val">{{.Summary.ApelSoreCount}}</span>
+                </td>
+                <td>
+                    <span class="kpi-label">Tingkat Kepatuhan Apel</span>
+                    <span class="kpi-val">{{printf "%.1f" .Summary.KepatuhanPercent}}%</span>
+                </td>
+            </tr>
+        </table>
+
+        <!-- 4. Tabel Rinci Log Presensi Seluruh Pegawai -->
+        <table class="report-table">
+            <thead>
+                <tr>
+                    <th style="width: 30px;">No</th>
+                    <th style="width: 80px;">Tanggal</th>
+                    <th style="width: 125px;">NIP</th>
+                    <th>Nama Pegawai (ASN)</th>
+                    <th>Unit Kerja / Bagian</th>
+                    <th style="width: 70px;">Scan Pagi</th>
+                    <th style="width: 120px;">Status Masuk</th>
+                    <th style="width: 70px;">Scan Sore</th>
+                    <th style="width: 120px;">Status Apel Sore</th>
+                    <th style="width: 100px;">Keterangan</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range $idx, $log := .Summary.Logs}}
+                <tr>
+                    <td class="text-center">{{add $idx 1}}</td>
+                    <td class="text-center font-monospace">{{$log.Date}}</td>
+                    <td class="text-center font-monospace fw-semibold">{{$log.EmpCode}}</td>
+                    <td class="fw-bold">{{$log.Name}}</td>
+                    <td>{{if $log.Department}}{{$log.Department}}{{else}}-{{end}}</td>
+                    <td class="text-center font-monospace">
+                        {{if or (eq $log.CheckInDisplay "------") (eq $log.CheckInDisplay "--:--:--") (eq $log.CheckInDisplay "")}}—{{else}}{{$log.CheckInDisplay}}{{end}}
+                    </td>
+                    <td class="text-center status-text">
+                        {{if or (eq $log.CheckInStatus "Hadir Apel Pagi") (eq $log.CheckInStatus "Tepat Waktu")}}
+                            Hadir Apel Pagi
+                        {{else if eq $log.CheckInStatus "Terlambat"}}
+                            Terlambat (+{{$log.LateMinutes}} mnt)
+                        {{else if isLeave $log.CheckInStatus}}
+                            {{$log.CheckInStatus}}
+                        {{else if eq $log.CheckInStatus "Belum Scan"}}
+                            Belum Scan Pagi
+                        {{else}}
+                            {{$log.CheckInStatus}}
+                        {{end}}
+                    </td>
+                    <td class="text-center font-monospace">
+                        {{if or (eq $log.CheckOutDisplay "------") (eq $log.CheckOutDisplay "--:--:--") (eq $log.CheckOutDisplay "")}}—{{else}}{{$log.CheckOutDisplay}}{{end}}
+                    </td>
+                    <td class="text-center status-text">
+                        {{if or (eq $log.CheckOutStatus "Hadir Apel Sore") (eq $log.CheckOutStatus "Sah Hadir Apel Sore")}}
+                            Hadir Apel Sore
+                        {{else if eq $log.CheckOutStatus "Lewat Cutoff (Ditolak)"}}
+                            Lewat Cutoff
+                        {{else if eq $log.CheckOutStatus "Pulang Cepat"}}
+                            Pulang Cepat
+                        {{else if isLeave $log.CheckOutStatus}}
+                            {{$log.CheckOutStatus}}
+                        {{else if eq $log.CheckOutStatus "Belum Scan"}}
+                            {{if ne $log.CheckInStatus "Belum Scan"}}
+                                Belum Scan Sore
+                            {{else}}
+                                —
+                            {{end}}
+                        {{else}}
+                            {{$log.CheckOutStatus}}
+                        {{end}}
+                    </td>
+                    <td class="small">
+                        {{if $log.AnomalyReason}}
+                            {{$log.AnomalyReason}}
+                        {{else if $log.AuditPagiStatus}}
+                            {{$log.AuditPagiStatus}}
+                        {{else}}
+                            -
+                        {{end}}
+                    </td>
+                </tr>
+                {{else}}
+                <tr>
+                    <td colspan="10" class="text-center py-4 text-muted">
+                        Tidak ada catatan transaksi presensi untuk periode ini.
+                    </td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+
+        <!-- 5. Lembar Pengesahan & Tanda Tangan Kedinasan -->
+        <div class="signature-section">
+            <div class="signature-box">
+                <p class="mb-1">Petugas Pencatat &amp; Verifikator,</p>
+                <div class="signature-space"></div>
+                <div class="signature-name">{{if .CurrentUser}}{{.CurrentUser.FullName}}{{else}}Petugas Absensi ASN{{end}}</div>
+                <div>NIP. {{if .CurrentUser}}{{.CurrentUser.NIP}}{{else}}.......................................{{end}}</div>
+            </div>
+
+            <div class="signature-box">
+                <p class="mb-1">Muara Teweh, {{.PrintDateFormatted}}</p>
+                <p class="mb-1">Mengetahui,</p>
+                <p class="mb-0">Kepala Dinas Pekerjaan Umum dan Penataan Ruang,</p>
+                <div class="signature-space"></div>
+                <div class="signature-name">( __________________________________ )</div>
+                <div>NIP. ....................................................</div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Auto-print saat dokumen dibuka
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                window.print();
+            }, 600);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,800 @@
+<div class="page-heading">
+    <div class="page-title mb-3">
+        <div class="row align-items-center">
+            <div class="col-12 col-md-7">
+                <h3 class="fw-bold mb-1">Master Data Pegawai (ASN)</h3>
+                <p class="text-subtitle text-muted mb-0">Manajemen profil pegawai, penugasan unit kerja, lokasi mesin Face Recognition, dan status biometrik BioTime.</p>
+            </div>
+            <div class="col-12 col-md-5 text-md-end mt-3 mt-md-0">
+                <button type="button" class="btn btn-primary px-4 py-2 fw-semibold shadow-sm" data-bs-toggle="modal" data-bs-target="#modalEmployee" onclick="openCreateModal()">
+                    <i class="bi bi-person-plus-fill me-2"></i>Tambah Pegawai
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigasi Cepat Tab Master Data -->
+    {{template "master/nav_tabs" .}}
+</div>
+
+<div class="page-content">
+    <section class="row g-3 mb-4">
+        <!-- KPI Card 1: Total Pegawai -->
+        <div class="col-6 col-lg-3">
+            <div class="card monochrome-kpi-card h-100 mb-0">
+                <div class="card-body p-3 p-md-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="kpi-label-track">Total Pegawai</span>
+                        <i class="bi bi-people kpi-icon-outline"></i>
+                    </div>
+                    <h3 class="kpi-value-bold mb-2">
+                        {{.TotalCount}}<span class="kpi-unit-sub">ASN</span>
+                    </h3>
+                    <div class="text-xs text-muted">
+                        <span class="kpi-indicator-dot bg-primary"></span>Sinkron BioTime {{.BioTimeVersion}}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- KPI Card 2: Biometrik Wajah Aktif -->
+        <div class="col-6 col-lg-3">
+            <div class="card monochrome-kpi-card h-100 mb-0">
+                <div class="card-body p-3 p-md-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="kpi-label-track">Wajah FR Terdaftar</span>
+                        <i class="bi bi-person-bounding-box kpi-icon-outline"></i>
+                    </div>
+                    <h3 class="kpi-value-bold mb-2">
+                        {{.BiometricActiveCount}}<span class="kpi-unit-sub">ASN</span>
+                    </h3>
+                    <div class="text-xs text-muted">
+                        <span class="kpi-indicator-dot bg-success"></span>Siap presensi di mesin
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- KPI Card 3: Jumlah Departemen -->
+        <div class="col-6 col-lg-3">
+            <div class="card monochrome-kpi-card h-100 mb-0">
+                <div class="card-body p-3 p-md-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="kpi-label-track">Unit Kerja</span>
+                        <i class="bi bi-building kpi-icon-outline"></i>
+                    </div>
+                    <h3 class="kpi-value-bold mb-2">
+                        {{len .Departments}}<span class="kpi-unit-sub">Bagian</span>
+                    </h3>
+                    <div class="text-xs text-muted">
+                        <span class="kpi-indicator-dot bg-info"></span>Bagian / OPD aktif
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- KPI Card 4: Lokasi Mesin -->
+        <div class="col-6 col-lg-3">
+            <div class="card monochrome-kpi-card h-100 mb-0">
+                <div class="card-body p-3 p-md-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="kpi-label-track">Area Kerja</span>
+                        <i class="bi bi-geo-alt kpi-icon-outline"></i>
+                    </div>
+                    <h3 class="kpi-value-bold mb-2">
+                        {{len .Areas}}<span class="kpi-unit-sub">Lokasi</span>
+                    </h3>
+                    <div class="text-xs text-muted">
+                        <span class="kpi-indicator-dot bg-warning"></span>Titik area mesin
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Toolbar Filter & Search -->
+    <div class="card dashboard-card mb-4 table-card">
+        <div class="card-body p-3">
+            <div class="row g-2 align-items-center">
+                <div class="col-12 col-md-5">
+                    <div class="input-group">
+                        <span class="input-group-text border-end-0 bg-transparent">
+                            <i class="bi bi-search text-muted"></i>
+                        </span>
+                        <input type="text" class="form-control border-start-0 ps-0" id="filterSearch" placeholder="Cari NIP, Nama Pegawai...">
+                    </div>
+                </div>
+                <div class="col-6 col-md-4">
+                    <select class="form-select" id="filterDepartment">
+                        <option value="">-- Semua Unit Kerja / Departemen --</option>
+                        {{range .Departments}}
+                        <option value="{{.DeptName}}">{{.DeptName}}</option>
+                        {{end}}
+                    </select>
+                </div>
+                <div class="col-6 col-md-3 text-end">
+                    <!-- recordCountLabel removed -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Table -->
+    <div class="card dashboard-card table-card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 dashboard-table" id="tableEmployee">
+                    <thead>
+                        <tr>
+                            <th class="ps-4" style="width: 50px;">No</th>
+                            <th>Pegawai</th>
+                            <th>NIP / ID</th>
+                            <th>Unit Kerja (Bagian)</th>
+                            <th>Area Mesin</th>
+                            <th>Status Biometrik</th>
+                            <th class="text-center pe-4" style="width: 140px;">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{if .Employees}}
+                            {{range $i, $e := .Employees}}
+                            <tr class="employee-row" data-name="{{$e.FullName}}" data-nip="{{$e.EmpCode}}" data-dept="{{$e.DepartmentName}}">
+                                <td class="ps-4 font-monospace text-muted">{{add $i 1}}</td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="avatar-squircle bg-primary text-white fw-bold d-flex align-items-center justify-content-center shadow-xs" style="width: 38px; height: 38px;">
+                                            {{if $e.FirstName}}{{slice $e.FirstName 0 1}}{{else}}P{{end}}
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold text-nama-asn fs-6 mb-0">{{$e.FullName}}</div>
+                                            <small class="text-muted">{{if $e.PositionName}}{{$e.PositionName}}{{else}}Pegawai ASN{{end}}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="font-monospace fw-bold px-2 py-1 bg-light rounded text-nip">{{$e.EmpCode}}</span>
+                                </td>
+                                <td>
+                                    {{if $e.DepartmentName}}
+                                        <span class="badge badge-square bg-light-primary text-primary px-3 py-2 font-monospace">
+                                            <i class="bi bi-building me-1"></i>{{$e.DepartmentName}}
+                                        </span>
+                                    {{else}}
+                                        <span class="badge badge-square bg-light-secondary text-secondary px-2 py-1">-</span>
+                                    {{end}}
+                                </td>
+                                <td>
+                                    {{if $e.AreaNames}}
+                                        {{range $a := $e.AreaNames}}
+                                        <span class="badge badge-square bg-light-info text-info px-2 py-1 me-1 mb-1 font-monospace">
+                                            <i class="bi bi-geo-alt me-1"></i>{{$a}}
+                                        </span>
+                                        {{end}}
+                                    {{else}}
+                                        <span class="text-muted small">Semua Area</span>
+                                    {{end}}
+                                </td>
+                                <td>
+                                    {{if and (ne $e.VLFace "") (ne $e.VLFace "-")}}
+                                        <span class="badge badge-square bg-light-success text-success px-2 py-1">
+                                            <i class="bi bi-check-circle-fill me-1"></i>Wajah Terdaftar ({{$e.VLFace}})
+                                        </span>
+                                    {{else}}
+                                        <span class="badge badge-square bg-light-warning text-warning px-2 py-1">
+                                            <i class="bi bi-exclamation-circle-fill me-1"></i>Belum Scan Wajah
+                                        </span>
+                                    {{end}}
+                                    {{if $e.EnrollSN}}
+                                        <small class="d-block text-muted font-monospace mt-1">SN: {{$e.EnrollSN}}</small>
+                                    {{end}}
+                                </td>
+                                <td class="text-center pe-4">
+                                    <div class="d-flex align-items-center justify-content-center gap-1">
+                                        <button type="button" class="btn btn-sm btn-icon-action btn-edit-emp" title="Edit Data Pegawai" onclick="openEditModal({{$e.ID}}, '{{$e.EmpCode}}', '{{$e.FirstName}}', '{{if $e.LastName}}{{$e.LastName}}{{end}}', {{$e.DepartmentID}}, {{if $e.PositionID}}{{$e.PositionID}}{{else}}0{{end}}, '{{if $e.HireDate}}{{$e.HireDate}}{{end}}')">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-icon-action btn-mutasi-emp" title="Mutasi / Nonaktifkan Presensi" onclick="openMutasiModal({{$e.ID}}, '{{$e.FullName}}', '{{$e.EmpCode}}')">
+                                            <i class="bi bi-person-dash"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-icon-action btn-delete-emp" title="Hapus Pegawai dari BioTime" onclick="confirmDeleteEmployee({{$e.ID}}, '{{$e.FullName}}')">
+                                            <i class="bi bi-trash3"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {{end}}
+                        {{else}}
+                            <tr>
+                                <td colspan="7" class="p-0">
+                                    <div class="empty-state-composed py-5">
+                                        <div class="empty-state-icon">
+                                            <i class="bi bi-people fs-1 text-secondary opacity-50"></i>
+                                        </div>
+                                        <h6 class="text-dark fw-bold mb-1">Belum Ada Data Pegawai</h6>
+                                        <p class="text-muted small mb-3" style="max-width: 320px;">
+                                            Belum ada data pegawai dari mesin BioTime atau database lokal.
+                                        </p>
+                                        <button class="btn btn-primary btn-sm px-3" data-bs-toggle="modal" data-bs-target="#modalEmployee" onclick="openCreateModal()">
+                                            <i class="bi bi-person-plus me-1"></i>Tambah Pegawai Pertama
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        {{end}}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Tambah / Edit Pegawai -->
+<div class="modal fade" id="modalEmployee" tabindex="-1" aria-labelledby="modalEmployeeLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
+            <div class="modal-header text-white" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-top-left-radius: 16px; border-top-right-radius: 16px;">
+                <div>
+                    <h5 class="modal-title fw-bold text-white mb-0" id="modalEmployeeLabel">
+                        <i class="bi bi-person-plus-fill me-2 text-primary"></i>Tambah Pegawai ASN Baru
+                    </h5>
+                    <small class="text-muted">Data akan otomatis dikirim dan didaftarkan pada server BioTime {{.BioTimeVersion}}</small>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="formEmployee" onsubmit="submitEmployeeForm(event)">
+                <div class="modal-body p-4">
+                    <input type="hidden" id="empId" value="">
+
+                    <div class="row g-3">
+                        <div class="col-12 col-md-6">
+                            <label class="form-label fw-semibold text-xs text-uppercase text-muted">NIP / ID Pegawai <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control font-monospace" id="empCode" placeholder="Contoh: 198501012010011001" required>
+                            <small class="text-muted">Nomor induk unik untuk identifikasi mesin Face Recognition.</small>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label fw-semibold text-xs text-uppercase text-muted">Nama Depan / Nama Lengkap <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="empFirstName" placeholder="Nama pegawai" required>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label fw-semibold text-xs text-uppercase text-muted">Nama Belakang / Gelar</label>
+                            <input type="text" class="form-control" id="empLastName" placeholder="Gelar atau nama belakang (opsional)">
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label fw-semibold text-xs text-uppercase text-muted">Tanggal Terdaftar (Hire Date)</label>
+                            <input type="date" class="form-control font-monospace" id="empHireDate">
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label fw-semibold text-xs text-uppercase text-muted">Unit Kerja (Departemen) <span class="text-danger">*</span></label>
+                            <select class="form-select" id="empDepartment" required>
+                                <option value="">-- Pilih Unit Kerja / Bagian --</option>
+                                {{range .Departments}}
+                                <option value="{{.ID}}">{{.DeptName}} (Kode: {{.DeptCode}})</option>
+                                {{end}}
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label fw-semibold text-xs text-uppercase text-muted">Jabatan (Position)</label>
+                            <select class="form-select" id="empPosition">
+                                <option value="">-- Tanpa Jabatan Spesifik --</option>
+                                {{range .Positions}}
+                                <option value="{{.ID}}">{{.PositionName}}</option>
+                                {{end}}
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold text-xs text-uppercase text-muted">Otorisasi Area Kerja (Lokasi Mesin)</label>
+                            <div class="p-3 border rounded bg-light-area-box">
+                                <div class="row g-2">
+                                    {{range .Areas}}
+                                    <div class="col-12 col-sm-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input emp-area-check" type="checkbox" value="{{.ID}}" id="area_{{.ID}}" checked>
+                                            <label class="form-check-label fw-semibold text-sm" for="area_{{.ID}}">
+                                                <i class="bi bi-geo-alt me-1 text-primary"></i>{{.AreaName}} <small class="text-muted">(Kode: {{.AreaCode}})</small>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    {{end}}
+                                </div>
+                            </div>
+                            <small class="text-muted">Pegawai hanya dapat melakukan scan presensi pada mesin di area yang dicentang.</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer py-3 border-top">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary px-4 fw-semibold" id="btnSaveEmployee">
+                        <i class="bi bi-check-circle me-1"></i>Simpan ke BioTime
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Mutasi / Resign ASN -->
+<div class="modal fade" id="modalMutasi" tabindex="-1" aria-labelledby="modalMutasiLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
+            <div class="modal-header bg-warning text-dark" style="border-top-left-radius: 16px; border-top-right-radius: 16px;">
+                <div>
+                    <h5 class="modal-title fw-bold text-dark mb-0" id="modalMutasiLabel">
+                        <i class="bi bi-person-x-fill me-2"></i>Mutasi / Nonaktifkan Presensi ASN
+                    </h5>
+                    <small class="text-dark opacity-75">Pegawai tidak akan dituntut hadir apel dan presensinya dinonaktifkan di BioTime.</small>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="formMutasi" onsubmit="submitMutasiForm(event)">
+                <div class="modal-body p-4">
+                    <input type="hidden" id="mutasiEmpId" value="">
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-xs text-uppercase text-muted">Pegawai Terpilih</label>
+                        <div class="p-3 border rounded bg-light">
+                            <h6 class="fw-bold mb-0 text-nama-asn" id="mutasiEmpName">-</h6>
+                            <small class="text-muted font-monospace" id="mutasiEmpCode">-</small>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-xs text-uppercase text-muted">Tanggal Efektif Mutasi <span class="text-danger">*</span></label>
+                        <input type="date" class="form-control font-monospace" id="mutasiDate" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-xs text-uppercase text-muted">Alasan Mutasi / Keterangan <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="mutasiReason" rows="3" placeholder="Contoh: Pindah tugas ke Bappeda / Pensiun TMT 01 September" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer py-3 border-top">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-warning px-4 fw-bold text-dark" id="btnSaveMutasi">
+                        <i class="bi bi-check-circle me-1"></i>Proses Mutasi ASN
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.dashboard-card {
+    border-radius: 16px;
+    border: none;
+    background-color: #ffffff;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.025) !important;
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
+}
+.dashboard-card:hover {
+    box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04) !important;
+}
+
+.master-kpi-card {
+    border-radius: 16px;
+    border: none;
+    background: #ffffff;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.025) !important;
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
+}
+.master-kpi-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04) !important;
+}
+
+.master-icon-badge {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+}
+.avatar-squircle {
+    border-radius: 10px;
+    flex-shrink: 0;
+}
+.badge-square {
+    border-radius: 6px !important;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+}
+.text-nama-asn {
+    color: #1e293b;
+}
+.text-nip {
+    color: #0f172a;
+}
+.bg-light-area-box {
+    background-color: #f8fafc;
+}
+
+/* Dashboard Table Header (Clean Enterprise look) */
+.dashboard-table thead th {
+    background-color: transparent !important;
+    color: #64748b !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    font-size: 0.75rem !important;
+    text-transform: uppercase !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.05em !important;
+    padding-top: 16px !important;
+    padding-bottom: 16px !important;
+}
+
+/* Tertiary Action Buttons */
+.btn-icon-action {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    color: #94a3b8;
+    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.btn-icon-action:hover {
+    transform: scale(1.12);
+}
+.btn-edit-emp:hover {
+    color: #435ebe;
+    background-color: rgba(67, 94, 190, 0.1);
+}
+.btn-mutasi-emp:hover {
+    color: #eab308;
+    background-color: rgba(234, 179, 8, 0.1);
+}
+.btn-delete-emp:hover {
+    color: #ef4444;
+    background-color: rgba(239, 68, 68, 0.1);
+}
+
+/* Empty State Composition */
+.empty-state-composed {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+    text-align: center;
+}
+.empty-state-icon {
+    width: 72px;
+    height: 72px;
+    border-radius: 16px;
+    background-color: #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.25rem;
+}
+
+/* ==========================================================================
+   Dark Mode UI/UX Pro Max (High Contrast minimum 4.5:1)
+   ========================================================================== */
+[data-bs-theme="dark"] .dashboard-card,
+body.theme-dark .dashboard-card {
+    background-color: #1e1e2d !important;
+}
+[data-bs-theme="dark"] .master-kpi-card,
+body.theme-dark .master-kpi-card {
+    background: #1e1e2d !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+[data-bs-theme="dark"] .master-kpi-val,
+body.theme-dark .master-kpi-val {
+    color: #f8fafc !important;
+}
+[data-bs-theme="dark"] .text-nama-asn,
+body.theme-dark .text-nama-asn {
+    color: #f8fafc !important;
+}
+[data-bs-theme="dark"] .text-nip,
+body.theme-dark .text-nip {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+    color: #93c5fd !important;
+}
+[data-bs-theme="dark"] .table-card,
+body.theme-dark .table-card {
+    background-color: #1e1e2d !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+[data-bs-theme="dark"] .dashboard-table thead th,
+body.theme-dark .dashboard-table thead th {
+    color: #94a3b8 !important;
+    border-bottom: 1px solid #2b2b40 !important;
+}
+[data-bs-theme="dark"] .table tbody tr td,
+body.theme-dark .table tbody tr td {
+    color: #e2e8f0 !important;
+    border-bottom: 1px solid #2b2b40 !important;
+}
+[data-bs-theme="dark"] .table-hover tbody tr:hover,
+body.theme-dark .table-hover tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.02) !important;
+}
+[data-bs-theme="dark"] .empty-state-icon,
+body.theme-dark .empty-state-icon {
+    background-color: #1a1a2e;
+}
+[data-bs-theme="dark"] .bg-light-area-box {
+    background-color: #151521 !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+[data-bs-theme="dark"] .modal-content {
+    background-color: #1e1e2d !important;
+    color: #f8fafc !important;
+}
+[data-bs-theme="dark"] .modal-footer {
+    background-color: #151521 !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+[data-bs-theme="dark"] .form-control,
+[data-bs-theme="dark"] .form-select {
+    background-color: #151521 !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+    color: #f8fafc !important;
+}
+[data-bs-theme="dark"] .form-control:focus,
+[data-bs-theme="dark"] .form-select:focus {
+    border-color: #435ebe !important;
+}
+[data-bs-theme="dark"] .bg-light-primary {
+    background-color: rgba(67, 94, 190, 0.25) !important;
+    color: #93c5fd !important;
+}
+[data-bs-theme="dark"] .bg-light-success {
+    background-color: rgba(34, 197, 94, 0.25) !important;
+    color: #86efac !important;
+}
+[data-bs-theme="dark"] .bg-light-info {
+    background-color: rgba(14, 165, 233, 0.25) !important;
+    color: #7dd3fc !important;
+}
+[data-bs-theme="dark"] .bg-light-warning {
+    background-color: rgba(234, 179, 8, 0.25) !important;
+    color: #fde047 !important;
+}
+
+/* Hide default DataTables search box */
+.dataTable-search {
+    display: none !important;
+}
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    let tableEl = document.getElementById("tableEmployee");
+    if (tableEl && typeof initMazerTable !== "undefined") {
+        let table = initMazerTable(tableEl, { perPage: 10 });
+        
+        let searchInput = document.getElementById("filterSearch");
+        let deptDropdown = document.getElementById("filterDepartment");
+
+        function applyFilters() {
+            let text = searchInput.value.trim();
+            let dept = deptDropdown.value; 
+            
+            // Combine queries to search across DataTables globally
+            let combinedSearch = text;
+            if (dept !== "") {
+                combinedSearch = combinedSearch + " " + dept;
+            }
+            
+            if (table) {
+                table.search(combinedSearch.trim());
+            }
+        }
+
+        if (searchInput) searchInput.addEventListener("keyup", applyFilters);
+        if (deptDropdown) deptDropdown.addEventListener("change", applyFilters);
+    }
+});
+
+function openCreateModal() {
+    document.getElementById("modalEmployeeLabel").innerHTML = '<i class="bi bi-person-plus-fill me-2 text-primary"></i>Tambah Pegawai ASN Baru';
+    document.getElementById("empId").value = "";
+    document.getElementById("empCode").value = "";
+    document.getElementById("empCode").disabled = false;
+    document.getElementById("empFirstName").value = "";
+    document.getElementById("empLastName").value = "";
+    document.getElementById("empHireDate").value = new Date().toISOString().split('T')[0];
+    document.getElementById("empDepartment").value = "";
+    document.getElementById("empPosition").value = "";
+    
+    // Check all area boxes
+    document.querySelectorAll(".emp-area-check").forEach(function(cb) { cb.checked = true; });
+}
+
+function openEditModal(id, empCode, firstName, lastName, deptId, posId, hireDate) {
+    document.getElementById("modalEmployeeLabel").innerHTML = '<i class="bi bi-pencil-square me-2 text-primary"></i>Ubah Data Pegawai ASN';
+    document.getElementById("empId").value = id;
+    document.getElementById("empCode").value = empCode;
+    document.getElementById("empCode").disabled = true; // NIP cannot be edited in BioTime
+    document.getElementById("empFirstName").value = firstName;
+    document.getElementById("empLastName").value = lastName || "";
+    document.getElementById("empHireDate").value = hireDate || "";
+    document.getElementById("empDepartment").value = deptId || "";
+    document.getElementById("empPosition").value = posId || "";
+
+    var modal = new bootstrap.Modal(document.getElementById("modalEmployee"));
+    modal.show();
+}
+
+function submitEmployeeForm(e) {
+    e.preventDefault();
+    var id = document.getElementById("empId").value;
+    var isEdit = id !== "";
+
+    var empCode = document.getElementById("empCode").value.trim();
+    var firstName = document.getElementById("empFirstName").value.trim();
+    var lastName = document.getElementById("empLastName").value.trim();
+    var deptId = parseInt(document.getElementById("empDepartment").value) || 0;
+    var posId = parseInt(document.getElementById("empPosition").value) || 0;
+    var hireDate = document.getElementById("empHireDate").value;
+
+    var areaIds = [];
+    document.querySelectorAll(".emp-area-check:checked").forEach(function(cb) {
+        areaIds.push(parseInt(cb.value));
+    });
+
+    if (!isEdit && !empCode) {
+        Swal.fire("Peringatan", "NIP / ID Pegawai wajib diisi", "warning");
+        return;
+    }
+    if (!firstName) {
+        Swal.fire("Peringatan", "Nama Pegawai wajib diisi", "warning");
+        return;
+    }
+    if (!deptId) {
+        Swal.fire("Peringatan", "Pilih Unit Kerja / Departemen", "warning");
+        return;
+    }
+
+    var payload = {
+        emp_code: empCode,
+        first_name: firstName,
+        last_name: lastName,
+        department: deptId,
+        area: areaIds.length > 0 ? areaIds : [1],
+        hire_date: hireDate
+    };
+    if (posId > 0) {
+        payload.position = posId;
+    }
+
+    var url = isEdit ? "/api/pegawai/" + id : "/api/pegawai";
+    var method = isEdit ? "PUT" : "POST";
+
+    Swal.fire({
+        title: "Menyimpan ke BioTime...",
+        text: "Mohon tunggu sebentar",
+        allowOutsideClick: false,
+        didOpen: function() { Swal.showLoading(); }
+    });
+
+    fetch(url, {
+        method: method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+        if (data.status === "success") {
+            Swal.fire({
+                icon: "success",
+                title: "Berhasil Disimpan!",
+                text: data.message,
+                timer: 1500,
+                showConfirmButton: false
+            }).then(function() {
+                window.location.reload();
+            });
+        } else {
+            Swal.fire("Gagal", data.message || "Terjadi kesalahan sistem", "error");
+        }
+    })
+    .catch(function(err) {
+        Swal.fire("Error Koneksi", "Gagal menghubungi server: " + err, "error");
+    });
+}
+
+function confirmDeleteEmployee(id, name) {
+    Swal.fire({
+        title: "Hapus Pegawai dari BioTime?",
+        html: "Pegawai <b>" + name + "</b> akan dihapus secara permanen dari server BioTime dan mesin Face Recognition.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#dc3545",
+        cancelButtonColor: "#6c757d",
+        confirmButtonText: "Ya, Hapus Permanen",
+        cancelButtonText: "Batal"
+    }).then(function(result) {
+        if (result.isConfirmed) {
+            Swal.fire({
+                title: "Menghapus...",
+                didOpen: function() { Swal.showLoading(); }
+            });
+
+            fetch("/api/pegawai/" + id, { method: "DELETE" })
+            .then(function(res) { return res.json(); })
+            .then(function(data) {
+                if (data.status === "success") {
+                    Swal.fire("Terhapus!", data.message, "success").then(function() {
+                        window.location.reload();
+                    });
+                } else {
+                    Swal.fire("Gagal Menghapus", data.message, "error");
+                }
+            })
+            .catch(function(err) {
+                Swal.fire("Error", "Gagal menghubungi server: " + err, "error");
+            });
+        }
+    });
+}
+
+// Modal Mutasi
+function openMutasiModal(empId, empName, empCode) {
+    document.getElementById("mutasiEmpId").value = empId;
+    document.getElementById("mutasiEmpName").textContent = empName;
+    document.getElementById("mutasiEmpCode").textContent = "NIP: " + empCode;
+    document.getElementById("mutasiDate").value = new Date().toISOString().split('T')[0];
+    document.getElementById("mutasiReason").value = "";
+
+    var modal = new bootstrap.Modal(document.getElementById("modalMutasi"));
+    modal.show();
+}
+
+function submitMutasiForm(e) {
+    e.preventDefault();
+    var empId = parseInt(document.getElementById("mutasiEmpId").value);
+    var date = document.getElementById("mutasiDate").value;
+    var reason = document.getElementById("mutasiReason").value.trim();
+
+    if (!empId || !date || !reason) {
+        Swal.fire("Peringatan", "Tanggal dan Alasan Mutasi wajib diisi", "warning");
+        return;
+    }
+
+    Swal.fire({
+        title: "Memproses Mutasi ASN...",
+        didOpen: function() { Swal.showLoading(); }
+    });
+
+    fetch("/api/mutasi", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            employee: empId,
+            resign_date: date,
+            resign_type: 1,
+            disableatt: true,
+            reason: reason
+        })
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+        if (data.status === "success") {
+            Swal.fire({
+                icon: "success",
+                title: "Mutasi Berhasil!",
+                text: "Presensi ASN telah dinonaktifkan di BioTime.",
+                timer: 1800,
+                showConfirmButton: false
+            }).then(function() {
+                window.location.href = "/master/mutasi";
+            });
+        } else {
+            Swal.fire("Gagal", data.message, "error");
+        }
+    })
+    .catch(function(err) {
+        Swal.fire("Error", "Gagal menghubungi server: " + err, "error");
+    });
+}
+</script>
