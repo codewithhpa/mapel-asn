@@ -242,7 +242,7 @@ CACHE_TTL_SECONDS=60                # Durasi in-memory cache (detik)
 ## 10. Directory Structure Blueprint
 
 ```text
-/dashboard-presensi
+/mapel-asn
 ├── main.go                     # Inisialisasi Fiber, routing, cache middleware, & graceful shutdown
 ├── go.mod                      # Go module dependencies
 ├── go.sum

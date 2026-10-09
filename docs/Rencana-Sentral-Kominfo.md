@@ -59,7 +59,7 @@ Kebutuhan minimum per device sangat kecil (payload tap < 5 KB, polling tiap 15 d
 ## 4. Kebutuhan Server Kominfo
 
 - OS: Windows (deployment eksisting native, bukan Docker).
-- Instalasi: `C:\ZKBioTime` (BioTime 9.5) + folder `dashboard-presensi` berisi `MAPEL-ASN.exe` + `.env` + `data/`.
+- Instalasi: `C:\ZKBioTime` (BioTime 9.5) + folder `mapel-asn` berisi `MAPEL-ASN.exe` + `.env` + `data/`.
 - Service `bio-*` (httpd, pgsql, redis, celery `iclock_data_upload`, dll.) = **Automatic**.
 - MAPEL auto-start via Task Scheduler (nama task: `MAPEL-ASN`): trigger AtStartup delay 1 menit, user `SYSTEM`, restart 3x tiap 1 menit. Buka inbound TCP `3000` bila diakses lintas PC.
 - Backup berkala: folder `data/` (users, audit, snapshots) + database MariaDB + database BioTime (`biotime` di `127.0.0.1:7496`).
