@@ -49,6 +49,9 @@ func TestRenderDashboardPresensiAndAuth(t *testing.T) {
 	engine.AddFunc("add", func(a, b int) int {
 		return a + b
 	})
+	engine.AddFunc("mul", func(a, b int) int {
+		return a * b
+	})
 	engine.AddFunc("isLeave", models.IsExcusedLeaveStatus)
 
 	app := fiber.New(fiber.Config{
@@ -142,5 +145,62 @@ func TestRenderDashboardPresensiAndAuth(t *testing.T) {
 	bodyPetugas, _ := io.ReadAll(respPetugas.Body)
 	if !strings.Contains(string(bodyPetugas), "Manajemen Petugas") {
 		t.Errorf("Expected body to contain 'Manajemen Petugas'")
+	}
+}
+
+// Dashboard utama ikut pola TV: BioTime mati total bukan error page —
+// banner offline + data terakhir (atau empty state), tetap 200.
+func TestDashboard_OfflineShowsBannerNotErrorPage(t *testing.T) {
+	mock := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		if r.URL.Path == "/jwt-api-token-auth/" {
+			w.WriteHeader(http.StatusOK)
+			_ = json.NewEncoder(w).Encode(map[string]string{"token": "down"})
+			return
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		_, _ = w.Write([]byte(`{"detail":"mati"}`))
+	}))
+	defer mock.Close()
+	t.Setenv("BIOTIME_BASE_URL", mock.URL)
+
+	engine := html.New("../../web/views", ".html")
+	engine.AddFunc("add", func(a, b int) int { return a + b })
+	engine.AddFunc("mul", func(a, b int) int { return a * b })
+	engine.AddFunc("isLeave", models.IsExcusedLeaveStatus)
+	app := fiber.New(fiber.Config{Views: engine})
+	client := services.NewBioTimeClient()
+	svc := services.NewAttendanceService(client, services.NewAttendanceEngine(), services.NewAttendanceCache())
+	dir := t.TempDir()
+	auditSvc := services.NewAuditService(filepath.Join(dir, "a.json"), nil)
+	userSvc := services.NewUserService(filepath.Join(dir, "u.json"), nil)
+	SetupRoutes(app, svc, auditSvc, userSvc, services.NewRuleService(nil))
+
+	for _, tc := range []struct {
+		path string
+		want string
+	}{
+		{"/", "MAPEL"},
+		{"/presensi", "Daftar Rekapitulasi"},
+	} {
+		req := httptest.NewRequest("GET", tc.path, nil)
+		resp, err := app.Test(req, 15000)
+		if err != nil {
+			t.Fatalf("GET %s: %v", tc.path, err)
+		}
+		b, _ := io.ReadAll(resp.Body)
+		body := string(b)
+		if resp.StatusCode != 200 {
+			t.Errorf("GET %s saat offline want 200 (banner, bukan error page), got %d", tc.path, resp.StatusCode)
+		}
+		if !strings.Contains(body, "terputus") {
+			t.Errorf("GET %s harus menampilkan banner offline", tc.path)
+		}
+		if !strings.Contains(body, tc.want) {
+			t.Errorf("GET %s harus tetap merender halaman (%q)", tc.path, tc.want)
+		}
+		if strings.Contains(body, "Detail Error Internal") {
+			t.Errorf("GET %s tidak boleh menampilkan halaman error merah", tc.path)
+		}
 	}
 }

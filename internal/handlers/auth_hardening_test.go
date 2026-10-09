@@ -32,6 +32,7 @@ func setupAuthTestApp(t *testing.T) *fiber.App {
 
 	engine := html.New("../../web/views", ".html")
 	engine.AddFunc("add", func(a, b int) int { return a + b })
+	engine.AddFunc("mul", func(a, b int) int { return a * b })
 	engine.AddFunc("isLeave", models.IsExcusedLeaveStatus)
 	app := fiber.New(fiber.Config{Views: engine})
 	client := services.NewBioTimeClient()

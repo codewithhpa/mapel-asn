@@ -90,7 +90,7 @@
                             <tr class="area-row" data-name="{{$a.AreaName}}" data-code="{{$a.AreaCode}}">
                                 <td class="ps-4 font-monospace text-muted">{{add $i 1}}</td>
                                 <td>
-                                    <span class="badge badge-square bg-light-warning text-warning px-3 py-2 font-monospace fw-bold">
+                                    <span class="badge badge-square bg-light-warning text-warn-aa px-3 py-2 font-monospace fw-bold">
                                         {{$a.AreaCode}}
                                     </span>
                                 </td>
@@ -166,10 +166,10 @@
                     <div class="mb-3">
                         <div class="d-flex justify-content-between align-items-center mb-1">
                             <label class="form-label fw-semibold text-xs text-uppercase text-muted mb-0">Kode Area / Lokasi <span class="text-danger">*</span></label>
-                            <span class="badge bg-light-warning text-warning py-1 px-2" style="font-size: 0.72rem;"><i class="bi bi-magic me-1"></i>Auto: {{.NextAreaCode}}</span>
+                            <span class="badge bg-light-warning text-warn-aa py-1 px-2" style="font-size: 0.72rem;"><i class="bi bi-magic me-1"></i>Auto: {{.NextAreaCode}}</span>
                         </div>
                         <div class="input-group">
-                            <input type="text" class="form-control font-monospace fw-bold text-warning" id="areaCode" placeholder="Contoh: L001" required>
+                            <input type="text" class="form-control font-monospace fw-bold text-warning-aa" id="areaCode" placeholder="Contoh: L001" required>
                             <button class="btn btn-outline-secondary" type="button" title="Reset ke Kode Otomatis" onclick="document.getElementById('areaCode').value = '{{.NextAreaCode}}'"><i class="bi bi-arrow-counterclockwise"></i></button>
                         </div>
                         <small class="text-muted">Kode otomatis terurut (L001, L002...). Tetap dapat diubah jika diperlukan.</small>

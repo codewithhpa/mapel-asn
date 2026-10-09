@@ -5,13 +5,14 @@
    UI/UX PRO MAX - DISPENSASI LIGHT & DARK MODE ENHANCEMENTS
    ========================================================================== */
 
-    /* 1. Card & Layout Refinement (Anti-Slop: No generic borders/shadows, focus on elevation via background & spacing) */
+    /* 1. Card & Layout Refinement (R-12: diam = flat; lift hanya karena card berisi
+       form/tabel interaktif. Alasan elevasi tertulis.) */
     .dispensasi-card {
         border-radius: 16px;
-        border: none;
+        border: 1px solid #edf2f7;
         background-color: #ffffff;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.025);
-        transition: transform 0.2s ease, box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: none;
+        transition: transform 0.2s ease, box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease;
     }
 
     .dispensasi-card:hover {
@@ -403,7 +404,7 @@
                                 <span class="badge badge-square bg-light-primary text-primary"><i
                                         class="bi bi-briefcase me-1"></i>Dinas Luar</span>
                                 {{else if eq .Session "Cuti"}}
-                                <span class="badge badge-square bg-light-warning text-warning"><i
+                                <span class="badge badge-square bg-light-warning text-warn-aa"><i
                                         class="bi bi-calendar2-check me-1"></i>Cuti</span>
                                 {{else if isLeave .PhysicalStatus}}
                                 <span class="badge badge-square bg-light-primary text-primary"><i
@@ -462,7 +463,7 @@
     function printDispensasi() {
         var orig = document.title;
         var d = new Date().toISOString().slice(0, 10);
-        document.title = 'Riwayat-Dispensasi-SIAP-ASN_' + d;
+        document.title = 'Riwayat-Dispensasi-MAPEL_' + d;
         window.print();
         setTimeout(function () { document.title = orig; }, 500);
     }
@@ -479,30 +480,52 @@
 
         // Data lookup pegawai untuk pencarian dan ekstraksi instan
         const employeesData = {
-        { { range.Employees } }
+        {{range .Employees}}
         "{{.EmpCode}}": { name: "{{.FirstName}} {{if .LastName}}{{.LastName}}{{end}}", dept: "{{.DepartmentName}}" },
-        { { end } }
+        {{end}}
     };
 
-    // Inisialisasi Choices.js Searchable Select
-    let empChoicesInstance = null;
-    if (selectEmp) {
-        empChoicesInstance = new Choices(selectEmp, {
-            searchEnabled: true,
-            searchChoices: true,
-            searchPlaceholderValue: 'Ketik nama atau NIP pegawai...',
-            noResultsText: 'Pegawai tidak ditemukan',
-            itemSelectText: 'Pilih',
-            shouldSort: false,
-            placeholder: true,
-            placeholderValue: '-- Cari Nama / NIP Pegawai --'
-        });
+    // Inisialisasi Choices.js Searchable Select (bungkus try agar select native
+    // tetap hidup bila lib gagal; nilai dibaca via getSelectedEmp di bawah)
+    window.empChoices = null;
+    if (selectEmp && typeof Choices !== 'undefined') {
+        try {
+            window.empChoices = new Choices(selectEmp, {
+                searchEnabled: true,
+                searchChoices: true,
+                searchPlaceholderValue: 'Ketik nama atau NIP pegawai...',
+                noResultsText: 'Pegawai tidak ditemukan',
+                itemSelectText: 'Pilih',
+                shouldSort: false,
+                placeholder: true,
+                placeholderValue: '-- Cari Nama / NIP Pegawai --'
+            });
+        } catch (err) {
+            window.empChoices = null;
+        }
+    }
+
+    // Ambil NIP terpilih: dari API Choices (select native dikosongkan Choices
+    // saat init sehingga selectEmp.value selalu ""), fallback ke native.
+    function getSelectedEmp() {
+        try {
+            if (window.empChoices && typeof window.empChoices.getValue === 'function') {
+                const v = window.empChoices.getValue(true);
+                if (Array.isArray(v) && v.length) {
+                    const first = v[0];
+                    return String((first && first.value !== undefined) ? first.value : first);
+                }
+                if (v && typeof v === 'object' && v.value !== undefined) return String(v.value);
+                if (v) return String(v);
+            }
+        } catch (err) { /* abaikan, pakai fallback */ }
+        return selectEmp ? selectEmp.value : '';
     }
 
     form.addEventListener('submit', async function (e) {
         e.preventDefault();
 
-        const empCode = selectEmp.value;
+        const empCode = getSelectedEmp();
         const emp = employeesData[empCode] || { name: "", dept: "" };
         const name = emp.name;
         const dept = emp.dept;

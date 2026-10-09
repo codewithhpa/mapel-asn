@@ -1,5 +1,5 @@
 # Product Requirements Document (PRD)
-**Project Name:** Public Attendance Reporting Dashboard (BFF Architecture)  
+**Project Name:** MAPEL — Monitoring Apel (BFF Architecture)  
 **Document Version:** 1.11 (Integrasi Standar Rumus & Analisa Tingkat Kepatuhan ASN)  
 **Status:** Approved for Implementation  
 
@@ -198,7 +198,7 @@ Sistem mengadopsi pendekatan **100% Otomatisasi Mesin Biometrik** yang dipadukan
 # Server Configuration
 PORT=3000
 APP_ENV=production          # development | production
-APP_NAME="Dashboard Presensi & Apel ASN"
+APP_NAME="MAPEL"
 
 # ZKTeco BioTime 8.5 API Credentials
 BIOTIME_BASE_URL=http://192.168.218.8:8090
@@ -453,4 +453,4 @@ Dalam sistem pemerintahan, tidak semua ketidakhadiran di mesin merupakan pelangg
 | **Disahkan Barisan** | Diakui Sah ($+1$ Sesi) | Hadir fisik di barisan lapangan apel namun gagal scan mesin |
 | **Tanpa Keterangan (Alpha/TK)** | Dihitung $0$ | Mengurangi persentase kepatuhan instansi |
 
-*Dokumen ini disusun sebagai acuan teknis dan fungsional audit presensi SIAP-ASN Dinas Pekerjaan Umum dan Penataan Ruang Kabupaten Barito Utara.*
+*Dokumen ini disusun sebagai acuan teknis dan fungsional MAPEL (Monitoring Apel) Dinas Pekerjaan Umum dan Penataan Ruang Kabupaten Barito Utara.*

@@ -57,6 +57,9 @@ func main() {
 	engine.AddFunc("add", func(a, b int) int {
 		return a + b
 	})
+	engine.AddFunc("mul", func(a, b int) int {
+		return a * b
+	})
 	engine.AddFunc("isLeave", models.IsExcusedLeaveStatus)
 
 	// Initialize Fiber app (Network "tcp" = dual-stack IPv4+IPv6 agar
@@ -84,7 +87,7 @@ func main() {
 	app.Get("/health", func(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{
 			"status":  "healthy",
-			"service": "dashboard-presensi-bff",
+			"service": "mapel-asn-bff",
 		})
 	})
 

@@ -163,6 +163,14 @@ func (e *AttendanceEngine) ProcessPeriodAttendance(transactions []models.BioTime
 
 	combinedSummary.TotalPegawai = len(uniqueEmpCodes)
 
+	// Urutan final deterministik: tanggal terbaru di atas, lalu NIP menaik.
+	sort.Slice(combinedSummary.Logs, func(i, j int) bool {
+		if combinedSummary.Logs[i].Date != combinedSummary.Logs[j].Date {
+			return combinedSummary.Logs[i].Date > combinedSummary.Logs[j].Date
+		}
+		return combinedSummary.Logs[i].EmpCode < combinedSummary.Logs[j].EmpCode
+	})
+
 	totalLogs := len(combinedSummary.Logs)
 	if totalLogs > 0 {
 		targetSesi := float64(totalLogs * 2)

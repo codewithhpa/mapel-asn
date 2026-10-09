@@ -174,6 +174,14 @@ func (s *AttendanceService) InvalidateEmployeeCache() {
 	}
 }
 
+// InvalidateCache membuang seluruh ringkasan presensi ter-cache agar perubahan
+// dispensasi/aturan langsung terlihat di refresh berikutnya.
+func (s *AttendanceService) InvalidateCache() {
+	if s.cache != nil {
+		s.cache.Clear()
+	}
+}
+
 // appendAlphaDaily menambahkan log sintetis Tidak Hadir untuk master yang nol tap hari itu.
 func (s *AttendanceService) appendAlphaDaily(summary *models.AttendanceSummary, master []models.BioTimeEmployee, targetDate time.Time) {
 	if len(master) == 0 {

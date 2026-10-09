@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{.Title}} - SIAP-ASN (Sistem Informasi Audit Presensi &amp; Apel ASN)</title>
+    <title>{{.Title}} - MAPEL (Monitoring Apel)</title>
     
     <link rel="shortcut icon" href="/assets/compiled/svg/favicon.svg" type="image/x-icon">
     <link rel="stylesheet" href="/assets/compiled/css/app.css">
@@ -48,7 +48,8 @@
 
     <!-- Need: Apexcharts -->
     <script src="/assets/extensions/apexcharts/apexcharts.min.js"></script>
-    <script src="/assets/static/js/pages/dashboard.js"></script>
+    <!-- ?v= query dipasang manual tiap dashboard.js berubah (R-35: browser TV men-cache agresif) -->
+    <script src="/assets/static/js/pages/dashboard.js?v=3"></script>
 </body>
 
 </html>

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"path/filepath"
 	"sync"
 	"sync/atomic"
 	"testing"
@@ -108,6 +109,46 @@ func TestSingleflight_CoalescesConcurrent(t *testing.T) {
 		if r != results[0] {
 			t.Fatalf("hasil %d harus pointer ringkasan yang sama", i)
 		}
+	}
+}
+
+// Dispensasi harus langsung terlihat: tanpa invalidasi, cache menyajikan status lama.
+func TestInvalidateCache_AfterDispensasi(t *testing.T) {
+	monday, _ := time.ParseInLocation("2006-01-02", "2026-08-24", time.Local)
+	tx := []models.BioTimeTransaction{
+		{EmpCode: "A", FirstName: "Andi", PunchTime: "2026-08-24 07:00:00"},
+		{EmpCode: "A", FirstName: "Andi", PunchTime: "2026-08-24 15:35:00"},
+	}
+	emps := []models.BioTimeEmployee{
+		{ID: 1, EmpCode: "A", FirstName: "Andi", FullName: "Andi"},
+	}
+	server, client := setupAlphaMock(t, tx, emps, nil)
+	defer server.Close()
+
+	svc := NewAttendanceService(client, NewAttendanceEngine(), NewAttendanceCache())
+	auditSvc := NewAuditService(filepath.Join(t.TempDir(), "inv.json"), nil)
+	svc.SetAuditService(auditSvc)
+
+	first := svc.GetAttendanceByDate(context.Background(), monday)
+	if first.Logs[0].CheckInStatus != models.StatusTepatWaktu {
+		t.Fatalf("setup: want Hadir Apel Pagi, got %s", first.Logs[0].CheckInStatus)
+	}
+	if _, err := auditSvc.RecordAudit(models.AuditVerifyRequest{
+		EmpCode: "A", Name: "Andi", Date: "2026-08-24",
+		Session: "DL", PhysicalStatus: "DL - Dinas Luar Daerah", Notes: "SPT",
+	}, "127.0.0.1"); err != nil {
+		t.Fatalf("RecordAudit: %v", err)
+	}
+
+	stale := svc.GetAttendanceByDate(context.Background(), monday)
+	if stale.Logs[0].CheckInStatus != models.StatusTepatWaktu {
+		t.Fatal("tanpa invalidasi harusnya masih status lama (cache)")
+	}
+
+	svc.InvalidateCache()
+	fresh := svc.GetAttendanceByDate(context.Background(), monday)
+	if fresh.Logs[0].CheckInStatus != "DL - Dinas Luar Daerah" {
+		t.Fatalf("setelah invalidasi harus DL, got %s", fresh.Logs[0].CheckInStatus)
 	}
 }
 

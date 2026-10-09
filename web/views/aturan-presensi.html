@@ -848,7 +848,7 @@
                                     <div class="form-check form-switch fs-6 mb-2">
                                         <input class="form-check-input" type="checkbox" id="isRamadhanMode" {{if
                                             .Rule.IsRamadhanMode}}checked{{end}}>
-                                        <label class="form-check-label fw-bold text-warning" for="isRamadhanMode">
+                                        <label class="form-check-label fw-bold text-warning-aa" for="isRamadhanMode">
                                             <i class="bi bi-moon-stars-fill me-1"></i>Aktifkan Mode Jam Kerja Bulan
                                             Ramadhan
                                         </label>
@@ -930,7 +930,7 @@
             var openTime = (day === 'fri') ? friOutOpen : monThuOutOpen;
             var cutTime = (day === 'fri') ? friOutCut : monThuOutCut;
             if (totalMin < openTime) {
-                title.className = "fw-bold mb-1 text-warning fs-6";
+                title.className = "fw-bold mb-1 text-warning-aa fs-6";
                 title.innerHTML = '<i class="bi bi-exclamation-circle me-1"></i> Pulang Cepat (Tidak Sah)';
                 desc.innerHTML = 'Scan sore dilakukan sebelum jam buka kepulangan resmi kedinasan.';
             } else if (totalMin <= cutTime) {

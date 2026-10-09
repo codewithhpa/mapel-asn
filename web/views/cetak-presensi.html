@@ -285,7 +285,7 @@
         <div class="d-flex align-items-center gap-3">
             <div class="d-flex align-items-center gap-2">
                 <i class="bi bi-file-earmark-pdf-fill fs-5 text-danger"></i>
-                <h6 class="mb-0 text-white fw-bold">Pratinjau Dokumen Resmi SIAP-ASN (PDF)</h6>
+                <h6 class="mb-0 text-white fw-bold">Pratinjau Dokumen Resmi MAPEL (PDF)</h6>
             </div>
             <span class="badge bg-secondary font-monospace px-2 py-1">{{.DateDisplay}}</span>
         </div>
@@ -310,7 +310,7 @@
             <div class="kop-text">
                 <h4>PEMERINTAH KABUPATEN BARITO UTARA</h4>
                 <h3>DINAS PEKERJAAN UMUM DAN PENATAAN RUANG</h3>
-                <p class="kop-sub">SISTEM INFORMASI ABSENSI &amp; PRESENSI APEL ASN (SIAP-ASN) BERBASIS BIOMETRIK</p>
+                <p class="kop-sub">MONITORING APEL (MAPEL) BERBASIS BIOMETRIK</p>
                 <p class="kop-address">Jalan Ahmad Yani No. 01, Muara Teweh, Kalimantan Tengah 73811 &bull; Layanan Terintegrasi SpeedFace Face Recognition BioTime {{.BioTimeVersion}}</p>
             </div>
             <div class="kop-logo-right">
@@ -376,7 +376,7 @@
                     <td class="fw-bold">{{$log.Name}}</td>
                     <td>{{if $log.Department}}{{$log.Department}}{{else}}-{{end}}</td>
                     <td class="text-center font-monospace">
-                        {{if or (eq $log.CheckInDisplay "------") (eq $log.CheckInDisplay "--:--:--") (eq $log.CheckInDisplay "")}}—{{else}}{{$log.CheckInDisplay}}{{end}}
+                        {{if or (eq $log.CheckInDisplay "------") (eq $log.CheckInDisplay "--:--:--") (eq $log.CheckInDisplay "")}}-{{else}}{{$log.CheckInDisplay}}{{end}}
                     </td>
                     <td class="text-center status-text">
                         {{if or (eq $log.CheckInStatus "Hadir Apel Pagi") (eq $log.CheckInStatus "Tepat Waktu")}}
@@ -392,7 +392,7 @@
                         {{end}}
                     </td>
                     <td class="text-center font-monospace">
-                        {{if or (eq $log.CheckOutDisplay "------") (eq $log.CheckOutDisplay "--:--:--") (eq $log.CheckOutDisplay "")}}—{{else}}{{$log.CheckOutDisplay}}{{end}}
+                        {{if or (eq $log.CheckOutDisplay "------") (eq $log.CheckOutDisplay "--:--:--") (eq $log.CheckOutDisplay "")}}-{{else}}{{$log.CheckOutDisplay}}{{end}}
                     </td>
                     <td class="text-center status-text">
                         {{if or (eq $log.CheckOutStatus "Hadir Apel Sore") (eq $log.CheckOutStatus "Sah Hadir Apel Sore")}}
@@ -407,7 +407,7 @@
                             {{if ne $log.CheckInStatus "Belum Scan"}}
                                 Belum Scan Sore
                             {{else}}
-                                —
+                                -
                             {{end}}
                         {{else}}
                             {{$log.CheckOutStatus}}

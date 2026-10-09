@@ -58,3 +58,11 @@ func (c *AttendanceCache) GetStale(key string) *models.AttendanceSummary {
 	}
 	return nil
 }
+
+// Clear membuang seluruh entri cache (dipanggil setelah dispensasi/aturan berubah
+// agar efeknya instan, bukan menunggu TTL).
+func (c *AttendanceCache) Clear() {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	c.entries = make(map[string]*cacheEntry)
+}

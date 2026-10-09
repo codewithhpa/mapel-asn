@@ -215,7 +215,6 @@ if (elVisitorsProfile) {
 }
 
 // Fungsi Fetch Donut Chart dari API /api/presensi/distribution (sumber tunggal donut)
-var donutEmpty = false
 var donutBaseColors = ["#10b981", "#f59e0b", "#3b82f6", "#ef4444"]
 var donutBaseLabels = ["Tepat Waktu (Pagi)", "Terlambat (Pagi)", "Hadir Apel Sore", "Temuan Ketidaksesuaian"]
 function loadDonutData() {
@@ -230,15 +229,14 @@ function loadDonutData() {
       if (data && data.series) {
         var allZero = data.series.every(function (v) { return v === 0 })
         if (allZero) {
-          // Placeholder netral agar donut tidak kosong melompong saat belum ada tap
-          donutEmpty = true
+          // Data benar kosong: ring kosong + Total Rekap 0 (jujur; bukan slice
+          // palsu bernilai 1 yang dulu bikin total tampil "1")
           chartVisitorsProfile.updateOptions({
-            labels: ["Belum ada data"],
-            colors: ["#cbd5e1"],
+            labels: data.labels || donutBaseLabels,
+            colors: donutBaseColors.slice(),
           })
-          chartVisitorsProfile.updateSeries([1])
+          chartVisitorsProfile.updateSeries([0, 0, 0, 0])
         } else {
-          donutEmpty = false
           chartVisitorsProfile.updateOptions({
             labels: data.labels || donutBaseLabels,
             colors: donutBaseColors.slice(),
@@ -332,10 +330,14 @@ document.addEventListener("DOMContentLoaded", function () {
   }
   window.addEventListener("theme-changed", applyChartTheme)
 
-  // Tentukan default periode berdasarkan URL
+  // Tentukan default periode berdasarkan URL.
+  // TV default Mingguan (display lobby fokus minggu berjalan);
+  // dashboard utama default Tahunan. Pemetaan ?period= tetap sama di keduanya
+  // agar filter log halaman ikut menggerakkan chart.
   var urlParams = new URLSearchParams(window.location.search)
   var globalPeriod = urlParams.get("period")
-  var initialChartPeriod = "annual" // default sesuai permintaan
+  var isTVPage = !!document.getElementById("tv")
+  var initialChartPeriod = isTVPage ? "weekly" : "annual"
 
   if (globalPeriod === "today" || globalPeriod === "date") {
     initialChartPeriod = "daily"

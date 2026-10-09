@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Title}} - MAPEL (Display TV Lobby)</title>
+
+    <link rel="shortcut icon" href="/assets/compiled/svg/favicon.svg" type="image/x-icon">
+    <link rel="stylesheet" href="/assets/compiled/css/app.css">
+    <link rel="stylesheet" href="/assets/compiled/css/app-dark.css">
+    <!-- Simple DataTables CSS (Mazer Standard, sama seperti layout utama) -->
+    <link rel="stylesheet" href="/assets/extensions/simple-datatables/style.css">
+    <link rel="stylesheet" href="/assets/compiled/css/table-datatable.css">
+    <link rel="stylesheet" href="/assets/compiled/css/responsive-override.css">
+    <style>
+    /* ==========================================================================
+       TV LAYOUT: kit UI yang SAMA PERSIS dengan dashboard utama (index.html).
+       Jangan definisikan ulang sebagian — drift CSS parsial adalah penyebab
+       kartu Jadwal Presensi TV kacau (item menumpuk, garis vertikal hilang).
+       Sumber utama: web/views/index.html blok <style> baris 1-307.
+       ========================================================================== */
+
+    /* 1. Card Refinements */
+    .kpi-card, .dashboard-card {
+        border-radius: 16px;
+        border: 1px solid #edf2f7;
+        box-shadow: none !important;
+        transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease, border-color 0.25s ease;
+    }
+    .kpi-card:hover {
+        border-color: #cbd5e1;
+    }
+    .dashboard-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04) !important;
+    }
+    [data-bs-theme="dark"] .kpi-card, [data-bs-theme="dark"] .dashboard-card,
+    body.theme-dark .kpi-card, body.theme-dark .dashboard-card {
+        background-color: #1e1e2d !important;
+    }
+
+    /* Table Headers (Clean Enterprise look) */
+    .dashboard-table thead th {
+        background-color: transparent !important;
+        color: #64748b !important;
+        border-bottom: 1px solid #e2e8f0 !important;
+        font-size: 0.75rem !important;
+        text-transform: uppercase !important;
+        font-weight: 600 !important;
+        letter-spacing: 0.05em !important;
+        padding-top: 16px !important;
+        padding-bottom: 16px !important;
+    }
+    [data-bs-theme="dark"] .dashboard-table thead th,
+    body.theme-dark .dashboard-table thead th {
+        color: #94a3b8 !important;
+        border-bottom: 1px solid #2b2b40 !important;
+    }
+    [data-bs-theme="dark"] .dashboard-table td,
+    body.theme-dark .dashboard-table td {
+        border-bottom-color: #2b2b40 !important;
+    }
+
+    /* Custom Segmented Control (iOS Style) */
+    .segmented-control {
+        display: inline-flex;
+        background-color: #f1f5f9;
+        padding: 4px;
+        border-radius: 10px;
+    }
+    .segmented-control .btn {
+        border: none;
+        background: transparent;
+        color: #64748b;
+        font-size: 0.8rem;
+        font-weight: 600;
+        padding: 6px 14px;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+    }
+    .segmented-control .btn:hover {
+        color: #1e293b;
+    }
+    .segmented-control .btn.active {
+        background-color: #ffffff;
+        color: #0f172a;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+    }
+    [data-bs-theme="dark"] .segmented-control, body.theme-dark .segmented-control {
+        background-color: #1a1a2e;
+    }
+    [data-bs-theme="dark"] .segmented-control .btn.active, body.theme-dark .segmented-control .btn.active {
+        background-color: #2b2b40;
+        color: #f8fafc;
+    }
+
+    /* 2. Anti-Slop Component Overrides */
+    .avatar-squircle {
+        border-radius: 12px !important;
+    }
+    .badge-square {
+        border-radius: 6px !important;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+        padding: 0.35em 0.6em;
+    }
+
+    /* 3. Empty State Composition */
+    .empty-state-composed {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 3rem 1rem;
+        text-align: center;
+    }
+    .empty-state-icon {
+        width: 72px;
+        height: 72px;
+        border-radius: 16px;
+        background-color: #f1f5f9;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.25rem;
+    }
+    [data-bs-theme="dark"] .empty-state-icon,
+    body.theme-dark .empty-state-icon {
+        background-color: #1a1a2e;
+    }
+
+    /* 4. VERTICAL TIMELINE / STEP TRACKER WIDGET (APPLE / LINEAR STYLE) */
+    .timeline-schedule {
+        position: relative;
+        padding-left: 8px;
+        margin: 8px 0 4px 0;
+    }
+    .timeline-schedule::before {
+        content: '';
+        position: absolute;
+        top: 10px;
+        bottom: 20px;
+        left: 13px;
+        width: 2px;
+        background: #e2e8f0;
+        border-radius: 2px;
+    }
+    .timeline-schedule-item {
+        position: relative;
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        padding-left: 24px;
+        padding-bottom: 16px;
+    }
+    .timeline-schedule-item:last-child {
+        padding-bottom: 4px;
+    }
+    .timeline-schedule-dot {
+        position: absolute;
+        left: 0px;
+        top: 3px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #ffffff;
+        border: 2.5px solid #94a3b8;
+        z-index: 1;
+        transition: transform 0.2s ease;
+    }
+    .timeline-schedule-item:hover .timeline-schedule-dot {
+        transform: scale(1.3);
+    }
+    .dot-pagi {
+        border-color: #06b6d4 !important;
+        background: #ecfeff !important;
+    }
+    .dot-toleransi {
+        border-color: #f59e0b !important;
+        background: #fffbeb !important;
+    }
+    .dot-sore {
+        border-color: #ef4444 !important;
+        background: #fef2f2 !important;
+    }
+    .timeline-title {
+        font-size: 0.84rem;
+        font-weight: 700;
+        color: #1e293b;
+        line-height: 1.25;
+    }
+    .timeline-desc {
+        font-size: 0.72rem;
+        color: #64748b;
+        line-height: 1.2;
+        margin-top: 2px;
+    }
+    .timeline-time {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-weight: 700;
+        font-size: 0.82rem;
+        color: #0f172a;
+        letter-spacing: 0.3px;
+        white-space: nowrap;
+        margin-left: 8px;
+    }
+    [data-bs-theme="dark"] .timeline-schedule::before,
+    body.theme-dark .timeline-schedule::before {
+        background: #2b2b40 !important;
+    }
+    [data-bs-theme="dark"] .timeline-title,
+    body.theme-dark .timeline-title {
+        color: #f8fafc !important;
+    }
+    [data-bs-theme="dark"] .timeline-time,
+    body.theme-dark .timeline-time {
+        color: #f8fafc !important;
+    }
+    [data-bs-theme="dark"] .dot-pagi,
+    body.theme-dark .dot-pagi {
+        background: #164e63 !important;
+    }
+    [data-bs-theme="dark"] .dot-toleransi,
+    body.theme-dark .dot-toleransi {
+        background: #78350f !important;
+    }
+    [data-bs-theme="dark"] .dot-sore,
+    body.theme-dark .dot-sore {
+        background: #7f1d1d !important;
+    }
+
+    /* 5. MONOCHROME OUTLINE KPI CARD SYSTEM (CLEAN MODERN / APPLE STYLE) */
+    .monochrome-kpi-card {
+        border-radius: 16px;
+        border: 1px solid #edf2f7;
+        background: #ffffff;
+        box-shadow: none !important;
+        transition: border-color 0.25s ease;
+        position: relative;
+    }
+    .monochrome-kpi-card:hover {
+        border-color: #cbd5e1;
+    }
+    .kpi-icon-outline {
+        font-size: 1.35rem;
+        color: #94a3b8;
+        line-height: 1;
+        opacity: 0.85;
+        transition: color 0.2s ease, opacity 0.2s ease;
+    }
+    .monochrome-kpi-card:hover .kpi-icon-outline {
+        color: #64748b;
+        opacity: 1;
+    }
+    .kpi-label-track {
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #64748b;
+    }
+    .kpi-value-bold {
+        font-size: 1.95rem;
+        font-weight: 800;
+        line-height: 1.1;
+        color: #0f172a;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-variant-numeric: tabular-nums;
+    }
+    .kpi-unit-sub {
+        font-size: 0.82rem;
+        font-weight: 500;
+        color: #94a3b8;
+        margin-left: 4px;
+    }
+    .kpi-indicator-dot {
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        margin-right: 5px;
+        vertical-align: middle;
+    }
+    [data-bs-theme="dark"] .monochrome-kpi-card,
+    body.theme-dark .monochrome-kpi-card {
+        background: #1e1e2d !important;
+        border-color: rgba(255, 255, 255, 0.08) !important;
+    }
+    [data-bs-theme="dark"] .kpi-value-bold,
+    body.theme-dark .kpi-value-bold {
+        color: #f8fafc !important;
+    }
+    [data-bs-theme="dark"] .kpi-icon-outline,
+    body.theme-dark .kpi-icon-outline {
+        color: #64748b;
+    }
+    [data-bs-theme="dark"] .monochrome-kpi-card:hover .kpi-icon-outline,
+    body.theme-dark .monochrome-kpi-card:hover .kpi-icon-outline {
+        color: #cbd5e1;
+    }
+
+    /* ==========================================================================
+       TV-SPECIFIC OVERRIDES (hanya yang benar-benar khas display lobby).
+       Chart dibiarkan 310px via dashboard.js agar identik dengan dashboard —
+       JANGAN paksa height via CSS karena merusak render ApexCharts.
+       ========================================================================== */
+    #tv {
+        max-width: 1920px;
+        margin: 0 auto;
+        padding: 16px clamp(12px, 2vw, 32px) 24px;
+    }
+    .tv-clock {
+        font-size: clamp(2rem, 4vw, 3.25rem);
+        font-weight: 800;
+        line-height: 1.1;
+        letter-spacing: -0.02em;
+        font-variant-numeric: tabular-nums;
+    }
+    .tv-date {
+        font-size: clamp(1rem, 1.6vw, 1.35rem);
+        font-weight: 600;
+    }
+    .tv-hero-value {
+        font-size: clamp(3.5rem, 8vw, 6rem);
+        font-weight: 800;
+        line-height: 1;
+        font-variant-numeric: tabular-nums;
+    }
+    .tv-kpi-value {
+        font-size: clamp(2rem, 3.5vw, 3rem) !important;
+    }
+    .tv-table {
+        font-size: clamp(0.95rem, 1.3vw, 1.15rem);
+    }
+    /* Jadwal: sedikit diperbesar untuk jarak pandang 3-5 meter. */
+    .timeline-title {
+        font-size: clamp(0.9rem, 1.2vw, 1.05rem);
+    }
+    .timeline-time {
+        font-size: clamp(0.9rem, 1.2vw, 1.05rem);
+    }
+    </style>
+</head>
+
+<body>
+    <script src="/assets/static/js/initTheme.js"></script>
+    <div id="tv">
+        {{embed}}
+    </div>
+    <script src="/assets/static/js/components/dark.js"></script>
+    <script src="/assets/compiled/js/app.js"></script>
+    <!-- Simple DataTables JS (Mazer Standard, sama seperti layout utama) -->
+    <script src="/assets/extensions/simple-datatables/umd/simple-datatables.js"></script>
+    <script src="/assets/static/js/mazer-datatable.js"></script>
+    <script src="/assets/extensions/apexcharts/apexcharts.min.js"></script>
+    <!-- ?v= query dipasang manual tiap dashboard.js berubah (R-35: browser TV men-cache agresif) -->
+    <script src="/assets/static/js/pages/dashboard.js?v=3"></script>
+</body>
+
+</html>

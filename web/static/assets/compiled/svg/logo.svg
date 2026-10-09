@@ -2,5 +2,5 @@
     <rect width="36" height="36" rx="8" fill="#435ebe"/>
     <path d="M18 9.5L11 13V19C11 23.8 14 28 18 29.5C22 28 25 23.8 25 19V13L18 9.5Z" fill="white"/>
     <path d="M15 19.5L17.2 21.8L21.5 16.8" stroke="#435ebe" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-    <text x="46" y="25" font-family="-apple-system, BlinkMacSystemFont, 'Nunito', 'Segoe UI', Roboto, sans-serif" font-size="20" font-weight="900" fill="#435ebe" letter-spacing="-0.5">SIAP-ASN</text>
+    <text x="46" y="25" font-family="-apple-system, BlinkMacSystemFont, 'Nunito', 'Segoe UI', Roboto, sans-serif" font-size="20" font-weight="900" fill="#435ebe" letter-spacing="-0.5">MAPEL</text>
 </svg>

@@ -1,0 +1,154 @@
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">Presensi ASN Hari Ini</h2>
+        <div class="tv-date text-muted">{{.DateDisplay}} &bull; Total {{.Summary.TotalPegawai}} ASN</div>
+    </div>
+    <div class="d-flex align-items-center gap-3">
+        <div class="tv-clock" id="tvClockPresensi">--:--:--</div>
+        <div class="text-end">
+            <select id="tvRefreshSelect" class="form-select" style="width:auto" title="Jeda muat ulang otomatis halaman TV" aria-label="Jeda muat ulang otomatis halaman TV">
+                <option value="30">30 detik</option>
+                <option value="60" selected>1 menit</option>
+                <option value="300">5 menit</option>
+                <option value="0">Mati</option>
+            </select>
+            <small class="text-muted">Refresh Data</small>
+        </div>
+    </div>
+</div>
+
+{{if .IsOffline}}
+<div class="alert alert-warning d-flex align-items-center gap-2" role="alert">
+    <i class="bi bi-exclamation-triangle-fill"></i>
+    <div>Koneksi ke mesin BioTime terputus. {{if .HasData}}Menampilkan data terakhir yang tersimpan.{{else}}Belum ada data tersimpan, periksa koneksi mesin.{{end}}</div>
+</div>
+{{end}}
+
+<div class="row">
+    <div class="col-6 col-lg-3 mb-4">
+        <div class="card monochrome-kpi-card h-100 mb-0">
+            <div class="card-body p-4">
+                <span class="kpi-label-track">Tepat Waktu</span>
+                <h3 class="kpi-value-bold tv-kpi-value mb-1">{{.Summary.TepatWaktuCount}}<span class="kpi-unit-sub">ASN</span></h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3 mb-4">
+        <div class="card monochrome-kpi-card h-100 mb-0">
+            <div class="card-body p-4">
+                <span class="kpi-label-track">Terlambat</span>
+                <h3 class="kpi-value-bold tv-kpi-value mb-1">{{.Summary.TerlambatCount}}<span class="kpi-unit-sub">ASN</span></h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3 mb-4">
+        <div class="card monochrome-kpi-card h-100 mb-0">
+            <div class="card-body p-4">
+                <span class="kpi-label-track">Hadir Apel Sore</span>
+                <h3 class="kpi-value-bold tv-kpi-value mb-1">{{.Summary.ApelSoreCount}}<span class="kpi-unit-sub">ASN</span></h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3 mb-4">
+        <div class="card monochrome-kpi-card h-100 mb-0">
+            <div class="card-body p-4">
+                <span class="kpi-label-track">Temuan</span>
+                <h3 class="kpi-value-bold tv-kpi-value mb-1">{{.Summary.AnomaliCount}}<span class="kpi-unit-sub">Kasus</span></h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card dashboard-card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover dashboard-table align-middle mb-0 tv-table" id="tvPresensiTable">
+                <thead>
+                    <tr>
+                        <th>Pegawai (ASN)</th>
+                        <th>Unit Kerja</th>
+                        <th class="text-center">Scan Masuk</th>
+                        <th class="text-center">Status Masuk</th>
+                        <th class="text-center">Scan Sore</th>
+                        <th class="text-center">Status Apel Sore</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{range $log := .Summary.Logs}}
+                    <tr>
+                        <td>
+                            <strong>{{$log.Name}}</strong>
+                            <small class="text-muted d-block">NIP. {{$log.EmpCode}}</small>
+                        </td>
+                        <td>{{if $log.Department}}{{$log.Department}}{{else}}-{{end}}</td>
+                        <td class="text-center"><span class="badge badge-square bg-light-secondary text-secondary font-monospace">{{$log.CheckInDisplay}}</span></td>
+                        <td class="text-center">
+                            {{if or (eq $log.CheckInStatus "Hadir Apel Pagi") (eq $log.CheckInStatus "Tepat Waktu")}}
+                                <span class="badge badge-square bg-success">Hadir Apel Pagi</span>
+                            {{else if eq $log.CheckInStatus "Terlambat"}}
+                                <span class="badge badge-square bg-warning text-dark">Terlambat (+{{$log.LateMinutes}}m)</span>
+                            {{else if isLeave $log.CheckInStatus}}
+                                <span class="badge badge-square bg-primary">{{$log.CheckInStatus}}</span>
+                            {{else if eq $log.CheckInStatus "Belum Scan"}}
+                                <span class="badge badge-square bg-light-danger text-danger">Belum Scan</span>
+                            {{else}}
+                                <span class="badge badge-square bg-secondary">{{$log.CheckInStatus}}</span>
+                            {{end}}
+                        </td>
+                        <td class="text-center"><span class="badge badge-square bg-light-secondary text-secondary font-monospace">{{$log.CheckOutDisplay}}</span></td>
+                        <td class="text-center">
+                            {{if or (eq $log.CheckOutStatus "Hadir Apel Sore") (eq $log.CheckOutStatus "Sah Hadir Apel Sore")}}
+                                <span class="badge badge-square bg-info text-dark">Hadir Apel Sore</span>
+                            {{else if eq $log.CheckOutStatus "Lewat Cutoff (Ditolak)"}}
+                                <span class="badge badge-square bg-danger">Lewat Batas Waktu</span>
+                            {{else if eq $log.CheckOutStatus "Pulang Cepat"}}
+                                <span class="badge badge-square bg-light-warning text-warn-aa">Pulang Cepat</span>
+                            {{else if isLeave $log.CheckOutStatus}}
+                                <span class="badge badge-square bg-primary">{{$log.CheckOutStatus}}</span>
+                            {{else if eq $log.CheckOutStatus "Belum Scan"}}
+                                <span class="badge badge-square bg-light-danger text-danger">Belum Scan</span>
+                            {{else}}
+                                <span class="badge badge-square bg-secondary">{{$log.CheckOutStatus}}</span>
+                            {{end}}
+                        </td>
+                    </tr>
+                    {{else}}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">Belum ada data presensi hari ini.</td>
+                    </tr>
+                    {{end}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+  function pad(n) { return n < 10 ? '0' + n : n; }
+  function tick() {
+    var el = document.getElementById('tvClockPresensi');
+    if (!el) return;
+    var now = new Date();
+    el.textContent = pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
+  }
+  tick();
+  setInterval(tick, 1000);
+
+  var sel = document.getElementById('tvRefreshSelect');
+  var timer = null;
+  if (sel) {
+    var saved = null;
+    try { saved = localStorage.getItem('siapasn-tv-refresh'); } catch (e) {}
+    if (saved) sel.value = saved;
+    const arm = () => {
+      if (timer) { clearTimeout(timer); timer = null; }
+      var sec = parseInt(sel.value || '0', 10);
+      try { localStorage.setItem('siapasn-tv-refresh', sel.value); } catch (e) {}
+      if (sec > 0) timer = setTimeout(() => window.location.reload(), sec * 1000);
+    };
+    sel.addEventListener('change', arm);
+    arm();
+  }
+})();
+</script>

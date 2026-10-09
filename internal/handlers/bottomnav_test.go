@@ -34,6 +34,7 @@ func setupBottomNavTestApp(t *testing.T) (*fiber.App, *services.UserService) {
 
 	engine := html.New("../../web/views", ".html")
 	engine.AddFunc("add", func(a, b int) int { return a + b })
+	engine.AddFunc("mul", func(a, b int) int { return a * b })
 	engine.AddFunc("isLeave", models.IsExcusedLeaveStatus)
 	app := fiber.New(fiber.Config{Views: engine})
 	client := services.NewBioTimeClient()
@@ -127,5 +128,22 @@ func TestBottomNav_PublicSeesAturan(t *testing.T) {
 	}
 	if strings.Contains(body, `href="/dispensasi"`) {
 		t.Error("publik TIDAK boleh melihat menu Dispensasi")
+	}
+}
+
+func TestSidebar_TVMenuForOperators(t *testing.T) {
+	app, _ := setupBottomNavTestApp(t)
+
+	publicBody := getBody(t, app, "/", nil)
+	if strings.Contains(publicBody, `href="/tv"`) {
+		t.Error("publik TANPA login tidak perlu menu Mode TV di sidebar")
+	}
+
+	adminCookie := loginAs(t, app, "admin", "adminkey1234")
+	adminBody := getBody(t, app, "/", adminCookie)
+	for _, want := range []string{`href="/tv"`, `target="_blank"`, `Mode TV`} {
+		if !strings.Contains(adminBody, want) {
+			t.Errorf("sidebar operator harus memuat %q", want)
+		}
 	}
 }

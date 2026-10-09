@@ -445,7 +445,7 @@ body.theme-dark .segmented-filter-group {
 }
 
 /* ==========================================================================
-   10. BRAND LOGO ICON (SIAP-ASN)
+   10. BRAND LOGO ICON (MAPEL)
    ========================================================================== */
 .brand-logo-icon {
     width: 38px;
@@ -982,13 +982,11 @@ body.theme-dark .skeleton-shimmer {
     border-radius: 16px;
     border: 1px solid #edf2f7;
     background: #ffffff;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03), 0 2px 4px -2px rgba(0, 0, 0, 0.02) !important;
-    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: none !important;
+    transition: border-color 0.25s ease;
     position: relative;
 }
 .monochrome-kpi-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 12px 24px -6px rgba(0, 0, 0, 0.06), 0 4px 6px -2px rgba(0, 0, 0, 0.02) !important;
     border-color: #cbd5e1;
 }
 
@@ -1037,6 +1035,11 @@ body.theme-dark .skeleton-shimmer {
     vertical-align: middle;
 }
 
+/* Kartu hero Kepatuhan (R-14: aksen kiri menandai satu metrik utama; R-31) */
+.kpi-hero {
+    border-left: 4px solid #435ebe !important;
+}
+
 [data-bs-theme="dark"] .monochrome-kpi-card,
 body.theme-dark .monochrome-kpi-card {
     background: #1e1e2d !important;
@@ -1053,6 +1056,23 @@ body.theme-dark .kpi-icon-outline {
 [data-bs-theme="dark"] .monochrome-kpi-card:hover .kpi-icon-outline,
 body.theme-dark .monochrome-kpi-card:hover .kpi-icon-outline {
     color: #cbd5e1;
+}
+
+/* ==========================================================================
+   20B. AA-COMPLIANT WARNING TEXT (R-25: pengganti text-warning untuk teks kecil)
+   Alasan (R-31): #ffc107 di atas putih hanya ~1,6:1. Dua varian karena konteks
+   bg berbeda: .text-warn-aa untuk teks di atas pill terang (fix kedua tema),
+   .text-warning-aa untuk teks di atas permukaan kartu (ikut tema).
+   ========================================================================== */
+.text-warn-aa {
+    color: #7a4a00 !important; /* ~7,5:1 di atas putih/#fff3cd */
+}
+.text-warning-aa {
+    color: #7a4a00 !important; /* mode terang */
+}
+[data-bs-theme="dark"] .text-warning-aa,
+body.theme-dark .text-warning-aa {
+    color: #ffd54d !important; /* ~11,6:1 di atas #1e1e2d */
 }
 
 /* ==========================================================================

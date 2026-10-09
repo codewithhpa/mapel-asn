@@ -9,7 +9,7 @@
                     </div>
                     <div class="d-flex flex-column justify-content-center">
                         <div class="d-flex align-items-center gap-1">
-                            <span class="brand-title">SIAP</span>
+                            <span class="brand-title">MAPEL</span>
                             <span class="asn-pill-badge"
                                 style="font-size: 0.65rem; padding: 1px 6px; border-radius: 4px;">ASN</span>
                         </div>
@@ -69,6 +69,12 @@
             </li>
 
             {{if .CurrentUser}}
+            <li class="sidebar-item">
+                <a href="/tv" target="_blank" rel="noopener" class="sidebar-link" title="Buka display TV lobby di tab baru">
+                    <i class="bi bi-tv-fill"></i>
+                    <span>Mode TV</span>
+                </a>
+            </li>
             <li class="sidebar-item {{if eq .ActiveMenu "dispensasi"}}active{{end}}">
                 <a href="/dispensasi" class="sidebar-link">
                     <i class="bi bi-file-earmark-check-fill"></i>

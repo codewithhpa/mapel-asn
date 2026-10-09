@@ -73,6 +73,10 @@ func SetupRoutes(app *fiber.App, svc *services.AttendanceService, auditSvc *serv
 	app.Get("/laporan/*", func(c *fiber.Ctx) error { return c.Redirect("/presensi") })
 	app.Get("/laporan", func(c *fiber.Ctx) error { return c.Redirect("/presensi") })
 
+	// Mode TV / Display Lobby (publik, selalu hari ini, tanpa sidebar & menu)
+	app.Get("/tv", h.RenderTV)
+	app.Get("/tv/presensi", h.RenderTVPresensi)
+
 	// JSON APIs Publik
 	app.Get("/api/presensi/summary", h.GetSummaryJSON)
 	app.Get("/api/presensi/chart", h.GetChartDataJSON)
@@ -338,12 +342,9 @@ func (h *DashboardHandler) RenderDashboard(c *fiber.Ctx) error {
 		summary = h.attendanceService.GetAttendanceForPeriod(ctx, startDate, endDate)
 	}
 
-	if summary.ErrorMessage != "" {
-		return c.Render("error-500", fiber.Map{
-			"ErrorMsg": summary.ErrorMessage,
-		})
-	}
-
+	// Pola TV: BioTime mati bukan error page — sajikan snapshot/stale terakhir
+	// (atau empty state) dengan banner offline. ErrorMessage mentah tidak pernah
+	// dirender ke operator; banner generik yang tampil via IsOffline.
 	var activeRule *models.AttendanceRule
 	if h.ruleService != nil {
 		activeRule = h.ruleService.GetActiveRule()
@@ -351,7 +352,7 @@ func (h *DashboardHandler) RenderDashboard(c *fiber.Ctx) error {
 
 	return c.Render("index", fiber.Map{
 		"BioTimeVersion":  config.GetEnv("BIOTIME_VERSION", "9.5"),
-		"Title":           "Dashboard Presensi & Apel ASN",
+		"Title":           "Monitoring Apel",
 		"Summary":         summary,
 		"Rule":            activeRule,
 		"DateDisplay":     periodLabel,
@@ -362,6 +363,8 @@ func (h *DashboardHandler) RenderDashboard(c *fiber.Ctx) error {
 		"SelectedMonth":   selectedMonth,
 		"PeriodType":      periodType,
 		"IsMultiDay":      startDate != endDate,
+		"IsOffline":       summary.ErrorMessage != "",
+		"HasData":         len(summary.Logs) > 0,
 		"AvailableMonths": h.getAvailableMonths(selectedMonth),
 		"CurrentYear":     time.Now().Year(),
 	}, "layouts/main")
@@ -379,12 +382,8 @@ func (h *DashboardHandler) RenderPresensi(c *fiber.Ctx) error {
 		summary = h.attendanceService.GetAttendanceForPeriod(ctx, startDate, endDate)
 	}
 
-	if summary.ErrorMessage != "" {
-		return c.Render("error-500", fiber.Map{
-			"ErrorMsg": summary.ErrorMessage,
-		})
-	}
-
+	// Pola TV: BioTime mati bukan error page — sajikan snapshot/stale terakhir
+	// (atau empty state) dengan banner offline.
 	return c.Render("presensi", fiber.Map{
 		"BioTimeVersion":  config.GetEnv("BIOTIME_VERSION", "9.5"),
 		"Title":           "Presensi ASN",
@@ -397,6 +396,8 @@ func (h *DashboardHandler) RenderPresensi(c *fiber.Ctx) error {
 		"SelectedMonth":   selectedMonth,
 		"PeriodType":      periodType,
 		"IsMultiDay":      startDate != endDate,
+		"IsOffline":       summary.ErrorMessage != "",
+		"HasData":         len(summary.Logs) > 0,
 		"AvailableMonths": h.getAvailableMonths(selectedMonth),
 		"CurrentYear":     time.Now().Year(),
 	}, "layouts/main")
@@ -437,6 +438,62 @@ func (h *DashboardHandler) RenderCetakPresensi(c *fiber.Ctx) error {
 		"CurrentUser":        c.Locals("currentUser"),
 		"SelectedMonth":      selectedMonth,
 	})
+}
+
+// 2b. Mode TV / Display Lobby (tanpa sidebar & menu).
+// Mendukung ?period=today|this_week|this_month|all untuk filter tabel log.
+// Tidak pernah merender halaman error: saat BioTime mati total, tampilkan
+// banner offline di atas data terakhir/kosong.
+func (h *DashboardHandler) tvTodaySummary(ctx context.Context) (*models.AttendanceSummary, string) {
+	now := time.Now()
+	periodLabel := fmt.Sprintf("%s, %02d %s %d", services.IndonesianDayNames[now.Weekday()], now.Day(), getIndonesianMonth(now.Month()), now.Year())
+	return h.attendanceService.GetAttendanceByDate(ctx, now), periodLabel
+}
+
+func (h *DashboardHandler) RenderTV(c *fiber.Ctx) error {
+	ctx := context.Background()
+	startDate, endDate, periodLabel, _, periodType := h.parseFilterParams(c)
+
+	var summary *models.AttendanceSummary
+	if startDate == endDate {
+		t, _ := time.Parse(time.DateOnly, startDate)
+		summary = h.attendanceService.GetAttendanceByDate(ctx, t)
+	} else {
+		summary = h.attendanceService.GetAttendanceForPeriod(ctx, startDate, endDate)
+	}
+
+	var activeRule *models.AttendanceRule
+	if h.ruleService != nil {
+		activeRule = h.ruleService.GetActiveRule()
+	}
+
+	return c.Render("tv", fiber.Map{
+		"BioTimeVersion": config.GetEnv("BIOTIME_VERSION", "9.5"),
+		"Title":          "Mode TV - MAPEL",
+		"Summary":        summary,
+		"Rule":           activeRule,
+		"DateDisplay":    periodLabel,
+		"IsOffline":      summary.ErrorMessage != "",
+		"HasData":        len(summary.Logs) > 0,
+		"PeriodType":     periodType,
+		"IsMultiDay":     startDate != endDate,
+		"CurrentYear":    time.Now().Year(),
+	}, "layouts/tv")
+}
+
+func (h *DashboardHandler) RenderTVPresensi(c *fiber.Ctx) error {
+	ctx := context.Background()
+	summary, periodLabel := h.tvTodaySummary(ctx)
+
+	return c.Render("tv-presensi", fiber.Map{
+		"BioTimeVersion": config.GetEnv("BIOTIME_VERSION", "9.5"),
+		"Title":          "Mode TV - Presensi ASN",
+		"Summary":        summary,
+		"DateDisplay":    periodLabel,
+		"IsOffline":      summary.ErrorMessage != "",
+		"HasData":        len(summary.Logs) > 0,
+		"CurrentYear":    time.Now().Year(),
+	}, "layouts/tv")
 }
 
 // 3. Dispensasi & Klarifikasi Handlers
@@ -500,6 +557,9 @@ func (h *DashboardHandler) PostSaveDispensasi(c *fiber.Ctx) error {
 		})
 	}
 
+	// Dispensasi mengubah status presensi: buang cache agar efeknya instan.
+	h.attendanceService.InvalidateCache()
+
 	return c.JSON(fiber.Map{
 		"status":  "success",
 		"message": "Dispensasi kehadiran ASN berhasil disahkan",
@@ -524,6 +584,8 @@ func (h *DashboardHandler) PostDeleteDispensasi(c *fiber.Ctx) error {
 			"message": "Gagal membatalkan dispensasi: " + err.Error(),
 		})
 	}
+
+	h.attendanceService.InvalidateCache()
 
 	return c.JSON(fiber.Map{
 		"status":  "success",
@@ -786,6 +848,8 @@ func (h *DashboardHandler) PutAttendanceRule(c *fiber.Ctx) error {
 			"message": err.Error(),
 		})
 	}
+	// Aturan berubah: ringkasan ter-cache dihitung dengan aturan lama, buang.
+	h.attendanceService.InvalidateCache()
 	return c.JSON(fiber.Map{
 		"status":  "success",
 		"message": "Aturan jam kerja ASN berhasil diperbarui",

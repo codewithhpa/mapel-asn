@@ -23,6 +23,11 @@ function initMazerTable(tableEl, customOptions = {}) {
     };
 
     const options = Object.assign({}, defaultOptions, customOptions);
+    // Sortir bawaan tanggal terbaru (opt-in via data-default-sort agar tabel
+    // master tidak ikut berubah). Nilai sort diambil dari atribut data-content.
+    if (tableEl.getAttribute('data-default-sort') === 'date-desc') {
+        options.columns = (options.columns || []).concat([{ select: 0, sort: 'desc' }]);
+    }
     const dataTable = new simpleDatatables.DataTable(tableEl, options);
 
     function adaptPageDropdown() {
