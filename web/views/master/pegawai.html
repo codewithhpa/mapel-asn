@@ -6,6 +6,12 @@
                 <p class="text-subtitle text-muted mb-0">Manajemen profil pegawai, penugasan unit kerja, lokasi mesin Face Recognition, dan status biometrik BioTime.</p>
             </div>
             <div class="col-12 col-md-5 text-md-end mt-3 mt-md-0">
+                <a href="/api/pegawai/template" class="btn btn-outline-success px-3 py-2 fw-semibold shadow-sm me-2">
+                    <i class="bi bi-file-earmark-spreadsheet me-2"></i>Template Excel
+                </a>
+                <button type="button" class="btn btn-outline-primary px-3 py-2 fw-semibold shadow-sm me-2" data-bs-toggle="modal" data-bs-target="#modalImport">
+                    <i class="bi bi-upload me-2"></i>Import Excel
+                </button>
                 <button type="button" class="btn btn-primary px-4 py-2 fw-semibold shadow-sm" data-bs-toggle="modal" data-bs-target="#modalEmployee" onclick="openCreateModal()">
                     <i class="bi bi-person-plus-fill me-2"></i>Tambah Pegawai
                 </button>
@@ -566,6 +572,46 @@ body.theme-dark .empty-state-icon {
 }
 </style>
 
+<!-- Modal Import Excel Pegawai -->
+<div class="modal fade" id="modalImport" tabindex="-1" aria-labelledby="modalImportLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
+            <div class="modal-header text-white" style="background: linear-gradient(135deg, #166534 0%, #14532d 100%); border-top-left-radius: 16px; border-top-right-radius: 16px;">
+                <div>
+                    <h5 class="modal-title fw-bold text-white mb-0" id="modalImportLabel">
+                        <i class="bi bi-upload me-2"></i>Import Pegawai dari Excel
+                    </h5>
+                    <small class="text-white-50">Massal ke BioTime — wajah tetap di-enroll dari device</small>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form onsubmit="submitEmployeeImport(event)">
+                <div class="modal-body p-4">
+                    <div class="alert alert-info d-flex gap-2 mb-3">
+                        <i class="bi bi-info-circle-fill mt-1"></i>
+                        <div class="small">
+                            1. Unduh <a href="/api/pegawai/template" class="fw-bold">Template Excel</a> (sudah berisi contoh + daftar Kode Dept/Jabatan/Area).<br>
+                            2. NIP yang sudah ada di BioTime <b>dilewati</b>, tidak dobel.<br>
+                            3. Maksimal 1000 baris per file.
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold" for="importFile">File .xlsx</label>
+                        <input type="file" class="form-control" id="importFile" accept=".xlsx" required>
+                    </div>
+                    <div id="importResult"></div>
+                </div>
+                <div class="modal-footer py-3 border-top">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                    <button type="submit" class="btn btn-success px-4 fw-semibold" id="btnDoImport">
+                        <i class="bi bi-upload me-1"></i>Upload &amp; Proses
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script>
 document.addEventListener("DOMContentLoaded", function() {
     let tableEl = document.getElementById("tableEmployee");
@@ -792,6 +838,55 @@ function submitMutasiForm(e) {
         } else {
             Swal.fire("Gagal", data.message, "error");
         }
+    })
+    .catch(function(err) {
+        Swal.fire("Error", "Gagal menghubungi server: " + err, "error");
+    });
+}
+
+// Import Excel Pegawai
+function submitEmployeeImport(e) {
+    e.preventDefault();
+    var input = document.getElementById("importFile");
+    if (!input.files || input.files.length === 0) {
+        Swal.fire("Peringatan", "Pilih file .xlsx dulu", "warning");
+        return;
+    }
+    var box = document.getElementById("importResult");
+    box.innerHTML = "";
+
+    Swal.fire({
+        title: "Mengimpor pegawai...",
+        text: "Jangan tutup halaman ini.",
+        allowOutsideClick: false,
+        didOpen: function() { Swal.showLoading(); }
+    });
+
+    var fd = new FormData();
+    fd.append("file", input.files[0]);
+
+    fetch("/api/pegawai/import", { method: "POST", body: fd })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+        if (data.status !== "success") {
+            Swal.fire("Gagal", data.message || "Import gagal", "error");
+            return;
+        }
+        var s = data.summary;
+        var badge = function(st) {
+            if (st === "sukses") return '<span class="badge bg-success">Sukses</span>';
+            if (st === "duplikat") return '<span class="badge bg-warning text-dark">Dilewati</span>';
+            return '<span class="badge bg-danger">Gagal</span>';
+        };
+        var rows = (data.results || []).map(function(r) {
+            return '<tr><td>' + r.row + '</td><td><code>' + r.emp_code + '</code></td><td>' + r.full_name + '</td><td>' + badge(r.status) + '</td><td class="small">' + r.message + '</td></tr>';
+        }).join("");
+        box.innerHTML =
+            '<div class="alert alert-success">Import selesai: <b>' + s.sukses + '</b> sukses, <b>' + s.duplikat + '</b> dilewati, <b>' + s.gagal + '</b> gagal dari ' + s.total + ' baris.</div>' +
+            '<div class="table-responsive" style="max-height: 320px; overflow-y: auto;">' +
+            '<table class="table table-sm table-bordered align-middle"><thead class="table-light" style="position: sticky; top: 0;"><tr><th>Baris</th><th>NIP</th><th>Nama</th><th>Status</th><th>Keterangan</th></tr></thead><tbody>' + rows + '</tbody></table></div>' +
+            '<button type="button" class="btn btn-primary btn-sm mt-2" onclick="window.location.reload()"><i class="bi bi-arrow-clockwise me-1"></i>Muat Ulang Tabel</button>';
+        Swal.close();
     })
     .catch(function(err) {
         Swal.fire("Error", "Gagal menghubungi server: " + err, "error");

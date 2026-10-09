@@ -245,8 +245,13 @@ body.theme-dark .ribbon-status-text {
 
     async function ping() {
         try {
-            const res = await fetch('/health', { cache: 'no-store' });
-            setHealth(res.ok);
+            const res = await fetch('/api/biotime-status', { cache: 'no-store' });
+            if (!res.ok) { setHealth(false); return; }
+            const data = await res.json();
+            setHealth(data.biotime === 'online');
+            if (dot && data.latency_ms !== undefined) {
+                dot.title = 'BioTime ' + data.biotime + ' (' + data.latency_ms + ' ms)';
+            }
         } catch (e) {
             setHealth(false);
         }

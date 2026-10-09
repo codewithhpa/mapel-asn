@@ -142,6 +142,13 @@
                     <span>Hak Akses (Roles)</span>
                 </a>
             </li>
+
+            <li class="sidebar-item {{if eq .ActiveMenu "device"}}active{{end}}">
+                <a href="/device" class="sidebar-link">
+                    <i class="bi bi-hdd-network-fill"></i>
+                    <span>Kelola Device</span>
+                </a>
+            </li>
             {{end}}
             {{end}}
         </ul>

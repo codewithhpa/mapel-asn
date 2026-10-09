@@ -81,6 +81,7 @@ func SetupRoutes(app *fiber.App, svc *services.AttendanceService, auditSvc *serv
 	app.Get("/api/presensi/summary", h.GetSummaryJSON)
 	app.Get("/api/presensi/chart", h.GetChartDataJSON)
 	app.Get("/api/presensi/distribution", h.GetDistributionJSON)
+	app.Get("/api/biotime-status", h.GetBioTimeStatus)
 
 	// Aturan Jam Kerja Presensi (Khusus Administrator - RoleID = 1)
 	app.Get("/aturan-presensi", middleware.RequireAdmin(userSvc), h.RenderAturanPresensi)
@@ -107,6 +108,8 @@ func SetupRoutes(app *fiber.App, svc *services.AttendanceService, auditSvc *serv
 	app.Put("/api/pegawai/:id", middleware.RequireAdmin(userSvc), h.PutUpdateEmployee)
 	app.Delete("/api/pegawai/:id", middleware.RequireAdmin(userSvc), h.DeleteEmployee)
 	app.Post("/api/pegawai/:id/delete", middleware.RequireAdmin(userSvc), h.DeleteEmployee)
+	app.Get("/api/pegawai/template", middleware.RequireAdmin(userSvc), h.GetEmployeeTemplate)
+	app.Post("/api/pegawai/import", middleware.RequireAdmin(userSvc), h.PostImportEmployees)
 
 	// 2. Departemen (Bagian)
 	app.Get("/master/departemen", middleware.RequireAdmin(userSvc), h.RenderMasterDepartemen)
@@ -139,6 +142,13 @@ func SetupRoutes(app *fiber.App, svc *services.AttendanceService, auditSvc *serv
 	app.Delete("/api/mutasi/:id", middleware.RequireAdmin(userSvc), h.DeleteResign)
 	app.Post("/api/mutasi/:id/delete", middleware.RequireAdmin(userSvc), h.DeleteResign)
 	app.Post("/api/mutasi/reinstatement", middleware.RequireAdmin(userSvc), h.PostReinstatementResign)
+
+	// 6. Kelola Device Face Recognition (perintah transfer BioTime)
+	app.Get("/device", middleware.RequireAdmin(userSvc), h.RenderDevice)
+	app.Get("/api/device", middleware.RequireAdmin(userSvc), h.GetTerminalsJSON)
+	app.Post("/api/device/upload", middleware.RequireAdmin(userSvc), h.PostUploadTransaction)
+	app.Post("/api/device/:id/upload", middleware.RequireAdmin(userSvc), h.PostUploadTransaction)
+	app.Post("/api/device/resync", middleware.RequireAdmin(userSvc), h.PostResyncEmployees)
 
 	// CRUD Petugas (Khusus Administrator - RoleID = 1)
 	app.Get("/petugas", middleware.RequireAdmin(userSvc), h.RenderPetugas)
@@ -350,10 +360,17 @@ func (h *DashboardHandler) RenderDashboard(c *fiber.Ctx) error {
 		activeRule = h.ruleService.GetActiveRule()
 	}
 
+	statusFilter := normalizeStatusFilter(c.Query("status"))
+
 	return c.Render("index", fiber.Map{
 		"BioTimeVersion":  config.GetEnv("BIOTIME_VERSION", "9.5"),
 		"Title":           "Monitoring Apel",
 		"Summary":         summary,
+		"FilteredLogs":    filterLogsByStatus(summary.Logs, statusFilter),
+		"StatusTabs":      buildStatusTabs(c, summary.Logs, statusFilter),
+		"ActiveStatus":    statusFilter,
+		"PeriodTabs":      buildPeriodTabs(c, periodType),
+		"PrintURL":        buildQueryURL(c, "/presensi/cetak", nil),
 		"Rule":            activeRule,
 		"DateDisplay":     periodLabel,
 		"ActiveMenu":      "dashboard",
@@ -423,6 +440,14 @@ func (h *DashboardHandler) RenderCetakPresensi(c *fiber.Ctx) error {
 		}
 	} else {
 		summary = h.attendanceService.GetAttendanceForPeriod(ctx, startDate, endDate)
+	}
+
+	if statusFilter := normalizeStatusFilter(c.Query("status")); statusFilter != statusFilterAll {
+		// Salin summary agar cache data bersama tidak ikut terfilter.
+		filtered := *summary
+		filtered.Logs = filterLogsByStatus(summary.Logs, statusFilter)
+		summary = &filtered
+		periodLabel += " · Kategori: " + statusFilterLabel(statusFilter)
 	}
 
 	now := time.Now()

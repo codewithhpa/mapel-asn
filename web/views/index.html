@@ -339,25 +339,34 @@ body.theme-dark .monochrome-kpi-card:hover .kpi-icon-outline {
         <div class="small fw-semibold" id="smartBannerText">
             Senin–Kamis: Masuk 07:00 (Toleransi s/d 07:15) | Apel Pagi 07:00 | Scan Apel Sore: 15:30 s/d 15:45 WIB (Batas Akhir 15:45)
         </div>
-        <div class="d-flex align-items-center gap-2">
-            <i class="bi bi-tv small"></i>
-            <select id="autoRefreshSelect" class="form-select form-select-sm" style="width:auto" title="Auto-refresh untuk display TV">
-                <option value="0">Refresh: Mati</option>
-                <option value="30">30 detik</option>
-                <option value="60">1 menit</option>
-                <option value="300">5 menit</option>
+        <div class="d-flex flex-wrap align-items-center gap-2">
+            <button type="button" class="btn btn-sm btn-success fw-semibold" onclick="window.location.reload()" title="Ambil ulang data terbaru dari BioTime">
+                <i class="bi bi-arrow-clockwise me-1"></i>Refresh Data
+            </button>
+            <label for="autoRefreshSelect" class="small mb-0 text-white" title="Halaman dimuat ulang otomatis pada interval ini. Cocok untuk layar TV lobby.">
+                <i class="bi bi-tv me-1"></i>Muat ulang otomatis:
+            </label>
+            <select id="autoRefreshSelect" class="form-select form-select-sm" style="width:auto" title="Muat ulang otomatis halaman (untuk layar TV)">
+                <option value="0">Mati</option>
+                <option value="30">Tiap 30 detik</option>
+                <option value="60">Tiap 1 menit</option>
+                <option value="300">Tiap 5 menit</option>
             </select>
+            <small class="text-white-50" id="lastUpdatedText">Dimuat: <span id="lastUpdatedTime"></span></small>
         </div>
     </div>
-    <!-- Quick Filter Tabs Status (PRD 6.4) -->
-    <div class="d-flex flex-wrap gap-2 mb-3" id="statusFilterTabs" role="group" aria-label="Filter status">
-        <button type="button" class="btn btn-sm btn-primary active" data-filter="all">Semua</button>
-        <button type="button" class="btn btn-sm btn-outline-primary" data-filter="Hadir Apel Pagi">Tepat Waktu</button>
-        <button type="button" class="btn btn-sm btn-outline-primary" data-filter="Terlambat">Terlambat</button>
-        <button type="button" class="btn btn-sm btn-outline-primary" data-filter="Hadir Apel Sore">Sah Apel Sore</button>
-        <button type="button" class="btn btn-sm btn-outline-primary" data-filter="Pulang Cepat">Pulang Cepat</button>
-        <button type="button" class="btn btn-sm btn-outline-primary" data-filter="Lewat Batas Waktu">Lewat Batas</button>
-        <button type="button" class="btn btn-sm btn-outline-primary" data-filter="Tidak Hadir">Tidak Hadir</button>
+    <!-- Filter Status (segmented control, difilter di server; kategori saling eksklusif) -->
+    <div class="mb-3 d-flex flex-wrap align-items-center gap-2" role="group" aria-label="Filter status presensi">
+        <div class="segmented-control overflow-auto" style="max-width: 100%;">
+            {{range .StatusTabs}}
+            <a href="{{.URL}}" class="btn text-nowrap{{if .Active}} active{{end}}" aria-pressed="{{if .Active}}true{{else}}false{{end}}" {{if and (eq .Count 0) (not .Active)}}style="opacity:.5"{{end}}>
+                {{.Label}} <span class="font-monospace">({{.Count}})</span>
+            </a>
+            {{end}}
+        </div>
+        {{if ne .ActiveStatus "all"}}
+        <small class="text-muted">Menampilkan {{len .FilteredLogs}} dari {{len .Summary.Logs}} pegawai. <a href="/" class="fw-semibold">Reset filter</a></small>
+        {{end}}
     </div>
     <section class="row">
         <div class="col-12 col-lg-9 d-flex flex-column mb-lg-4">
@@ -567,30 +576,24 @@ body.theme-dark .monochrome-kpi-card:hover .kpi-icon-outline {
                             <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
                                 <div>
                                     <h5 class="fw-bold mb-1 text-dark">Log Presensi Face Recognition</h5>
-                                    <small class="text-muted"><strong>{{.DateDisplay}}</strong> &bull; Total {{.Summary.TotalPegawai}} data presensi</small>
+                                    <small class="text-muted"><strong>{{.DateDisplay}}</strong> &bull; Total {{.Summary.TotalPegawai}} pegawai</small>
                                 </div>
                                 <div class="d-flex flex-wrap align-items-center gap-2">
-                                    <!-- Pilihan Cepat Periode -->
-                                    <div class="segmented-control" role="group">
-                                        <a href="/?period=today" class="btn {{if eq .PeriodType "today"}}active{{end}}">Hari Ini</a>
-                                        <a href="/?period=this_week" class="btn {{if eq .PeriodType "this_week"}}active{{end}}">Minggu Ini</a>
-                                        <a href="/?period=this_month" class="btn {{if eq .PeriodType "this_month"}}active{{end}}">Bulan Ini</a>
-                                        <a href="/?period=all" class="btn {{if eq .PeriodType "all"}}active{{end}}">Semua ({{if .CurrentYear}}{{.CurrentYear}}{{else}}2026{{end}})</a>
+                                    <!-- Pilihan Cepat Periode (dengan mempertahankan filter status) -->
+                                    <div class="segmented-control" role="group" aria-label="Pilih periode">
+                                        {{range .PeriodTabs}}
+                                        <a href="{{.URL}}" class="btn text-nowrap{{if .Active}} active{{end}}" {{if .Active}}aria-current="true"{{end}}>{{.Label}}</a>
+                                        {{end}}
                                     </div>
 
-                                    <!-- Filter Dropdown Bulan Eksekutif -->
+                                    <!-- Pilih bulan & tahun (riwayat di luar 12 bulan terakhir) -->
                                     <div class="executive-select-wrapper">
                                         <i class="bi bi-calendar3 executive-select-icon"></i>
-                                        <select class="form-select select-executive-filter" onchange="if(this.value) window.location.href='/?month='+this.value">
-                                            <option value="">-- Filter Bulan --</option>
-                                            {{range .AvailableMonths}}
-                                                <option value="{{.Value}}" {{if .IsActive}}selected{{end}}>{{.Label}}</option>
-                                            {{end}}
-                                        </select>
+                                        <input type="month" class="form-control select-executive-filter" aria-label="Pilih bulan dan tahun" value="{{.SelectedMonth}}" onchange="if(this.value) { var p = new URLSearchParams(window.location.search); p.set('month', this.value); ['period','start_date','end_date','date'].forEach(function(k){ p.delete(k); }); window.location.href = '/?' + p.toString(); }">
                                     </div>
 
-                                    <!-- Tombol Cetak Rekap PDF Eksekutif (Dinamis Sesuai Filter) -->
-                                    <a href="/presensi/cetak{{if eq .PeriodType "month"}}?month={{.SelectedMonth}}{{else if eq .PeriodType "this_week"}}?period=this_week{{else if eq .PeriodType "this_month"}}?period=this_month{{else if eq .PeriodType "all"}}?period=all{{else if and (eq .PeriodType "today") (eq .Summary.TotalPegawai 0)}}?period=all{{else}}?period=today{{end}}" 
+                                    <!-- Tombol Cetak Rekap PDF (URL sama dengan layar: periode + bulan + status) -->
+                                    <a href="{{.PrintURL}}"
                                        target="_blank" 
                                        class="btn-executive-export" 
                                        id="btnCetakRekapDashboard"
@@ -616,7 +619,7 @@ body.theme-dark .monochrome-kpi-card:hover .kpi-icon-outline {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {{range .Summary.Logs}}
+                                    {{range .FilteredLogs}}
                                     <tr>
                                         {{if $.IsMultiDay}}
                                         <td class="col-auto" data-content="{{.Date}}">
@@ -678,9 +681,9 @@ body.theme-dark .monochrome-kpi-card:hover .kpi-icon-outline {
                                                 <div class="empty-state-icon">
                                                     <i class="bi bi-calendar-x fs-1 text-secondary opacity-50"></i>
                                                 </div>
-                                                <h6 class="text-dark fw-bold mb-2">Riwayat Presensi Kosong</h6>
+                                                <h6 class="text-dark fw-bold mb-2">{{if .Summary.Logs}}Tidak Ada Pegawai di Kategori Ini{{else}}Riwayat Presensi Kosong{{end}}</h6>
                                                 <p class="text-muted small mb-3" style="max-width: 320px;">
-                                                    Belum ada aktivitas presensi atau apel yang terekam pada mesin biometrik untuk periode yang dipilih.
+                                                    {{if .Summary.Logs}}Pilih kategori lain di atas atau reset filter untuk melihat seluruh pegawai.{{else}}Belum ada aktivitas presensi atau apel yang terekam pada mesin biometrik untuk periode yang dipilih.{{end}}
                                                 </p>
                                                 <button type="button" class="btn btn-sm btn-primary" onclick="window.location.reload()">
                                                     <i class="bi bi-arrow-clockwise me-1"></i>Muat Ulang Data
@@ -717,6 +720,8 @@ body.theme-dark .monochrome-kpi-card:hover .kpi-icon-outline {
   }
   // Auto-refresh untuk display TV lobby
   var sel = document.getElementById('autoRefreshSelect');
+  var lastEl = document.getElementById('lastUpdatedTime');
+  if (lastEl) lastEl.textContent = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
   var timer = null;
   if (sel) {
     var saved = null;
@@ -730,49 +735,6 @@ body.theme-dark .monochrome-kpi-card:hover .kpi-icon-outline {
     };
     sel.addEventListener('change', arm);
     if (sel.value !== '0') arm();
-  }
-  // Quick filter tabs via DataTables API (tidak merusak pagination)
-  var tabs = document.getElementById('statusFilterTabs');
-  if (tabs) {
-    tabs.addEventListener('click', (e) => {
-      var btn = e.target.closest('button[data-filter]');
-      if (!btn) return;
-      tabs.querySelectorAll('button').forEach(b => {
-        b.classList.remove('btn-primary', 'active');
-        b.classList.add('btn-outline-primary');
-      });
-      btn.classList.add('btn-primary', 'active');
-      btn.classList.remove('btn-outline-primary');
-      var f = btn.getAttribute('data-filter');
-      var term = (f === 'all') ? '' : f;
-      var table = document.getElementById('table1');
-      var dt = table && table._mazerDT;
-      if (dt && typeof dt.search === 'function') {
-        dt.search(term);
-      } else {
-        // Fallback pra-init: sembunyikan baris manual
-        document.querySelectorAll('#table1 tbody tr').forEach(tr => {
-          if (!tr.querySelector('td')) return;
-          var txt = tr.innerText || '';
-          tr.style.display = (f === 'all' || txt.includes(f)) ? '' : 'none';
-        });
-      }
-    });
-    // Tempel count per status di label tab agar terlihat mana yang ada isinya.
-    // Alasan (R-31): tab tanpa angka terlihat mati saat datanya nol.
-    var tabTable = document.getElementById('table1');
-    if (tabTable) {
-      var tabRows = [...tabTable.querySelectorAll('tbody tr')]
-        .filter(tr => !tr.querySelector('td[colspan]'));
-      tabs.querySelectorAll('button[data-filter]').forEach(b => {
-        var bf = b.getAttribute('data-filter');
-        if (!b.dataset.label) b.dataset.label = b.textContent.trim();
-        var n = (bf === 'all')
-          ? tabRows.length
-          : tabRows.filter(tr => (tr.innerText || '').includes(bf)).length;
-        b.textContent = b.dataset.label + ' (' + n + ')';
-      });
-    }
   }
 })();
 </script>
