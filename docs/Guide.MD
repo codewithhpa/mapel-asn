@@ -83,7 +83,7 @@ di `C:\ZKBioTime`, SpeedFace M4 SN `GAT5261100070`).
 ## 1. Menjalankan manual
 
 ```powershell
-cd "C:\Users\HPAiD\Downloads\mapel"
+cd "C:\Users\HPAiD\Downloads\mapel-asn"
 go run ./cmd/app
 # atau binary produksi:
 go build -o MAPEL-ASN.exe ./cmd/app
@@ -110,7 +110,7 @@ sendiri saat start (`main.go`), jadi aman dijalankan dari folder mana pun.
 Urutan wajib (jangan dibalik — exe yang sedang jalan dikunci Windows):
 
 ```powershell
-cd "C:\Users\HPAiD\Downloads\mapel"
+cd "C:\Users\HPAiD\Downloads\mapel-asn"
 taskkill /F /IM MAPEL-ASN.exe 2>$null
 go build -o MAPEL-ASN.exe ./cmd/app
 .\MAPEL-ASN.exe
@@ -127,7 +127,7 @@ task-nya dulu sebelum rebuild.
 Jalankan **PowerShell as Administrator**:
 
 ```powershell
-$dir = "C:\Users\HPAiD\Downloads\mapel"
+$dir = "C:\Users\HPAiD\Downloads\mapel-asn"
 go build -o "$dir\MAPEL-ASN.exe" ./cmd/app   # jalankan dari folder project
 
 $action = New-ScheduledTaskAction -Execute "$dir\MAPEL-ASN.exe" -WorkingDirectory $dir
