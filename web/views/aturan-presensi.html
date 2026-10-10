@@ -4,6 +4,44 @@
    Clean, Authoritative, High Contrast, Swiss Minimalist (Anti-Slop)
    ========================================================================== */
 
+    /* 0. Kalender: sticky thead + anchor offset (nav sticky) */
+    #tableCalendar thead.cal-sticky-head th {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        background-color: #ffffff;
+    }
+
+    [data-bs-theme="dark"] #tableCalendar thead.cal-sticky-head th,
+    body.theme-dark #tableCalendar thead.cal-sticky-head th {
+        background-color: #1e1e2d;
+    }
+
+    #sec-matriks,
+    #sec-simulator,
+    #sec-kebijakan,
+    #sec-kalender {
+        scroll-margin-top: 12px;
+    }
+
+    .cal-hour-chip {
+        display: inline-block;
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 0.68rem;
+        padding: 1px 7px;
+        border-radius: 9999px;
+        background: #f1f5f9;
+        color: #334155;
+        margin: 1px 2px 1px 0;
+        white-space: nowrap;
+    }
+
+    [data-bs-theme="dark"] .cal-hour-chip,
+    body.theme-dark .cal-hour-chip {
+        background: rgba(255, 255, 255, 0.08);
+        color: #cbd5e1;
+    }
+
     /* 1. Cards & Elevation */
     .dashboard-card {
         border-radius: 16px;
@@ -344,55 +382,43 @@
 </div>
 
 <div class="page-content">
+    <nav class="d-flex flex-wrap gap-2 mb-3" aria-label="Navigasi bagian halaman"
+        style="position: sticky; top: 0; z-index: 5;">
+        <a href="#sec-matriks" class="btn btn-sm btn-outline-secondary">Matriks Jadwal</a>
+        <a href="#sec-simulator" class="btn btn-sm btn-outline-secondary">Simulator</a>
+        <a href="#sec-kebijakan" class="btn btn-sm btn-outline-secondary">Kebijakan</a>
+        <a href="#sec-kalender" class="btn btn-sm btn-outline-secondary">Kalender Kedinasan</a>
+    </nav>
     <div class="row g-4">
 
-        <!-- 1. Executive Policy Status Banner -->
+        <!-- 1. Executive Policy Status Banner (single hero: nama + status + diubah) -->
         <div class="col-12">
             <div class="card policy-hero-card shadow-sm mb-0">
-                <div class="card-body p-4 p-xl-4">
-                    <div class="row align-items-center">
-                        <div class="col-12 col-lg-8">
-                            <div class="d-flex align-items-center gap-2 mb-2">
-                                {{if .Rule.IsRamadhanMode}}
-                                <span class="badge badge-square bg-warning text-dark px-3 py-1-5 fw-bold">
-                                    <i class="bi bi-moon-stars-fill me-1"></i> Mode Jam Kerja Ramadhan Aktif
-                                </span>
-                                {{else}}
-                                <span class="badge badge-square bg-light text-primary px-3 py-1-5 fw-bold">
-                                    <i class="bi bi-calendar-check-fill me-1"></i> Jadwal Kerja Reguler ASN
-                                </span>
-                                {{end}}
-                                <span class="text-light opacity-75 small font-monospace">SOP Kepegawaian Resmi</span>
-                            </div>
-                            <h4 class="fw-extrabold text-white mb-2" style="letter-spacing: -0.3px;">
-                                {{if .Rule.RuleName}}{{.Rule.RuleName}}{{else}}Ketentuan Jam Kerja &amp; Apel ASN (PUPR
-                                Barito Utara){{end}}
-                            </h4>
-                            <p class="text-light opacity-80 mb-0"
-                                style="font-size: 0.9rem; line-height: 1.5; max-width: 680px;">
-                                Acuan parameter resmi mesin Face Recognition BioTime untuk penentuan kehadiran apel
-                                pagi, penghitungan menit keterlambatan, presensi apel sore, dan audit tertib
-                                administrasi kepegawaian.
-                            </p>
-                        </div>
-                        <div class="col-12 col-lg-4 mt-3 mt-lg-0 text-lg-end">
-                            <div
-                                class="d-inline-block text-start text-lg-end bg-white bg-opacity-10 p-3 rounded-3 border border-white border-opacity-15">
-                                <div class="small text-light opacity-75 mb-1">Status Konfigurasi Aturan:</div>
-                                <div class="fw-bold text-white mb-1"><i
-                                        class="bi bi-check-circle-fill text-success me-1"></i>Tersimpan di Database
-                                </div>
-                                <div class="small font-monospace text-light opacity-75">Terakhir Diubah:
-                                    {{.Rule.UpdatedAt.Format "02 Jan 2006, 15:04"}} WIB</div>
-                            </div>
-                        </div>
+                <div class="card-body px-4 py-3 p-xl-4">
+                    <div class="d-flex flex-wrap align-items-center gap-2">
+                        {{if .TodaySpecialHours}}
+                        <span class="badge badge-square bg-warning text-dark px-3 py-1-5 fw-bold">
+                            <i class="bi bi-moon-stars-fill me-1"></i> {{.TodaySpecialHours}}
+                        </span>
+                        {{else}}
+                        <span class="badge badge-square bg-light text-primary px-3 py-1-5 fw-bold">
+                            <i class="bi bi-calendar-check-fill me-1"></i> Jadwal Kerja Reguler ASN
+                        </span>
+                        {{end}}
+                        <h4 class="fw-extrabold text-white mb-0" style="letter-spacing: -0.3px;">
+                            {{if .Rule.RuleName}}{{.Rule.RuleName}}{{else}}Ketentuan Jam Kerja &amp; Apel ASN (PUPR
+                            Barito Utara){{end}}
+                        </h4>
+                        <span class="text-light opacity-75 small ms-lg-auto font-monospace"><i
+                                class="bi bi-check-circle-fill text-success me-1"></i>Tersimpan di Database &bull;
+                            Diubah: {{.Rule.UpdatedAt.Format "02 Jan 2006, 15:04"}} WIB</span>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- 2. Master Table: Matriks Jadwal Resmi Kedinasan (Senin–Kamis vs Jumat) -->
-        <div class="col-12">
+        <div class="col-12" id="sec-matriks">
             <div class="card dashboard-card mb-0">
                 <div
                     class="card-header border-bottom py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
@@ -554,16 +580,19 @@
             </div>
         </div>
 
-        <!-- 3. Visual Timeline: Alur Rentang Waktu Kerja Harian -->
+        <!-- 3. Visual Timeline: Alur Rentang Waktu Kerja Harian (dilipat; isi sama dengan matriks) -->
         <div class="col-12">
-            <div class="card dashboard-card mb-0">
-                <div class="card-header border-bottom py-3 d-flex justify-content-between align-items-center">
+            <details class="card dashboard-card mb-0">
+                <summary class="card-header border-bottom py-3 d-flex justify-content-between align-items-center"
+                    style="cursor: pointer; list-style: none;">
                     <h5 class="card-title mb-0 fs-6 fw-bold text-dark">
                         <i class="bi bi-clock-history text-primary me-2"></i>Visualisasi Alur Jadwal Harian (Senin s/d
                         Jumat)
+                        <small class="text-muted fw-normal ms-2">klik untuk buka — angka sama dengan matriks di
+                            atas</small>
                     </h5>
                     <span class="small text-muted font-monospace">06:00 s/d 16:00 WIB</span>
-                </div>
+                </summary>
                 <div class="card-body p-4">
                     <div class="schedule-horizon">
                         <!-- Horizontal Bar Track -->
@@ -603,11 +632,11 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </details>
         </div>
 
         <!-- 4. Pengecekan Simulasi Presensi (Kiri) & Ketentuan Kebijakan (Kanan) -->
-        <div class="col-12 col-lg-5">
+        <div class="col-12 col-lg-5" id="sec-simulator">
             <div class="card dashboard-card h-100 mb-0">
                 <div class="card-header border-bottom py-3">
                     <h5 class="card-title mb-0 fs-6 fw-bold text-dark">
@@ -653,7 +682,7 @@
             </div>
         </div>
 
-        <div class="col-12 col-lg-7">
+        <div class="col-12 col-lg-7" id="sec-kebijakan">
             <div class="card dashboard-card h-100 mb-0">
                 <div class="card-header border-bottom py-3">
                     <h5 class="card-title mb-0 fs-6 fw-bold text-dark">
@@ -710,6 +739,192 @@
     </div>
 </div>
 
+<!-- ================================================================
+     KALENDER KEDINASAN (Libur Nasional, Cuti Bersama, Jam Khusus)
+     Sumber: SKB 3 Menteri + SE Bupati — diinput tiap akhir tahun untuk tahun depan.
+     ================================================================ -->
+<div class="card dashboard-card mt-4 mb-4" id="sec-kalender">
+    <div class="card-header pb-3 border-bottom d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <div>
+            <h5 class="fw-bold mb-1"><i class="bi bi-calendar-week-fill text-primary me-2"></i>Kalender Kedinasan</h5>
+            <small class="text-muted">Hari Libur Nasional &amp; Cuti Bersama , Jam Kerja
+                Bulan Ramadhan (Tidak Ikut Apel Tidak Dihitung) </small>
+        </div>
+        <div class="d-flex flex-wrap align-items-center gap-2">
+            <select id="calendarYear" class="form-select form-select-sm" style="width:auto" onchange="loadCalendar()"
+                title="Pilih tahun kalender">
+                {{range .CalendarYears}}
+                <option value="{{.}}" {{if eq . $.CurrentYear}}selected{{end}}>{{.}}</option>
+                {{end}}
+            </select>
+            <button type="button" class="btn btn-sm btn-primary fw-semibold" onclick="openCalendarModal()"
+                title="Tambah event kalender (libur, cuti bersama, jam khusus)">
+                <i class="bi bi-plus-circle me-1"></i>Tambah Event
+            </button>
+        </div>
+    </div>
+    <div class="card-body">
+        {{if .TodayHoliday}}
+        <div class="alert alert-success d-flex align-items-center gap-2 py-2" role="alert">
+            <i class="bi bi-calendar-check-fill"></i>
+            <div class="small">Hari ini: <strong>{{.TodayHoliday}}</strong> — presensi tidak dihitung, pegawai tidak
+                tercatat Alpha.</div>
+        </div>
+        {{end}}
+        {{if .TodaySpecialHours}}
+        <div class="alert alert-info d-flex align-items-center gap-2 py-2" role="alert">
+            <i class="bi bi-clock-fill"></i>
+            <div class="small">Berlaku hari ini: <strong>{{.TodaySpecialHours}}</strong></div>
+        </div>
+        {{end}}
+        <div class="row g-2 mb-2">
+            <div class="col-12 col-md-6">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-transparent"><i class="bi bi-search"></i></span>
+                    <input type="text" class="form-control" id="calSearch" placeholder="Cari keterangan / tanggal..."
+                        oninput="renderCalendar()" aria-label="Cari event kalender">
+                </div>
+            </div>
+            <div class="col-12 col-md-6">
+                <select class="form-select form-select-sm" id="calTypeFilter" onchange="renderCalendar()"
+                    aria-label="Filter tipe event">
+                    <option value="">Semua Tipe</option>
+                    <option value="libur_nasional">Libur Nasional</option>
+                    <option value="cuti_bersama">Cuti Bersama</option>
+                    <option value="jam_kerja_ramadhan">Jam Kerja Ramadhan</option>
+                </select>
+            </div>
+        </div>
+        <div class="table-responsive" style="max-height: 520px; overflow-y: auto;">
+            <table class="table table-hover align-middle mb-0" id="tableCalendar">
+                <thead class="cal-sticky-head">
+                    <tr>
+                        <th class="ps-4" style="width: 44px;">No</th>
+                        <th style="width: 150px;">Tanggal</th>
+                        <th style="width: 150px;">Tipe</th>
+                        <th>Keterangan</th>
+                        <th style="width: 200px;">Jam Khusus</th>
+                        <th class="text-center pe-4" style="width: 100px;">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="calendarRows">
+                    {{if .CalendarEvents}}
+                    {{range $i, $ev := .CalendarEvents}}
+                    <tr>
+                        <td class="ps-4 font-monospace text-muted">{{add $i 1}}</td>
+                        <td class="small text-nowrap">{{shortRangeID $ev.StartDate $ev.EndDate}}</td>
+                        <td>{{calendarTypeBadge $ev.Type}}</td>
+                        <td class="fw-semibold">{{$ev.Name}}</td>
+                        <td>{{calendarHoursChips $ev}}</td>
+                        <td class="text-center pe-4">
+                            <div class="d-flex justify-content-center gap-1">
+                                <button type="button" class="btn btn-sm btn-outline-primary" title="Ubah event"
+                                    onclick="openCalendarModal({{printf " %d" $ev.ID}})"><i
+                                        class="bi bi-pencil-square"></i></button>
+                                <button type="button" class="btn btn-sm btn-outline-danger" title="Hapus event"
+                                    onclick="confirmDeleteCalendar({{printf " %d" $ev.ID}}, '{{$ev.Name}}' )"><i
+                                        class="bi bi-trash3"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                    {{end}}
+                    {{else}}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted small py-4">Belum ada event untuk tahun ini —
+                            unduh Template Excel, isi dari SE Bupati, lalu Import.</td>
+                    </tr>
+                    {{end}}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
+
+<!-- Modal Tambah / Edit Event Kalender -->
+<div class="modal fade" id="modalCalendarEvent" tabindex="-1" aria-labelledby="modalCalendarEventLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
+            <div class="modal-header text-white"
+                style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-top-left-radius: 16px; border-top-right-radius: 16px;">
+                <h5 class="modal-title fw-bold text-white mb-0" id="modalCalendarEventLabel">
+                    <i class="bi bi-calendar-plus-fill me-2"></i>Tambah Event Kalender
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <form id="formCalendarEvent" onsubmit="submitCalendarEvent(event)">
+                <div class="modal-body p-4">
+                    <input type="hidden" id="calEventId" value="">
+                    <div class="row g-3">
+                        <div class="col-12 col-md-6">
+                            <label class="form-label fw-semibold text-xs text-muted">Tipe Event <span
+                                    class="text-danger">*</span></label>
+                            <select class="form-select" id="calType" required onchange="toggleCalHours()">
+                                <option value="libur_nasional">Hari Libur Nasional</option>
+                                <option value="cuti_bersama">Cuti Bersama</option>
+                                <option value="jam_kerja_ramadhan">Jam Kerja Ramadhan</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label fw-semibold text-xs  text-muted">Keterangan
+                                <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="calName"
+                                placeholder="Cth. Cuti Bersama Idulfitri 1447 Hijriah" required>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label fw-semibold text-xs text-muted">Tanggal Mulai <span
+                                    class="text-danger">*</span></label>
+                            <input type="date" class="form-control font-monospace" id="calStart" required>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label fw-semibold text-xs text-muted">Tanggal Selesai
+                                <span class="text-muted fw-normal">(kosong = 1 hari)</span></label>
+                            <input type="date" class="form-control font-monospace" id="calEnd">
+                        </div>
+                    </div>
+                    <div id="calHoursBox" class="mt-3 d-none">
+                        <div class="p-3 border rounded bg-light">
+                            <div class="fw-bold small mb-2"><i class="bi bi-clock-history me-1"></i>Override Jam
+                                (kosongkan = pakai aturan jam kerja default)</div>
+                            <div class="row g-2">
+                                <div class="col-6 col-md-2"><label
+                                        class="form-label small text-muted mb-0">Masuk</label><input type="time"
+                                        step="1" class="form-control form-control-sm font-monospace" id="calWorkStart">
+                                </div>
+                                <div class="col-6 col-md-2"><label
+                                        class="form-label small text-muted mb-0">Toleransi</label><input type="time"
+                                        step="1" class="form-control form-control-sm font-monospace" id="calTolerance">
+                                </div>
+                                <div class="col-6 col-md-2"><label class="form-label small text-muted mb-0">Pulang
+                                        Sn-Km</label><input type="time" step="1"
+                                        class="form-control form-control-sm font-monospace" id="calCheckoutMonThu">
+                                </div>
+                                <div class="col-6 col-md-2"><label class="form-label small text-muted mb-0">Cutoff
+                                        Sn-Km</label><input type="time" step="1"
+                                        class="form-control form-control-sm font-monospace" id="calCutoffMonThu"></div>
+                                <div class="col-6 col-md-2"><label class="form-label small text-muted mb-0">Pulang
+                                        Jumat</label><input type="time" step="1"
+                                        class="form-control form-control-sm font-monospace" id="calCheckoutFri"></div>
+                                <div class="col-6 col-md-2"><label class="form-label small text-muted mb-0">Cutoff
+                                        Jumat</label><input type="time" step="1"
+                                        class="form-control form-control-sm font-monospace" id="calCutoffFri"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer py-3 border-top">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary px-4 fw-semibold" id="btnSaveCalendar">
+                        <i class="bi bi-check-circle me-1"></i>Simpan Event
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <!-- Modal Edit Aturan Jam Kerja Presensi (Khusus Administrator) -->
 <div class="modal fade" id="modalEditRule" tabindex="-1" aria-labelledby="modalEditRuleLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
@@ -741,12 +956,6 @@
                                 <button class="nav-link" id="sore-tab" data-bs-toggle="pill" data-bs-target="#sore-pane"
                                     type="button" role="tab">
                                     <i class="bi bi-sunset me-1"></i>2. Jam Pulang &amp; Cutoff
-                                </button>
-                            </li>
-                            <li class="nav-item flex-fill" role="presentation">
-                                <button class="nav-link" id="khusus-tab" data-bs-toggle="pill"
-                                    data-bs-target="#khusus-pane" type="button" role="tab">
-                                    <i class="bi bi-calendar-event me-1"></i>3. Preset &amp; Ramadhan
                                 </button>
                             </li>
                         </ul>
@@ -841,39 +1050,20 @@
                             </div>
                         </div>
 
-                        <!-- Tab 3: Mode Khusus & Preset -->
-                        <div class="tab-pane fade" id="khusus-pane" role="tabpanel">
-                            <div class="card border mb-3">
-                                <div class="card-body">
-                                    <div class="form-check form-switch fs-6 mb-2">
-                                        <input class="form-check-input" type="checkbox" id="isRamadhanMode" {{if
-                                            .Rule.IsRamadhanMode}}checked{{end}}>
-                                        <label class="form-check-label fw-bold text-warning-aa" for="isRamadhanMode">
-                                            <i class="bi bi-moon-stars-fill me-1"></i>Aktifkan Mode Jam Kerja Bulan
-                                            Ramadhan
-                                        </label>
-                                    </div>
-                                    <p class="text-muted small mb-0">Jika diaktifkan, badge di dashboard akan
-                                        menampilkan indikator Ramadhan.</p>
-                                </div>
-                            </div>
-
-                            <h6 class="fw-bold text-secondary mb-2">Pilihan Cepat (Preset Otomatis):</h6>
-                            <div class="d-flex gap-2 flex-wrap">
-                                <button type="button" class="btn btn-outline-primary btn-sm px-3"
-                                    onclick="applyPresetNormal()">
-                                    <i class="bi bi-arrow-counterclockwise me-1"></i>Preset Normal ASN (07:00 – 15:30)
-                                </button>
-                                <button type="button" class="btn btn-outline-warning btn-sm px-3"
-                                    onclick="applyPresetRamadhan()">
-                                    <i class="bi bi-moon-stars me-1"></i>Preset Ramadhan (08:00 – 15:00)
-                                </button>
-                            </div>
+                    </div>
+                    <div class="alert alert-info d-flex gap-2 mt-3 mb-0" role="alert">
+                        <i class="bi bi-moon-stars-fill mt-1"></i>
+                        <div class="small">
+                            <b>Jam kerja Ramadhan tidak diatur di sini</b> — pakai <b>Kalender Kedinasan</b> di bawah
+                            (event <i>Jam Kerja Khusus</i>): berlaku otomatis pada rentangnya, jadwal reguler ini
+                            tidak berubah.
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer py-3 border-top"
                     style="border-bottom-left-radius: 16px; border-bottom-right-radius: 16px;">
+                    <button type="button" class="btn btn-outline-secondary" onclick="applyPresetNormal()"
+                        title="Kembalikan semua field ke jadwal normal SOP">Reset Preset Normal</button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
                     <button type="submit" class="btn btn-primary px-4" id="btnSubmitRule">
                         <i class="bi bi-check-circle me-1"></i>Simpan Perubahan Aturan
@@ -954,30 +1144,10 @@
         document.getElementById("checkoutCutoffMonThu").value = "15:45:00";
         document.getElementById("checkoutTimeFri").value = "16:00:00";
         document.getElementById("checkoutCutoffFri").value = "16:15:00";
-        document.getElementById("isRamadhanMode").checked = false;
         Swal.fire({
             icon: 'info',
             title: 'Preset Normal Diterapkan',
             text: 'Nilai form telah disesuaikan dengan jadwal kerja normal. Klik Simpan untuk memperbarui.',
-            timer: 1500,
-            showConfirmButton: false
-        });
-    }
-
-    function applyPresetRamadhan() {
-        document.getElementById("ruleName").value = "Jam Kerja Bulan Ramadhan 1447 H";
-        document.getElementById("workStartTime").value = "08:00:00";
-        document.getElementById("checkinToleranceTime").value = "08:15:00";
-        document.getElementById("checkinWindowStart").value = "07:00:00";
-        document.getElementById("checkoutTimeMonThu").value = "15:00:00";
-        document.getElementById("checkoutCutoffMonThu").value = "15:15:00";
-        document.getElementById("checkoutTimeFri").value = "15:30:00";
-        document.getElementById("checkoutCutoffFri").value = "15:45:00";
-        document.getElementById("isRamadhanMode").checked = true;
-        Swal.fire({
-            icon: 'info',
-            title: 'Preset Ramadhan Diterapkan',
-            text: 'Nilai form telah disesuaikan dengan jam kerja puasa. Klik Simpan untuk memperbarui.',
             timer: 1500,
             showConfirmButton: false
         });
@@ -1000,7 +1170,7 @@
             checkout_cutoff_mon_thu: document.getElementById("checkoutCutoffMonThu").value,
             checkout_time_fri: document.getElementById("checkoutTimeFri").value,
             checkout_cutoff_fri: document.getElementById("checkoutCutoffFri").value,
-            is_ramadhan_mode: document.getElementById("isRamadhanMode").checked
+            is_ramadhan_mode: false // deprecated: jam Ramadhan diatur via Kalender Kedinasan (jam_kerja_ramadhan)
         };
 
         fetch("/api/rules", {
@@ -1042,4 +1212,219 @@
                 });
             });
     });
+</script>
+
+<script>
+    // ===================== KALENDER KEDINASAN (CRUD + Import) =====================
+    var calendarCache = [];
+
+    function calTypeBadge(t) {
+        var map = {
+            libur_nasional: '<span class="badge bg-danger text-white"><i class="bi bi-x-circle-fill me-1"></i>Libur Nasional</span>',
+            cuti_bersama: '<span class="badge bg-warning text-dark"><i class="bi bi-moon-stars-fill me-1"></i>Cuti Bersama</span>',
+            jam_kerja_ramadhan: '<span class="badge bg-info text-dark"><i class="bi bi-clock-fill me-1"></i>Jam Kerja Ramadhan</span>'
+        };
+        return map[t] || t;
+    }
+
+    function calHoursLabel(ev) {
+        if (ev.type !== 'jam_kerja_ramadhan') return '—';
+        var p = [];
+        if (ev.work_start_time) p.push('masuk ' + ev.work_start_time);
+        if (ev.checkin_tolerance_time) p.push('tol. ' + ev.checkin_tolerance_time);
+        if (ev.checkout_time_mon_thu) p.push('pulang Sn-Km ' + ev.checkout_time_mon_thu);
+        if (ev.checkout_time_fri) p.push('Jum ' + ev.checkout_time_fri);
+        return p.length ? p.join(' · ') : 'aturan default';
+    }
+
+    function loadCalendar() {
+        var year = document.getElementById('calendarYear').value;
+        document.getElementById('calendarRows').innerHTML =
+            '<tr><td colspan="6" class="text-center text-muted small py-4"><span class="spinner-border spinner-border-sm me-2" role="status"></span>Memuat kalender ' + year + '...</td></tr>';
+        fetchCalendar(year, false);
+    }
+
+    // Coba ulang 1x bila gagal (mis. cookie sesi belum siap saat navigasi cepat).
+    function fetchCalendar(year, retried) {
+        fetch('/api/calendar?year=' + year)
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                calendarCache = data.data || [];
+                renderCalendar();
+            })
+            .catch(function () {
+                if (!retried) {
+                    setTimeout(function () { fetchCalendar(year, true); }, 1500);
+                    return;
+                }
+                document.getElementById('calendarRows').innerHTML =
+                    '<tr><td colspan="6" class="text-center text-danger small py-4">Gagal memuat kalender.</td></tr>';
+            });
+    }
+
+    var ID_MONTHS = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+
+    function shortDateID(d) {
+        var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(d || '');
+        if (!m) return d || '';
+        return parseInt(m[3], 10) + ' ' + (ID_MONTHS[parseInt(m[2], 10)] || m[2]) + ' ' + m[1];
+    }
+
+    function shortRangeID(s, e) {
+        if (!s) return e || '';
+        if (!e || e === s) return shortDateID(s);
+        var ms = /^(\d{4})-(\d{2})-(\d{2})/.exec(s), me = /^(\d{4})-(\d{2})-(\d{2})/.exec(e);
+        if (!ms || !me) return s + ' s/d ' + e;
+        if (ms[1] === me[1] && ms[2] === me[2]) {
+            return parseInt(ms[3], 10) + '-' + parseInt(me[3], 10) + ' ' + (ID_MONTHS[parseInt(ms[2], 10)] || ms[2]) + ' ' + ms[1];
+        }
+        return shortDateID(s) + ' - ' + shortDateID(e);
+    }
+
+    function calHoursChips(ev) {
+        if (!ev || ev.type !== 'jam_kerja_ramadhan') return '<span class="text-muted">—</span>';
+        var out = '';
+        var chip = function (label, v) {
+            if (v) out += '<span class="cal-hour-chip">' + label + ' ' + v + '</span>';
+        };
+        chip('masuk', ev.work_start_time);
+        chip('tol.', ev.checkin_tolerance_time);
+        chip('Sn-Km', ev.checkout_time_mon_thu);
+        chip('cutoff', ev.checkout_cutoff_mon_thu);
+        chip('Jum', ev.checkout_time_fri);
+        chip('cutoff Jum', ev.checkout_cutoff_fri);
+        return out || '<span class="text-muted small">aturan default</span>';
+    }
+
+    function renderCalendar() {
+        var box = document.getElementById('calendarRows');
+        var q = (document.getElementById('calSearch').value || '').toLowerCase();
+        var tf = document.getElementById('calTypeFilter').value || '';
+        var shown = calendarCache.filter(function (ev) {
+            if (tf && ev.type !== tf) return false;
+            if (!q) return true;
+            return ((ev.name || '') + ' ' + (ev.start_date || '')).toLowerCase().indexOf(q) !== -1;
+        });
+        if (!shown.length) {
+            box.innerHTML = calendarCache.length
+                ? '<tr><td colspan="6" class="text-center text-muted small py-4">Tidak ada event yang cocok dengan filter.</td></tr>'
+                : '<tr><td colspan="6" class="text-center text-muted small py-4">Belum ada event untuk tahun ini — unduh Template Excel, isi dari SE Bupati, lalu Import.</td></tr>';
+            return;
+        }
+        box.innerHTML = shown.map(function (ev, i) {
+            var name = String(ev.name || '').replace(/'/g, "\\'");
+            return '<tr>' +
+                '<td class="ps-4 font-monospace text-muted">' + (i + 1) + '</td>' +
+                '<td class="small text-nowrap">' + shortRangeID(ev.start_date, ev.end_date) + '</td>' +
+                '<td>' + calTypeBadge(ev.type) + '</td>' +
+                '<td class="fw-semibold">' + (ev.name || '') + '</td>' +
+                '<td>' + calHoursChips(ev) + '</td>' +
+                '<td class="text-center pe-4"><div class="d-flex justify-content-center gap-1">' +
+                '<button type="button" class="btn btn-sm btn-outline-primary" title="Ubah event" onclick="openCalendarModal(' + ev.id + ')"><i class="bi bi-pencil-square"></i></button>' +
+                '<button type="button" class="btn btn-sm btn-outline-danger" title="Hapus event" onclick="confirmDeleteCalendar(' + ev.id + ', \'' + name + '\')"><i class="bi bi-trash3"></i></button>' +
+                '</div></td></tr>';
+        }).join("");
+    }
+
+    function toggleCalHours() {
+        var t = document.getElementById('calType').value;
+        document.getElementById('calHoursBox').classList.toggle('d-none', t !== 'jam_kerja_ramadhan');
+    }
+
+    function openCalendarModal(id) {
+        var ev = null;
+        if (id) {
+            calendarCache.forEach(function (e) { if (e.id === id) ev = e; });
+            if (!ev) return;
+        }
+        document.getElementById('calEventId').value = ev ? ev.id : '';
+        document.getElementById('modalCalendarEventLabel').innerHTML = ev
+            ? '<i class="bi bi-pencil-square me-2"></i>Ubah Event Kalender'
+            : '<i class="bi bi-calendar-plus-fill me-2"></i>Tambah Event Kalender';
+        document.getElementById('calType').value = ev ? ev.type : 'libur_nasional';
+        document.getElementById('calName').value = ev ? ev.name : '';
+        document.getElementById('calStart').value = ev ? ev.start_date : '';
+        document.getElementById('calEnd').value = (ev && ev.start_date !== ev.end_date) ? ev.end_date : '';
+        document.getElementById('calWorkStart').value = ev ? (ev.work_start_time || '') : '';
+        document.getElementById('calTolerance').value = ev ? (ev.checkin_tolerance_time || '') : '';
+        document.getElementById('calCheckoutMonThu').value = ev ? (ev.checkout_time_mon_thu || '') : '';
+        document.getElementById('calCutoffMonThu').value = ev ? (ev.checkout_cutoff_mon_thu || '') : '';
+        document.getElementById('calCheckoutFri').value = ev ? (ev.checkout_time_fri || '') : '';
+        document.getElementById('calCutoffFri').value = ev ? (ev.checkout_cutoff_fri || '') : '';
+        toggleCalHours();
+        new bootstrap.Modal(document.getElementById('modalCalendarEvent')).show();
+    }
+
+    function submitCalendarEvent(e) {
+        e.preventDefault();
+        var id = document.getElementById('calEventId').value;
+        var payload = {
+            type: document.getElementById('calType').value,
+            name: document.getElementById('calName').value.trim(),
+            start_date: document.getElementById('calStart').value,
+            end_date: document.getElementById('calEnd').value || document.getElementById('calStart').value,
+            work_start_time: document.getElementById('calWorkStart').value,
+            checkin_tolerance_time: document.getElementById('calTolerance').value,
+            checkout_time_mon_thu: document.getElementById('calCheckoutMonThu').value,
+            checkout_cutoff_mon_thu: document.getElementById('calCutoffMonThu').value,
+            checkout_time_fri: document.getElementById('calCheckoutFri').value,
+            checkout_cutoff_fri: document.getElementById('calCutoffFri').value
+        };
+        if (!payload.name || !payload.start_date) {
+            Swal.fire("Peringatan", "Keterangan dan tanggal mulai wajib diisi", "warning");
+            return;
+        }
+        var btn = document.getElementById('btnSaveCalendar');
+        btn.disabled = true;
+        Swal.fire({ title: "Menyimpan...", didOpen: function () { Swal.showLoading(); } });
+        fetch(id ? '/api/calendar/' + id : '/api/calendar', {
+            method: id ? 'PUT' : 'POST',
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        })
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                btn.disabled = false;
+                if (data.status === "success") {
+                    Swal.fire("Tersimpan!", data.message, "success")
+                        .then(function () { window.location.reload(); });
+                } else {
+                    Swal.fire("Gagal", data.message, "error");
+                }
+            })
+            .catch(function (err) {
+                btn.disabled = false;
+                Swal.fire("Error Koneksi", String(err), "error");
+            });
+    }
+
+    function confirmDeleteCalendar(id, name) {
+        Swal.fire({
+            title: "Hapus Event?",
+            text: name + " akan dihapus dari kalender kedinasan.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            confirmButtonText: "Ya, Hapus",
+            cancelButtonText: "Batal"
+        }).then(function (res) {
+            if (!res.isConfirmed) return;
+            Swal.fire({ title: "Menghapus...", didOpen: function () { Swal.showLoading(); } });
+            fetch('/api/calendar/' + id, { method: 'DELETE' })
+                .then(function (r) { return r.json(); })
+                .then(function (data) {
+                    if (data.status === "success") {
+                        loadCalendar();
+                        Swal.fire("Terhapus!", data.message, "success");
+                    } else {
+                        Swal.fire("Gagal", data.message, "error");
+                    }
+                })
+                .catch(function (err) { Swal.fire("Error Koneksi", String(err), "error"); });
+        });
+    }
+
+    // Isi calendarCache sejak awal — tanpa ini, tombol edit/hapus di render awal
+    // tidak menemukan event (cache kosong) dan modal tidak terbuka.
+    document.addEventListener("DOMContentLoaded", loadCalendar);
 </script>

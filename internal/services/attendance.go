@@ -21,7 +21,8 @@ var IndonesianDayNames = map[time.Weekday]string{
 
 // AttendanceEngine memproses raw punch log menjadi status presensi & apel resmi ASN
 type AttendanceEngine struct {
-	rule *models.AttendanceRule
+	rule     *models.AttendanceRule
+	calendar *CalendarService
 }
 
 func NewAttendanceEngine() *AttendanceEngine {
@@ -33,17 +34,42 @@ func (e *AttendanceEngine) SetRule(rule *models.AttendanceRule) {
 	e.rule = rule
 }
 
+// SetCalendar menetapkan kalender kedinasan (libur nasional, cuti bersama, jam khusus)
+func (e *AttendanceEngine) SetCalendar(calendar *CalendarService) {
+	e.calendar = calendar
+}
+
 // ProcessDailyAttendance mengelompokkan transaksi per NIP/pegawai dan menerapkan aturan cutoff
 func (e *AttendanceEngine) ProcessDailyAttendance(transactions []models.BioTimeTransaction, targetDate time.Time) *models.AttendanceSummary {
 	dateStr := targetDate.Format(time.DateOnly)
 	isFriday := targetDate.Weekday() == time.Friday
 	dayName := IndonesianDayNames[targetDate.Weekday()]
 
-	// Abaikan presensi di hari Sabtu & Minggu (Hari Libur Kedinasan ASN)
+	// Abaikan presensi di hari Sabtu & Minggu (Hari Libur Kedinasan ASN).
+	// Bila akhir pekan bertepatan event kalender (mis. Idulfitri jatuh Sabtu-Minggu),
+	// sertakan nama event untuk banner informatif.
 	if targetDate.Weekday() == time.Saturday || targetDate.Weekday() == time.Sunday {
-		return &models.AttendanceSummary{
+		weekend := &models.AttendanceSummary{
 			Logs:         make([]models.DailyAttendanceLog, 0),
 			TotalPegawai: 0,
+		}
+		if e.calendar != nil {
+			if ev := e.calendar.HolidayOnDate(targetDate); ev != nil {
+				weekend.HolidayName = models.CalendarEventLabel(ev.Type) + ": " + ev.Name
+			}
+		}
+		return weekend
+	}
+
+	// Hari libur nasional / cuti bersama dari kalender kedinasan: bukan hari kerja.
+	// Tidak diproses sebagai Alpha massal — tampil sebagai hari libur di UI.
+	if e.calendar != nil {
+		if ev := e.calendar.HolidayOnDate(targetDate); ev != nil {
+			return &models.AttendanceSummary{
+				Logs:         make([]models.DailyAttendanceLog, 0),
+				TotalPegawai: 0,
+				HolidayName:  models.CalendarEventLabel(ev.Type) + ": " + ev.Name,
+			}
 		}
 	}
 
@@ -149,6 +175,10 @@ func (e *AttendanceEngine) ProcessPeriodAttendance(transactions []models.BioTime
 		if tDate.Weekday() == time.Saturday || tDate.Weekday() == time.Sunday {
 			continue
 		}
+		// Abaikan hari libur nasional / cuti bersama dari kalender kedinasan
+		if e.calendar != nil && e.calendar.IsHolidayDate(tDate) {
+			continue
+		}
 		dailySummary := e.ProcessDailyAttendance(txByDate[dStr], tDate)
 		combinedSummary.TepatWaktuCount += dailySummary.TepatWaktuCount
 		combinedSummary.TerlambatCount += dailySummary.TerlambatCount
@@ -186,6 +216,23 @@ func (e *AttendanceEngine) evaluateEmployeePunches(
 	empCode, name, dept, dateStr, dayName string,
 	isFriday bool,
 	txList []models.BioTimeTransaction,
+) models.DailyAttendanceLog {
+	// Override jam dari kalender (tipe jam_kerja_ramadhan) bila ada.
+	var special *models.CalendarEvent
+	if e.calendar != nil {
+		if t, err := time.Parse(time.DateOnly, dateStr); err == nil {
+			special = e.calendar.SpecialHoursOnDate(t)
+		}
+	}
+	return e.evaluateEmployeePunchesWithHours(empCode, name, dept, dateStr, dayName, isFriday, txList, special)
+}
+
+// evaluateEmployeePunchesWithHours versi evaluasi dengan override jam kalender (nil = aturan default).
+func (e *AttendanceEngine) evaluateEmployeePunchesWithHours(
+	empCode, name, dept, dateStr, dayName string,
+	isFriday bool,
+	txList []models.BioTimeTransaction,
+	special *models.CalendarEvent,
 ) models.DailyAttendanceLog {
 	logEntry := models.DailyAttendanceLog{
 		EmpCode:         empCode,
@@ -233,10 +280,43 @@ func (e *AttendanceEngine) evaluateEmployeePunches(
 		}
 	}
 
+	// Override terakhir: jam khusus kalender (mis. Ramadhan) menang atas aturan default.
+	if special != nil {
+		if special.WorkStartTime != "" {
+			workStartStr = special.WorkStartTime
+		}
+		if special.CheckinToleranceTime != "" {
+			toleranceEndStr = special.CheckinToleranceTime
+		}
+		if isFriday {
+			if special.CheckoutTimeFri != "" {
+				checkoutOpenStr = special.CheckoutTimeFri
+			}
+			if special.CheckoutCutoffFri != "" {
+				checkoutCutoffStr = special.CheckoutCutoffFri
+			}
+		} else {
+			if special.CheckoutTimeMonThu != "" {
+				checkoutOpenStr = special.CheckoutTimeMonThu
+			}
+			if special.CheckoutCutoffMonThu != "" {
+				checkoutCutoffStr = special.CheckoutCutoffMonThu
+			}
+		}
+	}
+
 	workStartTime := e.parseTimeOnDate(dateStr, workStartStr)
 	toleranceEndTime := e.parseTimeOnDate(dateStr, toleranceEndStr)
 	checkoutOpenTime := e.parseTimeOnDate(dateStr, checkoutOpenStr)
 	checkoutCutoffTime := e.parseTimeOnDate(dateStr, checkoutCutoffStr)
+
+	// Jendela scan pagi (CHECKIN_WINDOW_START): scan sebelum jam ini tidak dihitung
+	// sebagai scan masuk apel pagi (aturan SOP — mesin baru menerima scan mulai 06:15).
+	windowStartStr := "06:15:00"
+	if e.rule != nil && e.rule.CheckinWindowStart != "" {
+		windowStartStr = e.rule.CheckinWindowStart
+	}
+	windowStartTime := e.parseTimeOnDate(dateStr, windowStartStr)
 
 	midDay := e.parseTimeOnDate(dateStr, "12:00:00")
 
@@ -249,7 +329,10 @@ func (e *AttendanceEngine) evaluateEmployeePunches(
 			continue
 		}
 		if t.Before(midDay) {
-			morningPunches = append(morningPunches, t)
+			// Scan sebelum jendela pagi diabaikan (bukan scan masuk apel pagi).
+			if !t.Before(windowStartTime) {
+				morningPunches = append(morningPunches, t)
+			}
 		} else {
 			afternoonPunches = append(afternoonPunches, t)
 		}

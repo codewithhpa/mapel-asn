@@ -136,6 +136,12 @@ body.theme-dark .empty-state-icon {
 </div>
 
 <div class="page-content">
+    {{if .Summary.HolidayName}}
+    <div class="alert alert-success d-flex align-items-center gap-2" role="alert">
+        <i class="bi bi-calendar-check-fill"></i>
+        <div><strong>{{.Summary.HolidayName}}</strong> — bukan hari kerja. Presensi tidak dihitung &amp; pegawai tidak tercatat Alpha.</div>
+    </div>
+    {{end}}
     {{if .IsOffline}}
     <div class="alert alert-warning d-flex align-items-center gap-2" role="alert">
         <i class="bi bi-exclamation-triangle-fill"></i>

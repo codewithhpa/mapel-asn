@@ -118,8 +118,12 @@
                         {{end}}
                     </select>
                 </div>
-                <div class="col-6 col-md-3 text-end">
-                    <!-- recordCountLabel removed -->
+                <div class="col-6 col-md-3">
+                    <select class="form-select" id="filterFace" title="Filter berdasarkan status wajah">
+                        <option value="">-- Semua Status Wajah --</option>
+                        <option value="present">Sudah Ada Wajah</option>
+                        <option value="missing">Belum Ada Wajah</option>
+                    </select>
                 </div>
             </div>
         </div>
@@ -196,7 +200,7 @@
                                 </td>
                                 <td class="text-center pe-4">
                                     <div class="d-flex align-items-center justify-content-center gap-1">
-                                        <button type="button" class="btn btn-sm btn-icon-action btn-edit-emp" title="Edit Data Pegawai" onclick="openEditModal({{$e.ID}}, '{{$e.EmpCode}}', '{{$e.FirstName}}', '{{if $e.LastName}}{{$e.LastName}}{{end}}', {{$e.DepartmentID}}, {{if $e.PositionID}}{{$e.PositionID}}{{else}}0{{end}}, '{{if $e.HireDate}}{{$e.HireDate}}{{end}}')">
+                                        <button type="button" class="btn btn-sm btn-icon-action btn-edit-emp" title="Edit Data Pegawai" onclick="openEditModal({{$e.ID}}, '{{$e.EmpCode}}', '{{$e.FirstName}}', '{{if $e.LastName}}{{$e.LastName}}{{end}}', {{$e.DepartmentID}}, {{if $e.PositionID}}{{$e.PositionID}}{{else}}0{{end}}, '{{if $e.HireDate}}{{$e.HireDate}}{{end}}', '{{range $i, $a := $e.AreaIDs}}{{if $i}},{{end}}{{$a}}{{end}}')">
                                             <i class="bi bi-pencil-square"></i>
                                         </button>
                                         <button type="button" class="btn btn-sm btn-icon-action btn-mutasi-emp" title="Mutasi / Nonaktifkan Presensi" onclick="openMutasiModal({{$e.ID}}, '{{$e.FullName}}', '{{$e.EmpCode}}')">
@@ -620,15 +624,23 @@ document.addEventListener("DOMContentLoaded", function() {
         
         let searchInput = document.getElementById("filterSearch");
         let deptDropdown = document.getElementById("filterDepartment");
+        let faceDropdown = document.getElementById("filterFace");
 
         function applyFilters() {
             let text = searchInput.value.trim();
             let dept = deptDropdown.value; 
+            let face = faceDropdown ? faceDropdown.value : "";
             
             // Combine queries to search across DataTables globally
             let combinedSearch = text;
             if (dept !== "") {
                 combinedSearch = combinedSearch + " " + dept;
+            }
+            // Badge di baris: "Wajah Terdaftar" vs "Belum Scan Wajah"
+            if (face === "present") {
+                combinedSearch = combinedSearch + " Wajah Terdaftar";
+            } else if (face === "missing") {
+                combinedSearch = combinedSearch + " Belum Scan Wajah";
             }
             
             if (table) {
@@ -638,6 +650,16 @@ document.addEventListener("DOMContentLoaded", function() {
 
         if (searchInput) searchInput.addEventListener("keyup", applyFilters);
         if (deptDropdown) deptDropdown.addEventListener("change", applyFilters);
+        if (faceDropdown) faceDropdown.addEventListener("change", applyFilters);
+
+        // Preset dari link luar, mis. /master/pegawai?face=missing dari halaman device
+        try {
+            let preset = new URLSearchParams(window.location.search).get("face");
+            if (faceDropdown && (preset === "missing" || preset === "present")) {
+                faceDropdown.value = preset;
+                applyFilters();
+            }
+        } catch (e) {}
     }
 });
 
@@ -656,7 +678,7 @@ function openCreateModal() {
     document.querySelectorAll(".emp-area-check").forEach(function(cb) { cb.checked = true; });
 }
 
-function openEditModal(id, empCode, firstName, lastName, deptId, posId, hireDate) {
+function openEditModal(id, empCode, firstName, lastName, deptId, posId, hireDate, areasCsv) {
     document.getElementById("modalEmployeeLabel").innerHTML = '<i class="bi bi-pencil-square me-2 text-primary"></i>Ubah Data Pegawai ASN';
     document.getElementById("empId").value = id;
     document.getElementById("empCode").value = empCode;
@@ -666,6 +688,16 @@ function openEditModal(id, empCode, firstName, lastName, deptId, posId, hireDate
     document.getElementById("empHireDate").value = hireDate || "";
     document.getElementById("empDepartment").value = deptId || "";
     document.getElementById("empPosition").value = posId || "";
+
+    // Centang hanya area milik pegawai (bukan sisa state modal sebelumnya).
+    var selected = {};
+    (areasCsv || "").split(",").forEach(function(s) { s = s.trim(); if (s) selected[s] = true; });
+    var boxes = document.querySelectorAll(".emp-area-check");
+    if (Object.keys(selected).length === 0) {
+        boxes.forEach(function(cb) { cb.checked = true; });
+    } else {
+        boxes.forEach(function(cb) { cb.checked = !!selected[String(cb.value)]; });
+    }
 
     var modal = new bootstrap.Modal(document.getElementById("modalEmployee"));
     modal.show();

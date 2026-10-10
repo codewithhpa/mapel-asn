@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"sync"
 	"time"
 
@@ -22,7 +23,10 @@ var loginLimiter = struct {
 
 func loginAllowed(ip string) bool {
 	const window = time.Minute
-	const maxAttempts = 10
+	maxAttempts := 10
+	if v, err := strconv.Atoi(config.GetEnv("LOGIN_RATE_LIMIT", "10")); err == nil && v > 0 {
+		maxAttempts = v
+	}
 	now := time.Now()
 	loginLimiter.Lock()
 	defer loginLimiter.Unlock()
@@ -89,6 +93,13 @@ func SetupRoutes(app *fiber.App, svc *services.AttendanceService, auditSvc *serv
 	app.Put("/api/rules", middleware.RequireAdmin(userSvc), h.PutAttendanceRule)
 	app.Post("/api/rules", middleware.RequireAdmin(userSvc), h.PutAttendanceRule)
 
+	// Kalender Kedinasan (Libur Nasional, Cuti Bersama, Jam Khusus)
+	app.Get("/api/calendar", middleware.RequireAdmin(userSvc), h.GetCalendarJSON)
+	app.Post("/api/calendar", middleware.RequireAdmin(userSvc), h.PostCalendarEvent)
+	app.Put("/api/calendar/:id", middleware.RequireAdmin(userSvc), h.PutCalendarEvent)
+	app.Delete("/api/calendar/:id", middleware.RequireAdmin(userSvc), h.DeleteCalendarEvent)
+	app.Post("/api/calendar/:id/delete", middleware.RequireAdmin(userSvc), h.DeleteCalendarEvent)
+
 	// Rute Terproteksi Petugas (Login sebagai Petugas atau Admin)
 	app.Get("/audit-barisan", func(c *fiber.Ctx) error { return c.Redirect("/dispensasi") })
 	app.Get("/dispensasi", middleware.RequireAuth(userSvc), h.RenderDispensasi)
@@ -148,6 +159,7 @@ func SetupRoutes(app *fiber.App, svc *services.AttendanceService, auditSvc *serv
 	app.Get("/api/device", middleware.RequireAdmin(userSvc), h.GetTerminalsJSON)
 	app.Post("/api/device/upload", middleware.RequireAdmin(userSvc), h.PostUploadTransaction)
 	app.Post("/api/device/:id/upload", middleware.RequireAdmin(userSvc), h.PostUploadTransaction)
+	app.Post("/api/device/:id/upload-users", middleware.RequireAdmin(userSvc), h.PostUploadUsers)
 	app.Post("/api/device/resync", middleware.RequireAdmin(userSvc), h.PostResyncEmployees)
 
 	// CRUD Petugas (Khusus Administrator - RoleID = 1)
@@ -361,29 +373,32 @@ func (h *DashboardHandler) RenderDashboard(c *fiber.Ctx) error {
 	}
 
 	statusFilter := normalizeStatusFilter(c.Query("status"))
+	holiday, specialHours := h.todayCalendarInfo()
 
 	return c.Render("index", fiber.Map{
-		"BioTimeVersion":  config.GetEnv("BIOTIME_VERSION", "9.5"),
-		"Title":           "Monitoring Apel",
-		"Summary":         summary,
-		"FilteredLogs":    filterLogsByStatus(summary.Logs, statusFilter),
-		"StatusTabs":      buildStatusTabs(c, summary.Logs, statusFilter),
-		"ActiveStatus":    statusFilter,
-		"PeriodTabs":      buildPeriodTabs(c, periodType),
-		"PrintURL":        buildQueryURL(c, "/presensi/cetak", nil),
-		"Rule":            activeRule,
-		"DateDisplay":     periodLabel,
-		"ActiveMenu":      "dashboard",
-		"CurrentUser":     c.Locals("currentUser"),
-		"StartDate":       startDate,
-		"EndDate":         endDate,
-		"SelectedMonth":   selectedMonth,
-		"PeriodType":      periodType,
-		"IsMultiDay":      startDate != endDate,
-		"IsOffline":       summary.ErrorMessage != "",
-		"HasData":         len(summary.Logs) > 0,
-		"AvailableMonths": h.getAvailableMonths(selectedMonth),
-		"CurrentYear":     time.Now().Year(),
+		"BioTimeVersion":    config.GetEnv("BIOTIME_VERSION", "9.5"),
+		"Title":             "Monitoring Apel",
+		"Summary":           summary,
+		"FilteredLogs":      filterLogsByStatus(summary.Logs, statusFilter),
+		"StatusTabs":        buildStatusTabs(c, summary.Logs, statusFilter),
+		"ActiveStatus":      statusFilter,
+		"PeriodTabs":        buildPeriodTabs(c, periodType),
+		"PrintURL":          buildQueryURL(c, "/presensi/cetak", nil),
+		"Rule":              activeRule,
+		"TodayHoliday":      holiday,
+		"TodaySpecialHours": specialHours,
+		"DateDisplay":       periodLabel,
+		"ActiveMenu":        "dashboard",
+		"CurrentUser":       c.Locals("currentUser"),
+		"StartDate":         startDate,
+		"EndDate":           endDate,
+		"SelectedMonth":     selectedMonth,
+		"PeriodType":        periodType,
+		"IsMultiDay":        startDate != endDate,
+		"IsOffline":         summary.ErrorMessage != "",
+		"HasData":           len(summary.Logs) > 0,
+		"AvailableMonths":   h.getAvailableMonths(selectedMonth),
+		"CurrentYear":       time.Now().Year(),
 	}, "layouts/main")
 }
 
@@ -401,22 +416,25 @@ func (h *DashboardHandler) RenderPresensi(c *fiber.Ctx) error {
 
 	// Pola TV: BioTime mati bukan error page — sajikan snapshot/stale terakhir
 	// (atau empty state) dengan banner offline.
+	holiday, specialHours := h.todayCalendarInfo()
 	return c.Render("presensi", fiber.Map{
-		"BioTimeVersion":  config.GetEnv("BIOTIME_VERSION", "9.5"),
-		"Title":           "Presensi ASN",
-		"Summary":         summary,
-		"DateDisplay":     periodLabel,
-		"ActiveMenu":      "presensi",
-		"CurrentUser":     c.Locals("currentUser"),
-		"StartDate":       startDate,
-		"EndDate":         endDate,
-		"SelectedMonth":   selectedMonth,
-		"PeriodType":      periodType,
-		"IsMultiDay":      startDate != endDate,
-		"IsOffline":       summary.ErrorMessage != "",
-		"HasData":         len(summary.Logs) > 0,
-		"AvailableMonths": h.getAvailableMonths(selectedMonth),
-		"CurrentYear":     time.Now().Year(),
+		"BioTimeVersion":    config.GetEnv("BIOTIME_VERSION", "9.5"),
+		"Title":             "Presensi ASN",
+		"Summary":           summary,
+		"DateDisplay":       periodLabel,
+		"ActiveMenu":        "presensi",
+		"CurrentUser":       c.Locals("currentUser"),
+		"StartDate":         startDate,
+		"EndDate":           endDate,
+		"SelectedMonth":     selectedMonth,
+		"PeriodType":        periodType,
+		"IsMultiDay":        startDate != endDate,
+		"IsOffline":         summary.ErrorMessage != "",
+		"HasData":           len(summary.Logs) > 0,
+		"AvailableMonths":   h.getAvailableMonths(selectedMonth),
+		"CurrentYear":       time.Now().Year(),
+		"TodayHoliday":      holiday,
+		"TodaySpecialHours": specialHours,
 	}, "layouts/main")
 }
 
@@ -492,17 +510,21 @@ func (h *DashboardHandler) RenderTV(c *fiber.Ctx) error {
 		activeRule = h.ruleService.GetActiveRule()
 	}
 
+	holiday, specialHours := h.todayCalendarInfo()
+
 	return c.Render("tv", fiber.Map{
-		"BioTimeVersion": config.GetEnv("BIOTIME_VERSION", "9.5"),
-		"Title":          "Mode TV - MAPEL",
-		"Summary":        summary,
-		"Rule":           activeRule,
-		"DateDisplay":    periodLabel,
-		"IsOffline":      summary.ErrorMessage != "",
-		"HasData":        len(summary.Logs) > 0,
-		"PeriodType":     periodType,
-		"IsMultiDay":     startDate != endDate,
-		"CurrentYear":    time.Now().Year(),
+		"BioTimeVersion":    config.GetEnv("BIOTIME_VERSION", "9.5"),
+		"Title":             "Mode TV - MAPEL",
+		"Summary":           summary,
+		"Rule":              activeRule,
+		"DateDisplay":       periodLabel,
+		"IsOffline":         summary.ErrorMessage != "",
+		"HasData":           len(summary.Logs) > 0,
+		"PeriodType":        periodType,
+		"IsMultiDay":        startDate != endDate,
+		"CurrentYear":       time.Now().Year(),
+		"TodayHoliday":      holiday,
+		"TodaySpecialHours": specialHours,
 	}, "layouts/tv")
 }
 
@@ -836,11 +858,30 @@ func (h *DashboardHandler) RenderAturanPresensi(c *fiber.Ctx) error {
 	if h.ruleService != nil {
 		rule = h.ruleService.GetActiveRule()
 	}
+
+	// Kalender kedinasan tahun berjalan + daftar tahun yang tersedia.
+	cal := h.attendanceService.CalendarService()
+	year := time.Now().Year()
+	var events []models.CalendarEvent
+	years := []int{year - 1, year, year + 1, year + 2}
+	if cal != nil {
+		if evs, err := cal.ListEvents(year); err == nil {
+			events = evs
+		}
+	}
+
+	holiday, specialHours := h.todayCalendarInfo()
+
 	return c.Render("aturan-presensi", fiber.Map{
-		"Title":       "Matriks & Aturan Jam Kerja ASN",
-		"ActiveMenu":  "aturan",
-		"Rule":        rule,
-		"CurrentUser": c.Locals("currentUser"),
+		"Title":             "Matriks & Aturan Jam Kerja ASN",
+		"ActiveMenu":        "aturan",
+		"Rule":              rule,
+		"CurrentUser":       c.Locals("currentUser"),
+		"CalendarEvents":    events,
+		"CalendarYears":     years,
+		"CurrentYear":       year,
+		"TodayHoliday":      holiday,
+		"TodaySpecialHours": specialHours,
 	}, "layouts/main")
 }
 

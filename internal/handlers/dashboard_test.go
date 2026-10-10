@@ -42,6 +42,7 @@ func TestRenderDashboardPresensiAndAuth(t *testing.T) {
 	t.Setenv("BIOTIME_BASE_URL", mock.URL)
 	t.Setenv("BIOTIME_USERNAME", "admin")
 	t.Setenv("BIOTIME_PASSWORD", "password")
+	t.Setenv("LOGIN_RATE_LIMIT", "1000")
 
 	// Setup template engine pointing to views
 	engine := html.New("../../web/views", ".html")
@@ -53,6 +54,11 @@ func TestRenderDashboardPresensiAndAuth(t *testing.T) {
 		return a * b
 	})
 	engine.AddFunc("isLeave", models.IsExcusedLeaveStatus)
+	engine.AddFunc("calendarTypeBadge", CalendarTypeBadgeFunc)
+	engine.AddFunc("calendarHoursLabel", CalendarHoursLabelFunc)
+	engine.AddFunc("shortDateID", ShortDateIDFunc)
+	engine.AddFunc("shortRangeID", ShortRangeIDFunc)
+	engine.AddFunc("calendarHoursChips", CalendarHoursChipsFunc)
 
 	app := fiber.New(fiber.Config{
 		Views: engine,
@@ -163,11 +169,17 @@ func TestDashboard_OfflineShowsBannerNotErrorPage(t *testing.T) {
 	}))
 	defer mock.Close()
 	t.Setenv("BIOTIME_BASE_URL", mock.URL)
+	t.Setenv("LOGIN_RATE_LIMIT", "1000")
 
 	engine := html.New("../../web/views", ".html")
 	engine.AddFunc("add", func(a, b int) int { return a + b })
 	engine.AddFunc("mul", func(a, b int) int { return a * b })
 	engine.AddFunc("isLeave", models.IsExcusedLeaveStatus)
+	engine.AddFunc("calendarTypeBadge", CalendarTypeBadgeFunc)
+	engine.AddFunc("calendarHoursLabel", CalendarHoursLabelFunc)
+	engine.AddFunc("shortDateID", ShortDateIDFunc)
+	engine.AddFunc("shortRangeID", ShortRangeIDFunc)
+	engine.AddFunc("calendarHoursChips", CalendarHoursChipsFunc)
 	app := fiber.New(fiber.Config{Views: engine})
 	client := services.NewBioTimeClient()
 	svc := services.NewAttendanceService(client, services.NewAttendanceEngine(), services.NewAttendanceCache())

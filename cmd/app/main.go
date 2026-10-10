@@ -13,6 +13,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/template/html/v2"
 )
 
@@ -50,6 +51,8 @@ func main() {
 	ruleService := services.NewRuleService(db)
 	attendanceService.SetRuleService(ruleService)
 	attendanceService.SetAuditService(auditService)
+	calendarService := services.NewCalendarService(db)
+	attendanceService.SetCalendarService(calendarService)
 
 	// Setup template engine with auto-reload for local development
 	engine := html.New("./web/views", ".html")
@@ -61,6 +64,11 @@ func main() {
 		return a * b
 	})
 	engine.AddFunc("isLeave", models.IsExcusedLeaveStatus)
+	engine.AddFunc("calendarTypeBadge", handlers.CalendarTypeBadgeFunc)
+	engine.AddFunc("calendarHoursLabel", handlers.CalendarHoursLabelFunc)
+	engine.AddFunc("shortDateID", handlers.ShortDateIDFunc)
+	engine.AddFunc("shortRangeID", handlers.ShortRangeIDFunc)
+	engine.AddFunc("calendarHoursChips", handlers.CalendarHoursChipsFunc)
 
 	// Initialize Fiber app (Network "tcp" = dual-stack IPv4+IPv6 agar
 	// http://localhost:3000/ tidak nyangkut di ::1; default Fiber tcp4 hanya IPv4)
@@ -71,6 +79,8 @@ func main() {
 
 	// Middleware
 	app.Use(logger.New())
+	// Recover: satu request yang panic tidak boleh mematikan seluruh server.
+	app.Use(recover.New())
 	app.Use(func(c *fiber.Ctx) error {
 		c.Set("X-Content-Type-Options", "nosniff")
 		c.Set("X-Frame-Options", "SAMEORIGIN")

@@ -64,11 +64,11 @@ type PositionListResponse struct {
 
 // BioTimeResign merepresentasikan data mutasi ASN / penonaktifan presensi
 type BioTimeResign struct {
-	ID         int64        `json:"id"`
-	ResignDate string       `json:"resign_date"`
-	ResignType int          `json:"resign_type"` // 1 = Resign / Mutasi
-	DisableAtt bool         `json:"disableatt"`
-	Reason     string       `json:"reason,omitempty"`
+	ID         int64          `json:"id"`
+	ResignDate string         `json:"resign_date"`
+	ResignType int            `json:"resign_type"` // 1 = Resign / Mutasi
+	DisableAtt bool           `json:"disableatt"`
+	Reason     string         `json:"reason,omitempty"`
 	Employee   *ResignEmpInfo `json:"employee,omitempty"`
 }
 
@@ -91,24 +91,24 @@ type ResignListResponse struct {
 
 // BioTimeEmployee merepresentasikan 1 entitas pegawai ASN di BioTime 8.5
 type BioTimeEmployee struct {
-	ID             int64   `json:"id"`
-	EmpCode        string  `json:"emp_code"`
-	FirstName      string  `json:"first_name"`
-	LastName       *string `json:"last_name,omitempty"`
-	FullName       string  `json:"full_name,omitempty"`
-	FormatName     string  `json:"format_name,omitempty"`
-	Photo          *string `json:"photo,omitempty"`
-	CardNo         *string `json:"card_no,omitempty"`
-	HireDate       *string `json:"hire_date,omitempty"`
-	Gender         *string `json:"gender,omitempty"`
-	Birthday       *string `json:"birthday,omitempty"`
-	ContactTel     *string `json:"contact_tel,omitempty"`
-	Mobile         *string `json:"mobile,omitempty"`
-	Email          *string `json:"email,omitempty"`
-	EnrollSN       string  `json:"enroll_sn,omitempty"`
-	VLFace         string  `json:"vl_face,omitempty"`
-	UpdateTime     string  `json:"update_time,omitempty"`
-	AppStatus      int     `json:"app_status,omitempty"`
+	ID         int64   `json:"id"`
+	EmpCode    string  `json:"emp_code"`
+	FirstName  string  `json:"first_name"`
+	LastName   *string `json:"last_name,omitempty"`
+	FullName   string  `json:"full_name,omitempty"`
+	FormatName string  `json:"format_name,omitempty"`
+	Photo      *string `json:"photo,omitempty"`
+	CardNo     *string `json:"card_no,omitempty"`
+	HireDate   *string `json:"hire_date,omitempty"`
+	Gender     *string `json:"gender,omitempty"`
+	Birthday   *string `json:"birthday,omitempty"`
+	ContactTel *string `json:"contact_tel,omitempty"`
+	Mobile     *string `json:"mobile,omitempty"`
+	Email      *string `json:"email,omitempty"`
+	EnrollSN   string  `json:"enroll_sn,omitempty"`
+	VLFace     string  `json:"vl_face,omitempty"`
+	UpdateTime string  `json:"update_time,omitempty"`
+	AppStatus  int     `json:"app_status,omitempty"`
 
 	// Parsing fleksibel Department (bisa objek saat GET, bisa int saat detail/payload)
 	DepartmentRaw  json.RawMessage `json:"department,omitempty"`
@@ -116,18 +116,21 @@ type BioTimeEmployee struct {
 	DepartmentName string          `json:"-"`
 
 	// Parsing fleksibel Area (bisa array of objects saat GET, bisa array of int saat POST)
-	AreaRaw        json.RawMessage `json:"area,omitempty"`
-	AreaIDs        []int64         `json:"-"`
-	AreaNames      []string        `json:"-"`
+	AreaRaw   json.RawMessage `json:"area,omitempty"`
+	AreaIDs   []int64         `json:"-"`
+	AreaNames []string        `json:"area_names,omitempty"`
 
 	// Parsing fleksibel Position
-	PositionRaw    json.RawMessage `json:"position,omitempty"`
-	PositionID     int64           `json:"-"`
-	PositionName   string          `json:"-"`
+	PositionRaw  json.RawMessage `json:"position,omitempty"`
+	PositionID   int64           `json:"-"`
+	PositionName string          `json:"-"`
 }
 
-// ParseHelpers mengekstrak ID dan Nama dari raw JSON Department, Area, dan Position
+// ParseHelpers mengekstrak ID dan Nama dari raw JSON Department, Area, dan Position.
+// Idempoten: aman dipanggil ulang (hasil sebelumnya dibuang dulu).
 func (e *BioTimeEmployee) ParseHelpers() {
+	e.AreaIDs = nil
+	e.AreaNames = nil
 	// Parse Department
 	if len(e.DepartmentRaw) > 0 {
 		var deptObj BioTimeDepartment

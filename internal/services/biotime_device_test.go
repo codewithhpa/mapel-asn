@@ -36,6 +36,10 @@ func deviceStubServer(t *testing.T, bodies map[string][]byte) *httptest.Server {
 			raw, _ := io.ReadAll(r.Body)
 			bodies["upload"] = raw
 			json.NewEncoder(w).Encode(models.TerminalActionDetail{Detail: "Success."})
+		case r.URL.Path == "/iclock/api/terminals/upload_all/":
+			raw, _ := io.ReadAll(r.Body)
+			bodies["upload_users"] = raw
+			json.NewEncoder(w).Encode(models.TerminalActionDetail{Detail: "Success."})
 		case r.URL.Path == "/personnel/api/employees/resync_to_device/":
 			raw, _ := io.ReadAll(r.Body)
 			bodies["resync"] = raw
@@ -98,5 +102,24 @@ func TestBioTimeClient_ResyncEmployeesToDevice(t *testing.T) {
 	}
 	if len(got.Employees) != 2 || got.Employees[0] != 11 || got.Employees[1] != 22 {
 		t.Fatalf("body salah: %s", bodies["resync"])
+	}
+}
+
+func TestBioTimeClient_UploadUsersFromDevice(t *testing.T) {
+	bodies := map[string][]byte{}
+	server := deviceStubServer(t, bodies)
+	defer server.Close()
+
+	if err := newDeviceTestClient(server).UploadUsersFromDevice(context.Background(), []int64{4}); err != nil {
+		t.Fatalf("upload users gagal: %v", err)
+	}
+	var got struct {
+		Terminals []int64 `json:"terminals"`
+	}
+	if err := json.Unmarshal(bodies["upload_users"], &got); err != nil {
+		t.Fatalf("body bukan JSON: %v", err)
+	}
+	if len(got.Terminals) != 1 || got.Terminals[0] != 4 {
+		t.Fatalf("body salah: %s", bodies["upload_users"])
 	}
 }

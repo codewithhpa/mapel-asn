@@ -328,6 +328,17 @@ body.theme-dark .monochrome-kpi-card:hover .kpi-icon-outline {
 </div> 
 
 <div class="page-content">
+    {{if .Summary.HolidayName}}
+    <div class="alert alert-success d-flex align-items-center gap-2" role="alert">
+        <i class="bi bi-calendar-check-fill"></i>
+        <div><strong>{{.Summary.HolidayName}}</strong> — bukan hari kerja. Presensi tidak dihitung &amp; pegawai tidak tercatat Alpha.</div>
+    </div>
+    {{else if .TodaySpecialHours}}
+    <div class="alert alert-info d-flex align-items-center gap-2" role="alert">
+        <i class="bi bi-clock-fill"></i>
+        <div><strong>{{.TodaySpecialHours}}</strong></div>
+    </div>
+    {{end}}
     {{if .IsOffline}}
     <div class="alert alert-warning d-flex align-items-center gap-2" role="alert">
         <i class="bi bi-exclamation-triangle-fill"></i>

@@ -42,17 +42,67 @@ body.theme-dark .empty-state-icon {
     </div>
 </div>
 
+<style>
+/* Device KPI — minimalist refinement (flat, hairline, tabular numerals) */
+.device-kpi .monochrome-kpi-card {
+    border-radius: 12px;
+    box-shadow: none;
+}
+.device-kpi .monochrome-kpi-card:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.device-kpi .kpi-label-track {
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+}
+.device-kpi .kpi-value-bold {
+    font-size: 1.8rem;
+    letter-spacing: -0.02em;
+}
+.device-kpi .kpi-icon-tile {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: #f1f5f9;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.device-kpi .kpi-icon-tile .kpi-icon-outline {
+    font-size: 1.15rem;
+    opacity: 1;
+}
+.device-kpi-card {
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 600ms cubic-bezier(0.16, 1, 0.3, 1), transform 600ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 200ms ease, border-color 0.25s ease;
+    transition-delay: calc(var(--i, 0) * 80ms), calc(var(--i, 0) * 80ms), 0ms, 0ms;
+}
+.device-kpi-card.in {
+    opacity: 1;
+    transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+    .device-kpi-card { opacity: 1; transform: none; transition: none; }
+}
+[data-bs-theme="dark"] .device-kpi .kpi-icon-tile,
+body.theme-dark .device-kpi .kpi-icon-tile {
+    background: rgba(255, 255, 255, 0.06);
+}
+</style>
+
 <div class="page-content">
-    <section class="row g-3 mb-4">
+    <section class="row g-3 mb-4 device-kpi">
         <div class="col-6 col-lg-3">
-            <div class="card monochrome-kpi-card h-100 mb-0">
+            <div class="card monochrome-kpi-card device-kpi-card h-100 mb-0" style="--i:0">
                 <div class="card-body p-3 p-md-4">
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <span class="kpi-label-track">Total Device</span>
-                        <i class="bi bi-hdd-network kpi-icon-outline"></i>
+                        <span class="kpi-icon-tile"><i class="bi bi-hdd-network kpi-icon-outline"></i></span>
                     </div>
                     <h3 class="kpi-value-bold mb-2">
-                        {{len .Terminals}}<span class="kpi-unit-sub">Unit</span>
+                        <span id="kpiTotal">{{len .Terminals}}</span><span class="kpi-unit-sub">Unit</span>
                     </h3>
                     <div class="text-xs text-muted">
                         <span class="kpi-indicator-dot bg-primary"></span>Terdaftar di BioTime {{.BioTimeVersion}}
@@ -61,14 +111,14 @@ body.theme-dark .empty-state-icon {
             </div>
         </div>
         <div class="col-6 col-lg-3">
-            <div class="card monochrome-kpi-card h-100 mb-0">
+            <div class="card monochrome-kpi-card device-kpi-card h-100 mb-0" style="--i:1">
                 <div class="card-body p-3 p-md-4">
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <span class="kpi-label-track">Online</span>
-                        <i class="bi bi-wifi kpi-icon-outline"></i>
+                        <span class="kpi-icon-tile"><i class="bi bi-wifi kpi-icon-outline"></i></span>
                     </div>
                     <h3 class="kpi-value-bold mb-2">
-                        {{.OnlineCount}}<span class="kpi-unit-sub">Unit</span>
+                        <span id="kpiOnline">{{.OnlineCount}}</span><span class="kpi-unit-sub">Unit</span>
                     </h3>
                     <div class="text-xs text-muted">
                         <span class="kpi-indicator-dot bg-success"></span>Terhubung &amp; polling
@@ -77,33 +127,33 @@ body.theme-dark .empty-state-icon {
             </div>
         </div>
         <div class="col-6 col-lg-3">
-            <div class="card monochrome-kpi-card h-100 mb-0">
+            <div class="card monochrome-kpi-card device-kpi-card h-100 mb-0" style="--i:2">
                 <div class="card-body p-3 p-md-4">
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <span class="kpi-label-track">User di Device</span>
-                        <i class="bi bi-people kpi-icon-outline"></i>
+                        <span class="kpi-icon-tile"><i class="bi bi-people kpi-icon-outline"></i></span>
                     </div>
                     <h3 class="kpi-value-bold mb-2">
-                        {{.TotalUserCount}}<span class="kpi-unit-sub">User</span>
+                        <span id="kpiUser">{{.TotalUserCount}}</span><span class="kpi-unit-sub">User</span>
                     </h3>
                     <div class="text-xs text-muted">
-                        <span class="kpi-indicator-dot bg-info"></span>Akumulasi semua unit
+                        {{if .ServerStatsOK}}<span class="kpi-indicator-dot bg-info"></span>Server: {{.ServerUserCount}} pegawai{{else}}<span class="kpi-indicator-dot bg-info"></span>Akumulasi semua unit{{end}}
                     </div>
                 </div>
             </div>
         </div>
         <div class="col-6 col-lg-3">
-            <div class="card monochrome-kpi-card h-100 mb-0">
+            <div class="card monochrome-kpi-card device-kpi-card h-100 mb-0" style="--i:3">
                 <div class="card-body p-3 p-md-4">
                     <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span class="kpi-label-track">Wajah Terdaftar</span>
-                        <i class="bi bi-person-bounding-box kpi-icon-outline"></i>
+                        <span class="kpi-label-track">Wajah di Device</span>
+                        <span class="kpi-icon-tile"><i class="bi bi-person-bounding-box kpi-icon-outline"></i></span>
                     </div>
                     <h3 class="kpi-value-bold mb-2">
-                        {{.TotalFaceCount}}<span class="kpi-unit-sub">Wajah</span>
+                        <span id="kpiFace">{{.TotalFaceCount}}</span><span class="kpi-unit-sub">Wajah</span>
                     </h3>
                     <div class="text-xs text-muted">
-                        <span class="kpi-indicator-dot bg-success"></span>Siap presensi
+                        {{if .ServerStatsOK}}<span class="kpi-indicator-dot bg-success"></span>Server kenal {{.ServerFaceCount}} dari {{.ServerUserCount}} pegawai{{else}}<span class="kpi-indicator-dot bg-success"></span>Template di unit{{end}}
                     </div>
                 </div>
             </div>
@@ -159,14 +209,20 @@ body.theme-dark .empty-state-icon {
                                         </span>
                                     {{end}}
                                 </td>
-                                <td class="small font-monospace">{{$t.LastActivity}}</td>
+                                <td class="small font-monospace"><span class="last-activity" data-ts="{{$t.LastActivity}}">{{$t.LastActivity}}</span></td>
                                 <td class="text-center">
-                                    <span class="fw-bold">{{$t.UserCount}}</span><span class="text-muted small"> / {{$t.FaceCount}}</span>
+                                    <span class="fw-bold">{{$t.UserCount}}</span><span class="text-muted small"> / </span><a href="/master/pegawai?face=missing" class="fw-bold" title="Lihat pegawai yang belum ada wajahnya">{{$t.FaceCount}}</a>
+                                    <div class="coverage-bar" data-user="{{$t.UserCount}}" data-face="{{$t.FaceCount}}" title="Cakupan wajah di device ini"></div>
                                 </td>
                                 <td class="text-center pe-4">
-                                    <button type="button" class="btn btn-sm btn-outline-primary px-3" title="Paksa device upload tap tertahan" onclick="uploadTransaction({{$t.ID}}, '{{$t.DisplayName}}')">
-                                        <i class="bi bi-cloud-upload me-1"></i>Tarik Transaksi
-                                    </button>
+                                    <div class="d-flex flex-wrap justify-content-center gap-1">
+                                        <button type="button" class="btn btn-sm btn-outline-primary px-3 text-nowrap" title="Paksa device upload tap tertahan" onclick="uploadTransaction({{$t.ID}}, '{{$t.DisplayName}}')">
+                                            <i class="bi bi-cloud-upload me-1"></i>Tarik Transaksi
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-success px-3 text-nowrap" title="Tarik data user + template wajah dari device ke server" onclick="uploadUsers({{$t.ID}}, '{{$t.DisplayName}}')">
+                                            <i class="bi bi-person-down me-1"></i>Tarik Data User
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                             {{end}}
@@ -194,14 +250,17 @@ body.theme-dark .empty-state-icon {
         </div>
     </div>
 
-    <div class="alert alert-info d-flex gap-2 mt-3">
-        <i class="bi bi-info-circle-fill mt-1"></i>
-        <div class="small">
+    <details class="alert alert-info mt-3">
+        <summary class="small fw-bold" style="cursor: pointer;">Panduan perintah device (klik untuk buka)</summary>
+        <div class="small mt-2">
             <b>Tarik Transaksi</b> = perintah device upload ulang tap yang tertahan (masuk ±1 menit).
+            <b>Tarik Data User</b> = tarik data user + template wajah dari device ke server.
             <b>Sync Pegawai ke Device</b> = dorong data pegawai terpilih ke device (pengganti klik manual di BioTime).
+            Catatan: user/wajah di device mengikuti <b>area</b> — device hanya menampung pegawai yang terdaftar di areanya.
+            Bila PIN user di device tidak sama dengan NIP di server, BioTime membuat pegawai <b>baru (duplikat)</b> — cek Master Pegawai sesudahnya.
             Operasi destruktif (hapus data device) tetap dilakukan dari BioTime langsung.
         </div>
-    </div>
+    </details>
 </div>
 
 <!-- Modal Sync Pegawai ke Device -->
@@ -243,10 +302,125 @@ body.theme-dark .empty-state-icon {
 
 <script>
 var syncEmployees = [];
+var syncDeviceAreas = [];
 
-function refreshTerminals() {
-    window.location.reload();
+// Ubah "2026-10-09 17:04:22" menjadi relatif ("2 mnt lalu") + tandai bila basi > 5 menit.
+function enhanceLastActivity(scope) {
+    (scope || document).querySelectorAll(".last-activity").forEach(function(el) {
+        var ts = el.getAttribute("data-ts");
+        if (!ts) return;
+        var t = new Date(ts.replace(" ", "T"));
+        if (isNaN(t.getTime())) return;
+        var mins = Math.floor((Date.now() - t.getTime()) / 60000);
+        var rel = mins < 1 ? "baru saja" : mins < 60 ? mins + " mnt lalu" : Math.floor(mins / 60) + " jam lalu";
+        el.textContent = rel;
+        el.title = ts;
+        if (mins > 5 && !el.parentElement.querySelector(".stale-badge")) {
+            var b = document.createElement("span");
+            b.className = "badge bg-light-warning text-warn-aa px-1 ms-1 stale-badge";
+            b.style.fontSize = ".65rem";
+            b.title = "Device tidak polling > 5 menit — cek jaringan/listrik device";
+            b.textContent = "basi";
+            el.parentElement.appendChild(b);
+        }
+    });
 }
+
+// Gambar mini bar cakupan wajah dari data-user/data-face.
+function enhanceCoverage(scope) {
+    (scope || document).querySelectorAll(".coverage-bar").forEach(function(el) {
+        if (el.dataset.done) return;
+        el.dataset.done = "1";
+        var user = parseInt(el.getAttribute("data-user") || "0", 10);
+        var face = parseInt(el.getAttribute("data-face") || "0", 10);
+        var pct = user > 0 ? Math.round(face / user * 100) : 0;
+        el.style.cssText = "height:5px;border-radius:99px;background:#e2e8f0;margin:4px auto 0;max-width:90px;overflow:hidden";
+        el.innerHTML = '<div style="height:100%;width:' + pct + '%;border-radius:99px;background:' + (pct >= 80 ? '#16a34a' : pct >= 50 ? '#d97706' : '#dc2626') + '" title="' + face + ' dari ' + user + ' user punya wajah (' + pct + '%)"></div>';
+    });
+}
+
+function enhanceDeviceTable() {
+    enhanceLastActivity(document);
+    enhanceCoverage(document);
+}
+
+function deviceRowHTML(t, i) {
+    var name = t.alias || t.terminal_name || ("Device #" + t.id);
+    var online = t.state == 1;
+    var area = t.area_name
+        ? '<span class="badge badge-square bg-light-info text-info px-2 py-1 font-monospace"><i class="bi bi-geo-alt me-1"></i>' + t.area_name + '</span>'
+        : '<span class="text-muted small">-</span>';
+    var status = online
+        ? '<span class="badge badge-square bg-light-success text-success px-2 py-1"><i class="bi bi-wifi me-1"></i>Online</span>'
+        : '<span class="badge badge-square bg-light-warning text-warn-aa px-2 py-1"><i class="bi bi-wifi-off me-1"></i>Offline</span>';
+    return '<tr>' +
+        '<td class="ps-4 font-monospace text-muted">' + (i + 1) + '</td>' +
+        '<td><div class="fw-bold text-nama-asn fs-6 mb-0">' + name + '</div><small class="text-muted">' + (t.terminal_name || "") + '</small></td>' +
+        '<td><span class="font-monospace fw-bold px-2 py-1 bg-light rounded text-nip">' + (t.sn || "-") + '</span><small class="d-block text-muted font-monospace mt-1">' + (t.ip_address || "") + '</small></td>' +
+        '<td>' + area + '</td>' +
+        '<td>' + status + '</td>' +
+        '<td class="small font-monospace"><span class="last-activity" data-ts="' + (t.last_activity || "") + '">' + (t.last_activity || "-") + '</span></td>' +
+        '<td class="text-center"><span class="fw-bold">' + t.user_count + '</span><span class="text-muted small"> / </span><a href="/master/pegawai?face=missing" class="fw-bold" title="Lihat pegawai yang belum ada wajahnya">' + t.face_count + '</a>' +
+        '<div class="coverage-bar" data-user="' + t.user_count + '" data-face="' + t.face_count + '"></div></td>' +
+        '<td class="text-center pe-4"><div class="d-flex flex-wrap justify-content-center gap-1">' +
+        '<button type="button" class="btn btn-sm btn-outline-primary px-3 text-nowrap" onclick="uploadTransaction(' + t.id + ', \'' + name.replace(/'/g, "\\'") + '\')"><i class="bi bi-cloud-upload me-1"></i>Tarik Transaksi</button>' +
+        '<button type="button" class="btn btn-sm btn-outline-success px-3 text-nowrap" onclick="uploadUsers(' + t.id + ', \'' + name.replace(/'/g, "\\'") + '\')"><i class="bi bi-person-down me-1"></i>Tarik Data User</button>' +
+        '</div></td></tr>';
+}
+
+// Refresh tanpa reload halaman: ambil status terbaru, gambar ulang baris + KPI.
+function refreshTerminals() {
+    var btns = document.querySelectorAll('[onclick="refreshTerminals()"]');
+    btns.forEach(function(b) { b.disabled = true; });
+    fetch("/api/device", { cache: "no-store" })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        var terms = (data && data.data) || [];
+        var online = 0, users = 0, faces = 0;
+        var html = terms.map(function(t, i) {
+            if (t.state == 1) online++;
+            users += parseInt(t.user_count || 0, 10);
+            faces += parseInt(t.face_count || 0, 10);
+            return deviceRowHTML(t, i);
+        }).join("");
+        if (!html) {
+            html = '<tr><td colspan="8" class="text-center text-muted small py-4">Tidak ada device / BioTime tidak terjangkau.</td></tr>';
+        }
+        document.getElementById("deviceRows").innerHTML = html;
+        document.getElementById("kpiTotal").textContent = terms.length;
+        document.getElementById("kpiOnline").textContent = online;
+        document.getElementById("kpiUser").textContent = users;
+        document.getElementById("kpiFace").textContent = faces;
+        enhanceDeviceTable();
+    })
+    .catch(function() {
+        if (window.Swal) Swal.fire("Gagal", "Tidak bisa mengambil status device — tampilkan data terakhir", "error");
+    })
+    .finally(function() {
+        btns.forEach(function(b) { b.disabled = false; });
+    });
+}
+
+document.addEventListener("DOMContentLoaded", enhanceDeviceTable);
+
+// Entrance stagger kartu KPI (IntersectionObserver; hormati reduced-motion via CSS).
+(function revealKpiCards() {
+    var cards = document.querySelectorAll(".device-kpi-card");
+    if (!cards.length) return;
+    if (!("IntersectionObserver" in window)) {
+        cards.forEach(function(c) { c.classList.add("in"); });
+        return;
+    }
+    var io = new IntersectionObserver(function(entries) {
+        entries.forEach(function(en) {
+            if (en.isIntersecting) {
+                en.target.classList.add("in");
+                io.unobserve(en.target);
+            }
+        });
+    }, { threshold: 0.15 });
+    cards.forEach(function(c) { io.observe(c); });
+})();
 
 function uploadTransaction(id, name) {
     Swal.fire({
@@ -274,15 +448,53 @@ function uploadTransaction(id, name) {
     });
 }
 
+function uploadUsers(id, name) {
+    Swal.fire({
+        title: "Tarik Data User?",
+        html: "Device <b>" + name + "</b> diperintah upload data user + template wajah ke server (±1 menit).<br><br>" +
+              "<span class='text-warning'>Perhatian: bila PIN user di device tidak sama dengan NIP di server, " +
+              "BioTime membuat pegawai <b>baru (duplikat)</b>. Cek Master Pegawai sesudahnya.</span>",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: "Ya, Tarik",
+        cancelButtonText: "Batal"
+    }).then(function(res) {
+        if (!res.isConfirmed) return;
+        Swal.fire({ title: "Mengirim perintah...", didOpen: function() { Swal.showLoading(); } });
+        fetch("/api/device/" + id + "/upload-users", { method: "POST" })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data.status === "success") {
+                Swal.fire("Terkirim!", data.message, "success");
+            } else {
+                Swal.fire("Gagal", data.message, "error");
+            }
+        })
+        .catch(function(err) {
+            Swal.fire("Error", "Gagal menghubungi server: " + err, "error");
+        });
+    });
+}
+
 function loadSyncEmployees() {
     document.getElementById("syncResult").innerHTML = "";
     document.getElementById("syncSearch").value = "";
     document.getElementById("syncCheckAll").checked = false;
-    fetch("/api/pegawai?search=&page=1&page_size=500")
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-        syncEmployees = (data.data || []).map(function(e) {
-            return { id: e.id, code: e.emp_code, name: e.full_name || e.first_name, checked: false };
+    Promise.all([
+        fetch("/api/pegawai?search=&page=1&page_size=500").then(function(r) { return r.json(); }),
+        fetch("/api/device").then(function(r) { return r.json(); }).catch(function() { return {}; })
+    ])
+    .then(function(all) {
+        var empData = all[0], devData = all[1] || {};
+        var devAreas = {};
+        (devData.data || []).forEach(function(t) {
+            if (t.area_name) devAreas[t.area_name] = true;
+        });
+        syncDeviceAreas = Object.keys(devAreas);
+        syncEmployees = (empData.data || []).map(function(e) {
+            var areas = e.area_names || [];
+            var inArea = areas.length === 0 || areas.some(function(a) { return devAreas[a]; });
+            return { id: e.id, code: e.emp_code, name: e.full_name || e.first_name, areas: areas, inArea: inArea, checked: false };
         });
         renderSyncList();
     })
@@ -295,17 +507,25 @@ function renderSyncList() {
     var q = document.getElementById("syncSearch").value.toLowerCase();
     var box = document.getElementById("syncList");
     var shown = syncEmployees.filter(function(e) {
-        return !q || (e.name + " " + e.code).toLowerCase().indexOf(q) !== -1;
+        return !q || (e.name + " " + e.code + " " + e.areas.join(" ")).toLowerCase().indexOf(q) !== -1;
     });
     document.getElementById("syncCount").textContent = shown.length;
     if (shown.length === 0) {
         box.innerHTML = '<p class="text-muted small mb-0">Tidak ada pegawai cocok.</p>';
         return;
     }
-    box.innerHTML = shown.map(function(e) {
-        return '<div class="form-check py-1 border-bottom">' +
+    var areaNote = (syncDeviceAreas.length > 0)
+        ? '<p class="text-muted small mb-2">Device melayani area: <b>' + syncDeviceAreas.join(", ") + '</b>. Hanya pegawai ber-area sama yang akan masuk ke unit tersebut.</p>'
+        : '';
+    box.innerHTML = areaNote + shown.map(function(e) {
+        var badges = e.areas.map(function(a) {
+            return '<span class="badge bg-light-info text-info px-1 ms-1" style="font-size:.65rem">' + a + '</span>';
+        }).join("");
+        var flag = e.inArea ? '' : ' <span class="badge bg-light-warning text-warn-aa px-1" style="font-size:.65rem" title="Tidak terdaftar di area device manapun">di luar area</span>';
+        var dim = e.inArea ? '' : ' style="opacity:.65"';
+        return '<div class="form-check py-1 border-bottom"' + dim + '>' +
             '<input class="form-check-input sync-check" type="checkbox" data-id="' + e.id + '"' + (e.checked ? " checked" : "") + ' onchange="syncToggle(' + e.id + ', this.checked)">' +
-            '<label class="form-check-label small"><b>' + e.name + '</b> <span class="text-muted font-monospace">' + e.code + '</span></label></div>';
+            '<label class="form-check-label small"><b>' + e.name + '</b> <span class="text-muted font-monospace">' + e.code + '</span>' + badges + flag + '</label></div>';
     }).join("");
 }
 
@@ -316,7 +536,7 @@ function syncToggle(id, checked) {
 function toggleSyncAll(checked) {
     var q = document.getElementById("syncSearch").value.toLowerCase();
     syncEmployees.forEach(function(e) {
-        if (!q || (e.name + " " + e.code).toLowerCase().indexOf(q) !== -1) e.checked = checked;
+        if (!q || (e.name + " " + e.code + " " + e.areas.join(" ")).toLowerCase().indexOf(q) !== -1) e.checked = checked;
     });
     renderSyncList();
 }

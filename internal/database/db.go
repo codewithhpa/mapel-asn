@@ -161,7 +161,64 @@ func migrateTables(db *sql.DB) error {
 		}
 	}
 
-	log.Println("[MariaDB] Skema tabel 'roles', 'users', 'audit_trail', dan 'attendance_rules' berhasil diverifikasi/dibuat.")
+	// 5. Tabel calendar_events (Kalender Kedinasan: libur nasional, cuti bersama, jam khusus)
+	calendarTableSQL := `
+	CREATE TABLE IF NOT EXISTS calendar_events (
+		id INT AUTO_INCREMENT PRIMARY KEY,
+		type VARCHAR(32) NOT NULL COMMENT 'libur_nasional | cuti_bersama | jam_kerja_ramadhan',
+		name VARCHAR(128) NOT NULL COMMENT 'Keterangan event (mis. Hari Suci Nyepi)',
+		start_date DATE NOT NULL COMMENT 'Tanggal mulai (YYYY-MM-DD)',
+		end_date DATE NOT NULL COMMENT 'Tanggal selesai; sama dengan start bila 1 hari',
+		work_start_time VARCHAR(8) NOT NULL DEFAULT '' COMMENT 'Override jam masuk (khusus tipe jam_kerja_ramadhan)',
+		checkin_tolerance_time VARCHAR(8) NOT NULL DEFAULT '' COMMENT 'Override batas toleransi masuk',
+		checkout_time_mon_thu VARCHAR(8) NOT NULL DEFAULT '' COMMENT 'Override jam buka pulang Sen-Kam',
+		checkout_cutoff_mon_thu VARCHAR(8) NOT NULL DEFAULT '' COMMENT 'Override batas akhir pulang Sen-Kam',
+		checkout_time_fri VARCHAR(8) NOT NULL DEFAULT '' COMMENT 'Override jam buka pulang Jumat',
+		checkout_cutoff_fri VARCHAR(8) NOT NULL DEFAULT '' COMMENT 'Override batas akhir pulang Jumat',
+		created_by VARCHAR(128) NOT NULL DEFAULT '',
+		created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+		updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+		INDEX idx_cal_start (start_date),
+		INDEX idx_cal_end (end_date)
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`
+
+	if _, err := db.Exec(calendarTableSQL); err != nil {
+		return fmt.Errorf("gagal membuat tabel calendar_events: %w", err)
+	}
+
+	// Seed kalender 2026 dari SE Bupati Barito Utara (SKB 3 Menteri) bila tabel masih kosong.
+	var calCount int
+	db.QueryRow("SELECT COUNT(*) FROM calendar_events").Scan(&calCount)
+	if calCount == 0 {
+		seedCalendarSQL := `
+		INSERT INTO calendar_events (type, name, start_date, end_date, created_by) VALUES
+		('libur_nasional', 'Tahun Baru 2026 Masehi', '2026-01-01', '2026-01-01', 'SE Bupati Barito Utara 2026'),
+		('libur_nasional', 'Isra Mikraj Nabi Muhammad S.A.W.', '2026-01-16', '2026-01-16', 'SE Bupati Barito Utara 2026'),
+		('libur_nasional', 'Tahun Baru Imlek 2577 Kongzili', '2026-02-17', '2026-02-17', 'SE Bupati Barito Utara 2026'),
+		('libur_nasional', 'Hari Suci Nyepi (Tahun Baru Saka 1948)', '2026-03-19', '2026-03-19', 'SE Bupati Barito Utara 2026'),
+		('cuti_bersama', 'Cuti Bersama Idulfitri 1447 Hijriah', '2026-03-20', '2026-03-20', 'SE Bupati Barito Utara 2026'),
+		('libur_nasional', 'Idulfitri 1447 Hijriah', '2026-03-21', '2026-03-22', 'SE Bupati Barito Utara 2026'),
+		('cuti_bersama', 'Cuti Bersama Idulfitri 1447 Hijriah', '2026-03-23', '2026-03-23', 'SE Bupati Barito Utara 2026'),
+		('libur_nasional', 'Wafat Yesus Kristus', '2026-04-03', '2026-04-03', 'SE Bupati Barito Utara 2026'),
+		('libur_nasional', 'Kebangkitan Yesus Kristus (Paskah)', '2026-04-05', '2026-04-05', 'SE Bupati Barito Utara 2026'),
+		('libur_nasional', 'Hari Buruh Internasional', '2026-05-01', '2026-05-01', 'SE Bupati Barito Utara 2026'),
+		('libur_nasional', 'Kenaikan Yesus Kristus', '2026-05-14', '2026-05-14', 'SE Bupati Barito Utara 2026'),
+		('libur_nasional', 'Iduladha 1447 Hijriah', '2026-05-27', '2026-05-27', 'SE Bupati Barito Utara 2026'),
+		('libur_nasional', 'Hari Raya Waisak 2570 BE', '2026-05-31', '2026-05-31', 'SE Bupati Barito Utara 2026'),
+		('libur_nasional', 'Hari Lahir Pancasila', '2026-06-01', '2026-06-01', 'SE Bupati Barito Utara 2026'),
+		('libur_nasional', '1 Muharram Tahun Baru Islam 1448 Hijriah', '2026-06-16', '2026-06-16', 'SE Bupati Barito Utara 2026'),
+		('libur_nasional', 'Proklamasi Kemerdekaan Republik Indonesia', '2026-08-17', '2026-08-17', 'SE Bupati Barito Utara 2026'),
+		('libur_nasional', 'Maulid Nabi Muhammad S.A.W.', '2026-08-25', '2026-08-25', 'SE Bupati Barito Utara 2026'),
+		('libur_nasional', 'Kelahiran Yesus Kristus', '2026-12-25', '2026-12-25', 'SE Bupati Barito Utara 2026'),
+		('cuti_bersama', 'Cuti Bersama Kelahiran Yesus Kristus', '2026-12-24', '2026-12-24', 'SE Bupati Barito Utara 2026');`
+		if _, err := db.Exec(seedCalendarSQL); err != nil {
+			log.Printf("[MariaDB Warning] Seed calendar_events: %v\n", err)
+		} else {
+			log.Println("[MariaDB] Seed kalender kedinasan 2026 (19 event, SE Bupati) berhasil.")
+		}
+	}
+
+	log.Println("[MariaDB] Skema tabel 'roles', 'users', 'audit_trail', 'attendance_rules', dan 'calendar_events' berhasil diverifikasi/dibuat.")
 	return nil
 }
 

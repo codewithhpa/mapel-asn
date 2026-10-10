@@ -50,6 +50,7 @@ type AttendanceSummary struct {
 	AnomaliCount     int                  `json:"anomali_count"`
 	KepatuhanPercent float64              `json:"kepatuhan_percent"`
 	ErrorMessage     string               `json:"error_message,omitempty"` // Menyimpan pesan error jika gagal mengambil data dari BioTime
+	HolidayName      string               `json:"holiday_name,omitempty"` // Nama hari libur/cuti bersama (kalender kedinasan)
 
 	Logs             []DailyAttendanceLog `json:"logs"`
 }

@@ -66,6 +66,7 @@ type AttendanceService struct {
 	ruleService   *RuleService
 	auditService  *AuditService
 	employeeDir   *EmployeeDirectory
+	calendarSvc   *CalendarService
 	snapshots     *SnapshotStore // nil bila SNAPSHOT_DIR tidak diset (fitur nonaktif)
 
 	// flights coalesces concurrent cache-miss ke 1 fetch BioTime (thundering-herd guard).
@@ -239,8 +240,19 @@ func (s *AttendanceService) appendAlphaPeriod(summary *models.AttendanceSummary,
 		}
 		presentByDate[l.Date][l.EmpCode] = true
 	}
+
+	// Hari libur kedinasan dalam rentang tidak dihitung sebagai hari kerja
+	// (tidak menambah Alpha massal, tidak masuk pembilang kepatuhan).
+	var holidays map[string]models.CalendarEvent
+	if s.calendarSvc != nil {
+		holidays = s.calendarSvc.HolidayDatesInRange(start, end)
+	}
+
 	for d := start; !d.After(end); d = d.AddDate(0, 0, 1) {
 		if d.Weekday() == time.Saturday || d.Weekday() == time.Sunday {
+			continue
+		}
+		if _, isLibur := holidays[d.Format(time.DateOnly)]; isLibur {
 			continue
 		}
 		dateStr := d.Format(time.DateOnly)
@@ -409,6 +421,17 @@ func (s *AttendanceService) SetRuleService(ruleSvc *RuleService) {
 	s.syncRule()
 }
 
+// SetCalendarService menyambungkan kalender kedinasan (libur/cuti/jam khusus) ke service + engine
+func (s *AttendanceService) SetCalendarService(calSvc *CalendarService) {
+	s.calendarSvc = calSvc
+	s.engine.SetCalendar(calSvc)
+}
+
+// CalendarService mengembalikan kalender kedinasan aktif (bisa nil)
+func (s *AttendanceService) CalendarService() *CalendarService {
+	return s.calendarSvc
+}
+
 func (s *AttendanceService) syncRule() {
 	if s.ruleService != nil {
 		s.engine.SetRule(s.ruleService.GetActiveRule())
@@ -422,6 +445,18 @@ func (s *AttendanceService) GetAttendanceByDate(ctx context.Context, targetDate 
 	cacheKey := "date:" + dateStr
 	if cached, ok := s.cache.Get(cacheKey); ok {
 		return cached
+	}
+
+	// Hari libur kedinasan (kalender): bukan hari kerja — tidak fetch BioTime,
+	// tidak menambah Alpha massal. Akhir pekan tetap lewat jalur lama.
+	if targetDate.Weekday() != time.Saturday && targetDate.Weekday() != time.Sunday &&
+		s.calendarSvc != nil && s.calendarSvc.IsHolidayDate(targetDate) {
+		summary := &models.AttendanceSummary{
+			Logs:        []models.DailyAttendanceLog{},
+			HolidayName: s.holidayLabel(targetDate),
+		}
+		s.cache.Set(cacheKey, summary, s.cacheTTL)
+		return summary
 	}
 	startTime := dateStr + " 00:00:00"
 	endTime := dateStr + " 23:59:59"
@@ -513,6 +548,17 @@ func (s *AttendanceService) GetAttendanceForPeriod(ctx context.Context, startDat
 	})
 }
 
+// holidayLabel menyusun label hari libur untuk banner ("Hari Libur Nasional: Nyepi").
+func (s *AttendanceService) holidayLabel(date time.Time) string {
+	if s.calendarSvc == nil {
+		return ""
+	}
+	if ev := s.calendarSvc.HolidayOnDate(date); ev != nil {
+		return models.CalendarEventLabel(ev.Type) + ": " + ev.Name
+	}
+	return ""
+}
+
 // GetTodayAttendance mengambil data presensi hari ini (dengan in-memory cache per-tanggal)
 func (s *AttendanceService) GetTodayAttendance(ctx context.Context) *models.AttendanceSummary {
 	today := time.Now()
@@ -524,8 +570,9 @@ func (s *AttendanceService) GetTodayAttendance(ctx context.Context) *models.Atte
 
 	summary := s.GetAttendanceByDate(ctx, today)
 
-	// Jika tidak ada data sama sekali dari mesin untuk hari ini, fallback ke stale cache jika ada
-	if summary.TotalPegawai == 0 {
+	// Jika tidak ada data sama sekali dari mesin untuk hari ini, fallback ke stale cache jika ada.
+	// Hari libur kedinasan memang kosong by design — jangan sajikan data basi.
+	if summary.TotalPegawai == 0 && summary.HolidayName == "" {
 		if stale := s.cache.GetStale(cacheKey); stale != nil {
 			return stale
 		}

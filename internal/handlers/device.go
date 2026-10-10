@@ -30,15 +30,34 @@ func (h *DashboardHandler) RenderDevice(c *fiber.Ctx) error {
 		totalFace += int(t.FaceCount)
 	}
 
+	// Pembanding sisi server: jumlah pegawai + yang punya template wajah (vl_face).
+	// Kalau angka wajah device > server, berarti ada template yang numpang di device
+	// tapi belum naik ke server (enroll langsung di device tanpa upload).
+	serverUser, serverFace, serverOK := 0, 0, false
+	if empResp, err := h.biotimeClient.FetchEmployees(ctx, 1, 500, "", 0); err == nil && empResp != nil {
+		serverOK = true
+		serverUser = empResp.Count
+		for _, e := range empResp.Data {
+			if e.VLFace != "" && e.VLFace != "-" {
+				serverFace++
+			}
+		}
+	} else {
+		log.Printf("[Device] Gagal menarik pegawai pembanding: %v\n", err)
+	}
+
 	return c.Render("device", fiber.Map{
-		"BioTimeVersion": config.GetEnv("BIOTIME_VERSION", "8.5"),
-		"Title":          "Kelola Device Face Recognition",
-		"ActiveMenu":     "device",
-		"CurrentUser":    c.Locals("currentUser"),
-		"Terminals":      terminals,
-		"OnlineCount":    online,
-		"TotalUserCount": totalUser,
-		"TotalFaceCount": totalFace,
+		"BioTimeVersion":  config.GetEnv("BIOTIME_VERSION", "8.5"),
+		"Title":           "Kelola Device Face Recognition",
+		"ActiveMenu":      "device",
+		"CurrentUser":     c.Locals("currentUser"),
+		"Terminals":       terminals,
+		"OnlineCount":     online,
+		"TotalUserCount":  totalUser,
+		"TotalFaceCount":  totalFace,
+		"ServerUserCount": serverUser,
+		"ServerFaceCount": serverFace,
+		"ServerStatsOK":   serverOK,
 	}, "layouts/main")
 }
 
@@ -92,6 +111,54 @@ func (h *DashboardHandler) PostUploadTransaction(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{
 		"status":  "success",
 		"message": fmt.Sprintf("Perintah upload terkirim ke %d device — tap tertahan masuk ±1 menit", len(ids)),
+	})
+}
+
+// PostUploadUsers memaksa device upload data user + template biometrik ke server.
+// Setara tombol BioTime: Data Transfer -> Upload User Data.
+// Berbeda dengan Tarik Transaksi, efeknya TIDAK instan: device mengunggah saat
+// polling berikutnya, dan BioTime bisa membuat record pegawai BARU bila PIN di
+// device tidak sama dengan NIP/emp_code di server — wajib cek duplikat sesudahnya.
+func (h *DashboardHandler) PostUploadUsers(c *fiber.Ctx) error {
+	ctx := context.Background()
+
+	var ids []int64
+	if tid := c.Params("id"); tid != "" {
+		var one int64
+		if _, err := fmt.Sscanf(tid, "%d", &one); err != nil || one <= 0 {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"status": "error", "message": "ID device tidak valid"})
+		}
+		ids = []int64{one}
+	} else {
+		var req struct {
+			TerminalIDs []int64 `json:"terminal_ids"`
+		}
+		if err := c.BodyParser(&req); err != nil || len(req.TerminalIDs) == 0 {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"status": "error", "message": "Pilih minimal 1 device"})
+		}
+		if len(req.TerminalIDs) > 50 {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"status": "error", "message": "Maksimal 50 device per perintah"})
+		}
+		ids = req.TerminalIDs
+	}
+
+	names := h.terminalNames(ctx, ids)
+	if err := h.biotimeClient.UploadUsersFromDevice(ctx, ids); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"status": "error", "message": fmt.Sprintf("Gagal memicu upload user: %v", err)})
+	}
+
+	_ = h.auditService.RecordMasterAction(
+		"DEVICE_UPLOAD_USERS",
+		h.getCurrentUserName(c),
+		"", "",
+		fmt.Sprintf("Tarik Data User dari device ke server: %s", strings.Join(names, ", ")),
+		c.IP(),
+	)
+	h.attendanceService.InvalidateEmployeeCache()
+
+	return c.JSON(fiber.Map{
+		"status":  "success",
+		"message": fmt.Sprintf("Perintah terkirim ke %d device — data user masuk ±1 menit. Cek Master Pegawai untuk duplikat bila PIN device tidak sama dengan NIP", len(ids)),
 	})
 }
 
